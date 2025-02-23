@@ -29,10 +29,11 @@ int main()
     if (sdl_initialize(&game)){
         game_cleanup(&game, EXIT_FAILURE);
     }
+    //load image on background, if error then stop the programm
     if (load_media(&game)){
         game_cleanup(&game, EXIT_FAILURE);
     }
-
+    //window stay and check 60 times in second on action
     while (true)
     {
         SDL_Event event;
@@ -51,12 +52,13 @@ int main()
                     break;
             }
         }
+
         SDL_RenderClear(game.renderer);
 
         SDL_RenderCopy(game.renderer, game.background, NULL, NULL);
 
         SDL_RenderPresent(game.renderer);
-        //window stay 5000 miliseconds
+
         SDL_Delay(16);
     }
     //close window
