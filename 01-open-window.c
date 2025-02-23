@@ -34,6 +34,12 @@ int main()
                 case SDL_QUIT:
                     game_cleanup(&game, EXIT_SUCCESS);
                     break;
+                //close window when you press escape
+                case SDL_KEYDOWN:
+                    switch (event.key.keysym.scancode)
+                        case SDL_SCANCODE_ESCAPE:
+                            game_cleanup(&game, EXIT_SUCCESS);
+                            break;
                 default:
                     break;
             }
