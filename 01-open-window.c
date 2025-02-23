@@ -12,7 +12,7 @@ struct Game
     SDL_Renderer *renderer;
 };
 
-void game_cleanup(struct Game *game);
+void game_cleanup(struct Game *game, int exit_status);
 bool sdl_initialize(struct Game *game);
 
 int main()
@@ -23,26 +23,39 @@ int main()
     };
     //creating window, if error then stop the programm
     if (sdl_initialize(&game)){
-        game_cleanup(&game);
-        exit(1);
+        game_cleanup(&game, EXIT_FAILURE);
     }
 
-    SDL_RenderClear(game.renderer);
+    while (true)
+    {
+        SDL_Event event;
+        while(SDL_PollEvent(&event)){
+            switch (event.type){
+                case SDL_QUIT:
+                    game_cleanup(&game, EXIT_SUCCESS);
+                    break;
+                default:
+                    break;
+            }
+        }
+        SDL_RenderClear(game.renderer);
 
-    SDL_RenderPresent(game.renderer);
-    //window stay 5000 miliseconds
-    SDL_Delay(5000);
+        SDL_RenderPresent(game.renderer);
+        //window stay 5000 miliseconds
+        SDL_Delay(16);
+    }
     //close window
-    game_cleanup(&game);
+    game_cleanup(&game, EXIT_SUCCESS);
     printf("All good!");
     return 0;
 }
 
-void game_cleanup(struct Game *game)
+void game_cleanup(struct Game *game, int exit_status)
 {
     SDL_DestroyRenderer(game->renderer);
     SDL_DestroyWindow(game->window);
     SDL_Quit();
+    exit(exit_status);
 }
 
 bool sdl_initialize(struct Game *game)

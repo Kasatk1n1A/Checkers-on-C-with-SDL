@@ -310,6 +310,71 @@ SDL _не_ очищает строку ошибок при успешных в
 
 Возвращаемая строка выделяется внутри приложения и не должна быть освобождена приложением.
 
+## SDL_PollEvent()
+**SDL_PollEvent()** — это функция в библиотеке SDL (Simple DirectMedia Layer), которая используется для обработки событий в цикле обработки событий программы. Она позволяет проверить наличие новых событий в очереди событий и, если событие доступно, извлечь его и обработать.
+
+### Основные моменты использования `SDL_PollEvent`:
+
+1. **Проверка событий**: `SDL_PollEvent` проверяет, есть ли новые события в очереди. Если событие доступно, оно копируется в структуру, на которую указывает аргумент функции, и возвращается значение `1`. Если событий нет, возвращается `0`.
+    
+2. **Цикл обработки событий**: обычно `SDL_PollEvent` используется в цикле, который непрерывно проверяет наличие событий и обрабатывает их по мере поступления. Это позволяет программе реагировать на пользовательский ввод и другие события в реальном времени.
+    
+3. **Структура события**: функция принимает указатель на структуру `SDL_Event`, которая описывает различные типы событий, такие как нажатие клавиш, движение мыши, закрытие окна и т. д.
+    
+
+### Пример использования `SDL_PollEvent`:
+
+```
+#include <SDL2/SDL.h>
+
+int main(int argc, char *argv[]) {
+    SDL_Event event;
+
+    // Инициализация SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    // Создание окна
+    SDL_Window *window = SDL_CreateWindow("SDL Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    if (!window) {
+        SDL_Log("Failed to create window: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    // Основной цикл программы
+    int running = 1;
+    while (running) {
+        // Проверка событий
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    running = 0;
+                    break;
+                // Обработка других событий
+                default:
+                    break;
+            }
+        }
+
+        // Обновление экрана и другие действия
+        // ...
+    }
+
+    // Освобождение ресурсов и завершение SDL
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
+}
+```
+
+В этом примере:
+
+- Инициализируется SDL и создаётся окно.
+- В основном цикле программы используется `SDL_PollEvent` для проверки событий.
+- При получении события `SDL_QUIT` (например, при закрытии окна) программа завершает работу.
 ## SDL_RenderClear()
 **SDL_RenderClear()** — это функция в библиотеке SDL (Simple DirectMedia Layer), которая используется для очистки текущего рендерера, заполнив его текущим цветом очистки.
 
@@ -459,7 +524,162 @@ int main(int argc, char *argv[]) {
 }
 ```
 # Структуры
+## SDL_Event
+**SDL_Event** — это структура в библиотеке SDL, которая используется для представления различных типов событий, таких как нажатия клавиш, движения мыши, закрытие окна и другие. Эта структура является ключевым элементом для обработки событий в приложениях, использующих SDL.
+### Синтаксис[![](https://wiki.libsdl.org/static_files/link.svg)](https://wiki.libsdl.org/SDL2/SDL_Event#syntax)
 
+```
+typedef union SDL_Event
+{
+    Uint32 type;                            /**< Event type, shared with all events */
+    SDL_CommonEvent common;                 /**< Common event data */
+    SDL_DisplayEvent display;               /**< Display event data */
+    SDL_WindowEvent window;                 /**< Window event data */
+    SDL_KeyboardEvent key;                  /**< Keyboard event data */
+    SDL_TextEditingEvent edit;              /**< Text editing event data */
+    SDL_TextEditingExtEvent editExt;        /**< Extended text editing event data */
+    SDL_TextInputEvent text;                /**< Text input event data */
+    SDL_MouseMotionEvent motion;            /**< Mouse motion event data */
+    SDL_MouseButtonEvent button;            /**< Mouse button event data */
+    SDL_MouseWheelEvent wheel;              /**< Mouse wheel event data */
+    SDL_JoyAxisEvent jaxis;                 /**< Joystick axis event data */
+    SDL_JoyBallEvent jball;                 /**< Joystick ball event data */
+    SDL_JoyHatEvent jhat;                   /**< Joystick hat event data */
+    SDL_JoyButtonEvent jbutton;             /**< Joystick button event data */
+    SDL_JoyDeviceEvent jdevice;             /**< Joystick device change event data */
+    SDL_JoyBatteryEvent jbattery;           /**< Joystick battery event data */
+    SDL_ControllerAxisEvent caxis;          /**< Game Controller axis event data */
+    SDL_ControllerButtonEvent cbutton;      /**< Game Controller button event data */
+    SDL_ControllerDeviceEvent cdevice;      /**< Game Controller device event data */
+    SDL_ControllerTouchpadEvent ctouchpad;  /**< Game Controller touchpad event data */
+    SDL_ControllerSensorEvent csensor;      /**< Game Controller sensor event data */
+    SDL_AudioDeviceEvent adevice;           /**< Audio device event data */
+    SDL_SensorEvent sensor;                 /**< Sensor event data */
+    SDL_QuitEvent quit;                     /**< Quit request event data */
+    SDL_UserEvent user;                     /**< Custom event data */
+    SDL_SysWMEvent syswm;                   /**< System dependent window event data */
+    SDL_TouchFingerEvent tfinger;           /**< Touch finger event data */
+    SDL_MultiGestureEvent mgesture;         /**< Gesture event data */
+    SDL_DollarGestureEvent dgesture;        /**< Gesture event data */
+    SDL_DropEvent drop;                     /**< Drag and drop event data */
+
+    /* This is necessary for ABI compatibility between Visual C++ and GCC.
+       Visual C++ will respect the push pack pragma and use 52 bytes (size of
+       SDL_TextEditingEvent, the largest structure for 32-bit and 64-bit
+       architectures) for this union, and GCC will use the alignment of the
+       largest datatype within the union, which is 8 bytes on 64-bit
+       architectures.
+
+       So... we'll add padding to force the size to be 56 bytes for both.
+
+       On architectures where pointers are 16 bytes, this needs rounding up to
+       the next multiple of 16, 64, and on architectures where pointers are
+       even larger the size of SDL_UserEvent will dominate as being 3 pointers.
+    */
+    Uint8 padding[sizeof(void *) <= 8 ? 56 : sizeof(void *) == 16 ? 64 : 3 * sizeof(void *)];
+} SDL_Event;
+```
+### Основные моменты структуры `SDL_Event`:
+
+1. **Типы событий**: структура `SDL_Event` содержит поле `type`, которое указывает на тип события. Возможные типы событий включают:
+    
+    - `SDL_QUIT`: событие закрытия окна.
+    - `SDL_KEYDOWN` и `SDL_KEYUP`: события нажатия и отпускания клавиш.
+    - `SDL_MOUSEMOTION`: событие движения мыши.
+    - `SDL_MOUSEBUTTONDOWN` и `SDL_MOUSEBUTTONUP`: события нажатия и отпускания кнопок мыши.
+    - `SDL_WINDOWEVENT`: события, связанные с окном, такие как изменение размера или перемещение.
+2. **Поля структуры**: в зависимости от типа события, структура `SDL_Event` может содержать различные поля, которые предоставляют дополнительную информацию о событии. Например, для событий нажатия клавиш (`SDL_KEYDOWN` и `SDL_KEYUP`) структура содержит поля, указывающие на нажатую клавишу и модификаторы (например, Shift, Ctrl, Alt).
+    
+3. **Обработка событий**: в приложениях SDL обычно используется цикл обработки событий, в котором функция `SDL_PollEvent` или `SDL_WaitEvent` используется для получения событий из очереди событий. Полученное событие затем обрабатывается в зависимости от его типа.
+    
+### Пример использования `SDL_Event`:
+
+```
+#include <SDL2/SDL.h>
+
+int main(int argc, char *argv[]) {
+    SDL_Event event;
+
+    // Инициализация SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    // Создание окна
+    SDL_Window *window = SDL_CreateWindow("SDL Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    if (!window) {
+        SDL_Log("Failed to create window: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    // Основной цикл программы
+    int running = 1;
+    while (running) {
+        // Проверка событий
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    running = 0;
+                    break;
+                case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        running = 0;
+                    }
+                    break;
+                // Обработка других событий
+                default:
+                    break;
+            }
+        }
+
+        // Обновление экрана и другие действия
+        // ...
+    }
+
+    // Освобождение ресурсов и завершение SDL
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
+}
+```
+
+В этом примере:
+
+- Инициализируется SDL и создаётся окно.
+- В основном цикле программы используется `SDL_PollEvent` для проверки событий.
+- При получении события `SDL_QUIT` или нажатии клавиши Escape программа завершает работу.
+
+### Relationships between event types and union members[![](https://wiki.libsdl.org/static_files/link.svg)](https://wiki.libsdl.org/SDL2/SDL_Event#relationships-between-event-types-and-union-members)
+
+|Event Type|Event Structure|SDL_Event Field|
+|---|---|---|
+|SDL_AUDIODEVICEADDED, SDL_AUDIODEVICEREMOVED|[SDL_AudioDeviceEvent](https://wiki.libsdl.org/SDL2/SDL_AudioDeviceEvent)|`adevice`|
+|SDL_CONTROLLERAXISMOTION|[SDL_ControllerAxisEvent](https://wiki.libsdl.org/SDL2/SDL_ControllerAxisEvent)|`caxis`|
+|SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLERBUTTONUP|[SDL_ControllerButtonEvent](https://wiki.libsdl.org/SDL2/SDL_ControllerButtonEvent)|`cbutton`|
+|SDL_CONTROLLERDEVICEADDED, SDL_CONTROLLERDEVICEREMOVED, SDL_CONTROLLERDEVICEREMAPPED|[SDL_ControllerDeviceEvent](https://wiki.libsdl.org/SDL2/SDL_ControllerDeviceEvent)|`cdevice`|
+|SDL_DOLLARGESTURE, SDL_DOLLARRECORD|[SDL_DollarGestureEvent](https://wiki.libsdl.org/SDL2/SDL_DollarGestureEvent)|`dgesture`|
+|SDL_DROPFILE, SDL_DROPTEXT, SDL_DROPBEGIN, SDL_DROPCOMPLETE|[SDL_DropEvent](https://wiki.libsdl.org/SDL2/SDL_DropEvent)|`drop`|
+|SDL_FINGERMOTION, SDL_FINGERDOWN, SDL_FINGERUP|[SDL_TouchFingerEvent](https://wiki.libsdl.org/SDL2/SDL_TouchFingerEvent)|`tfinger`|
+|SDL_KEYDOWN, SDL_KEYUP|[SDL_KeyboardEvent](https://wiki.libsdl.org/SDL2/SDL_KeyboardEvent)|`key`|
+|SDL_JOYAXISMOTION|[SDL_JoyAxisEvent](https://wiki.libsdl.org/SDL2/SDL_JoyAxisEvent)|`jaxis`|
+|SDL_JOYBALLMOTION|[SDL_JoyBallEvent](https://wiki.libsdl.org/SDL2/SDL_JoyBallEvent)|`jball`|
+|SDL_JOYHATMOTION|[SDL_JoyHatEvent](https://wiki.libsdl.org/SDL2/SDL_JoyHatEvent)|`jhat`|
+|SDL_JOYBUTTONDOWN, SDL_JOYBUTTONUP|[SDL_JoyButtonEvent](https://wiki.libsdl.org/SDL2/SDL_JoyButtonEvent)|`jbutton`|
+|SDL_JOYDEVICEADDED, SDL_JOYDEVICEREMOVED|[SDL_JoyDeviceEvent](https://wiki.libsdl.org/SDL2/SDL_JoyDeviceEvent)|`jdevice`|
+|SDL_MOUSEMOTION|[SDL_MouseMotionEvent](https://wiki.libsdl.org/SDL2/SDL_MouseMotionEvent)|`motion`|
+|SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP|[SDL_MouseButtonEvent](https://wiki.libsdl.org/SDL2/SDL_MouseButtonEvent)|`button`|
+|SDL_MOUSEWHEEL|[SDL_MouseWheelEvent](https://wiki.libsdl.org/SDL2/SDL_MouseWheelEvent)|`wheel`|
+|SDL_MULTIGESTURE|[SDL_MultiGestureEvent](https://wiki.libsdl.org/SDL2/SDL_MultiGestureEvent)|`mgesture`|
+|SDL_QUIT|[SDL_QuitEvent](https://wiki.libsdl.org/SDL2/SDL_QuitEvent)|`quit`|
+|SDL_SYSWMEVENT|[SDL_SysWMEvent](https://wiki.libsdl.org/SDL2/SDL_SysWMEvent)|`syswm`|
+|SDL_TEXTEDITING|[SDL_TextEditingEvent](https://wiki.libsdl.org/SDL2/SDL_TextEditingEvent)|`edit`|
+|SDL_TEXTEDITING_EXT|[SDL_TextEditingExtEvent](https://wiki.libsdl.org/SDL2/SDL_TextEditingExtEvent)|`editExt`|
+|SDL_TEXTINPUT|[SDL_TextInputEvent](https://wiki.libsdl.org/SDL2/SDL_TextInputEvent)|`text`|
+|SDL_USEREVENT|[SDL_UserEvent](https://wiki.libsdl.org/SDL2/SDL_UserEvent)|`user`|
+|SDL_WINDOWEVENT|[SDL_WindowEvent](https://wiki.libsdl.org/SDL2/SDL_WindowEvent)|`window`|
+|Other events|[SDL_CommonEvent](https://wiki.libsdl.org/SDL2/SDL_CommonEvent)|`common`|
 ## SDL_Render
 **SDL_Renderer** — это структура в библиотеке SDL (Simple DirectMedia Layer), которая представляет собой абстракцию над графическими API, такими как OpenGL, Direct3D и другими. Она используется для отрисовки графики на экране.
 
