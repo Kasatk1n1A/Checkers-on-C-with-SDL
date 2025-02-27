@@ -7,8 +7,8 @@
 #include <time.h>
 
 #define MAIN_MENU_BACK "Main menu back"
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 1000
+#define SCREEN_WIDTH 1400
+#define SCREEN_HEIGHT 923
 
 struct Game
 {
@@ -25,16 +25,27 @@ struct Text
 };
 struct Checker
 {
+    char color;
     char flag;
-    SDL_Texture *sprite_image;
-    SDL_Rect sprite_rect;
+    SDL_Rect rect;
+    SDL_Texture *image;
     int check_xvel;
     int check_yvel;
 };
+struct Board
+{
+    SDL_Rect rect;
+    SDL_Texture *image;
+    int arrangment[8][8];
+};
 
-void Lets_game(struct Game game);
-bool load_back(struct Game *game, char* file);
-void Back_cleanup(struct Game *game);
+void create_board()
+void arrangment(int *arrang);
+bool add_checker(struct Checker *checker, struct Game *game, char flag);
+void checker_cleanup(struct Checker *checker);
+bool add_chessboard(struct Board *board, struct Game *game);
+void board_cleanup(struct Board *board);
+void Lets_game(struct Game *game);
 bool Load_Media(struct Game *game);
 void Media_cleanup(struct Game *game);
 bool sdl_initialize(struct Game *game);
@@ -52,17 +63,60 @@ int main()
         game_cleanup(&game, EXIT_FAILURE);
     }
 
+    Lets_game(&game);
+
+    game_cleanup(&game, EXIT_SUCCESS);
+}
+
+void Lets_game(struct Game *game)
+{
+    struct Board board = 
+    {
+        .rect = {239, 0, 0, 0},
+        .image = NULL,
+        .arrangment = {
+        {0, 1, 0, 1, 0, 1, 0, 1};
+        {1, 0, 1, 0, 1, 0, 1, 0};
+        {0, 1, 0, 1, 0, 1, 0, 1};
+        {0, 0, 0, 0, 0, 0, 0, 0};
+        {0, 0, 0, 0, 0, 0, 0, 0};
+        {2, 0, 2, 0, 2, 0, 2, 0};
+        {0, 2, 0, 2, 0, 2, 0, 2};
+        {2, 0, 2, 0, 2, 0, 2, 0};
+        },
+    };
+
+    if (add_chessboard(&board, game)){
+        board_cleanup(&board);
+        game_cleanup(game, EXIT_FAILURE);
+    }   
+
+    struct Checker checker = 
+    {
+        .color = 'r',
+        .flag = 'u',
+        .rect = {282, 43, 0, 0},
+        .image = NULL,
+        .check_xvel = 0,
+        .check_yvel = 0,
+    };
+
+    if (add_checker(&checker, game, checker.color)){
+        checker_cleanup(&checker);
+        game_cleanup(game, EXIT_FAILURE);
+    }   
+
     while (true) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
             case SDL_QUIT:
-                game_cleanup(&game, EXIT_SUCCESS);
+                game_cleanup(game, EXIT_SUCCESS);
                 break;
             case SDL_KEYDOWN:
                 switch (event.key.keysym.scancode) {
                 case SDL_SCANCODE_ESCAPE:
-                    game_cleanup(&game, EXIT_SUCCESS);
+                    game_cleanup(game, EXIT_SUCCESS);
                     break;
                 default:
                     break;
@@ -72,40 +126,72 @@ int main()
             }
         }
         
-        SDL_RenderClear(game.renderer);
+        SDL_RenderClear(game->renderer);
 
-        SDL_RenderCopy(game.renderer, game.background, NULL, NULL);
+        SDL_RenderCopy(game->renderer, game->background, NULL, NULL);
         
-        SDL_RenderPresent(game.renderer);
+        SDL_RenderCopy(game->renderer, board.image, NULL, &board.rect);
+        
+        SDL_RenderCopy(game->renderer, checker.image, NULL, &checker.rect);
+
+        SDL_RenderPresent(game->renderer);
 
         SDL_Delay(16);
     }
-
-    Back_cleanup(&game);
-    game_cleanup(&game, EXIT_SUCCESS);
+    board_cleanup(&board);
+    checker_cleanup(&checker);
 }
 
-void Lets_game(struct Game game)
+bool add_checker(struct Checker *checker, struct Game *game, char flag)
 {
-    while (true) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_QUIT:
-                game_cleanup(&game, EXIT_SUCCESS);
-                break;
-            default:
-                break;
-            }
-        }
-        SDL_RenderClear(game.renderer);
-
-        SDL_RenderCopy(game.renderer, game.background, NULL, NULL);
-
-        SDL_RenderPresent(game.renderer);
-
-        SDL_Delay(16);
+    if (flag == 'w')
+        checker->image = IMG_LoadTexture(game->renderer, "images/white_checker.png");
+    else
+        checker->image = IMG_LoadTexture(game->renderer, "images/red_checker.png");
+    if (!checker->image) {
+        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+        return true;
     }
+    if (SDL_QueryTexture(checker->image, NULL, NULL, &checker->rect.w, &checker->rect.h)){
+        fprintf(stderr, "Error quering Texture: %s\n", SDL_GetError());
+        return true;
+    }
+
+    return false;
+}
+
+void checker_cleanup(struct Checker *checker)
+{
+    SDL_DestroyTexture(checker->image);
+}
+
+bool add_chessboard(struct Board *board, struct Game *game)
+{
+    board->image = IMG_LoadTexture(game->renderer, "images/chessboard.png");
+    if (!board->image) {
+        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+        return true;
+    }
+    if (SDL_QueryTexture(board->image, NULL, NULL, &board->rect.w, &board->rect.h)){
+        fprintf(stderr, "Error quering Texture: %s\n", SDL_GetError());
+        return true;
+    }
+
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+        {
+            if (board->arrangement[i][j] == 1){
+                add_checker()
+            }
+
+        }
+
+    return false;
+}
+
+void board_cleanup(struct Board *board)
+{
+    SDL_DestroyTexture(board->image);
 }
 
 void game_cleanup(struct Game *game, int exit_status)
