@@ -14,6 +14,8 @@ char** attack_check(char** board, char player);
 void out_board(char** board);
 bool try_to_move(char** board, int x, int y, char player);
 void move_checker(char** board, int x1, int y1, int x2, int y2);
+void move_without_attack(char** board, char player);
+void King_check(char** board, int x, int y, char player);
 
 int main()
 {
@@ -28,22 +30,67 @@ int main()
     //  h { w, 0, w, 0, w, 0, w, 0 } !
     //      1  2  3  4  5  6  7  8
 
-    board[3][4] = 'w';
+    board[5][0] = 'W';
+    board[2][3] = 0;
+    board[3][2] = 'r';
 
     char player = 'w';
     while (true) {
         out_board(board);
+        if (player == 'r')
+            printf("Red turn.\n");
+        else
+            printf("White turn\n");
 
         //проверка на необходимость атаки
         char** attack_board = attack_check(board, player);
         if (attack_board) {
             attack(board, attack_board, player);
             board_cleanup(attack_board);
-
-            player = (player == 'w') ? 'r' : 'w';
-            continue;
+        }
+        else {
+            //Обычный ход
+            move_without_attack(board, player);
         }
 
+        //смена игрока
+        player = (player == 'w') ? 'r' : 'w';
+    }
+
+    board_cleanup(board);
+    return 0;
+}
+
+//Проверяет условие появления дамки
+void King_check(char** board, int x, int y, char player)
+{
+    if (!board[y][x])
+        return;
+    switch (player) 
+    {
+        //Превращает белую шашку в дамку
+    case 'w':
+        if (y == 0) {
+            board[y][x] = 'W';
+        }
+        break;
+        //Превращает красную шашку в дамку
+    case 'r':
+        if (y == 7) {
+            board[y][x] = 'R';
+        }
+        break;
+    default:
+        return;
+    }
+}
+
+//Делает обычный ход, никого не съедая
+void move_without_attack(char** board, char player)
+{
+    int x1, y1;
+    while (true)
+    {
         //Выбор фигуры
         printf("\nPick checker:");
         char str[3];
@@ -51,9 +98,9 @@ int main()
             exit(EXIT_FAILURE);
 
         //Ввод координат передвигаемой фигуры
-        int x1 = str[1] - '1';
-        int y1 = str[0] - 'a';
-        
+        x1 = str[1] - '1';
+        y1 = str[0] - 'a';
+
         //Проверка на корректность введёных координат и может ли фигура двигаться
         if (x1 < 0 && x1 > 8 || y1 < 0 && y1 > 8) {
             printf("Incorrect, try again.\n");
@@ -62,43 +109,42 @@ int main()
         if (try_to_move(board, x1, y1, player)) {
             continue;
         }
-        
-        //Ожидание выбора куда сходить
-        while (true) {
-
-            //Ввод координат куда двигать фигуру
-            printf("Where to move:");
-            if (!scanf("%s", str) || !(str[0] >= 'a' && str[0] <= 'h') || !(str[1] >= '1' && str[1] <= '8'))
-                exit(EXIT_FAILURE);
-
-            int x2 = str[1] - '1';
-            int y2 = str[0] - 'a';
-
-            if (x2 < 0 && x2 > 7 || y2 < 0 && y2 > 7) {
-                printf("Incorrect move, try again.\n");
-                continue;
-            }
-
-            switch (player) {
-            case 'w':
-                if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 - 1)
-                    move_checker(board, x1, y1, x2, y2);
-                break;
-            case 'r':
-                if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 + 1)
-                   move_checker(board, x1, y1, x2, y2);
-                break;
-            }
-            break;
-        }
-
-        player = (player == 'w') ? 'r' : 'w';
+        break;
     }
 
-    board_cleanup(board);
-    return 0;
+    //Ожидание выбора куда сходить
+    while (true) 
+    {
+       //Ввод координат куда двигать фигуру
+        printf("Where to move:");
+        char str[3];
+        if (!scanf("%s", str) || !(str[0] >= 'a' && str[0] <= 'h') || !(str[1] >= '1' && str[1] <= '8'))
+            exit(EXIT_FAILURE);
+
+        int x2 = str[1] - '1';
+        int y2 = str[0] - 'a';
+
+        if (x2 < 0 && x2 > 7 || y2 < 0 && y2 > 7) {
+            printf("Incorrect move, try again.\n");
+            continue;
+        }
+
+        switch (player) {
+        case 'w':
+           if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 - 1)
+                move_checker(board, x1, y1, x2, y2);
+            break;
+        case 'r':
+            if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 + 1)
+               move_checker(board, x1, y1, x2, y2);
+            break;
+        }
+        King_check(board, x2, y2, player);
+        break;
+    }
 }
 
+//Ход со съеданием
 void attack(char** board, char** atack_board, char player)
 {
     attack_options(atack_board);
@@ -142,7 +188,7 @@ void attack(char** board, char** atack_board, char player)
             printf("Incorrect, try again.\n");
             continue;
         }
-        switch (player) {
+        switch (board[y1][x1]) {
         case 'w':
             if (!((x1 == x2 - 2 && y1 == y2 + 2) || (x1 == x2 + 2 && y1 == y2 + 2))) {
                 printf("Incorrect, try again.\n");
@@ -157,13 +203,139 @@ void attack(char** board, char** atack_board, char player)
             }
             goto lets_attack;
             break;
+        case 'W':
+            if (x2 < x1 && y2 < y1) {
+                for (int n = 1; x1 - n > 0 && y1 - n > 0; n++) {
+                    if (board[y1 - n][x1 - n] == 'w' || board[y1 - n][x1 - n] == 'W') {
+                        break;
+                    }
+                    if (board[y1 - n][x1 - n] == 'r' || board[y1 - n][x1 - n] == 'R') {
+                        if (x1 - n - 1 == x2 && y1 - n - 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 > x1 && y2 < y1) {
+                for (int n = 1; x1 + n < 8 && y1 - n > 0; n++) {
+                    if (board[y1 - n][x1 + n] == 'w' || board[y1 - n][x1 + n] == 'W') {
+                        break;
+                    }
+                    if (board[y1 - n][x1 + n] == 'r' || board[y1 - n][x1 + n] == 'R') {
+                        if (x1 + n + 1 == x2 && y1 - n - 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 < x1 && y2 > y1) {
+                for (int n = 1; x1 - n > 0 && y1 + n < 8; n++) {
+                    if (board[y1 + n][x1 - n] == 'w' || board[y1 + n][x1 - n] == 'W') {
+                        break;
+                    }
+                    if (board[y1 + n][x1 - n] == 'r' || board[y1 + n][x1 - n] == 'R') {
+                        if (x1 - n - 1 == x2 && y1 + n + 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 > x1 && y2 > y1) {
+                for (int n = 1; x1 + n < 8 && y1 + n < 8; n++) {
+                    if (board[y1 + n][x1 + n] == 'w' || board[y1 + n][x1 + n] == 'W') {
+                        break;
+                    }
+                    if (board[y1 + n][x1 + n] == 'r' || board[y1 + n][x1 + n] == 'R') {
+                        if (x1 + n + 1 == x2 && y1 + n + 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            break;
+        case 'R':
+            if (x2 < x1&& y2 < y1) {
+                for (int n = 1; x1 - n > 0 && y1 - n > 0; n++) {
+                    if (board[y1 - n][x1 - n] == 'r' || board[y1 - n][x1 - n] == 'R') {
+                        break;
+                    }
+                    if (board[y1 - n][x1 - n] == 'w' || board[y1 - n][x1 - n] == 'W') {
+                        if (x1 - n - 1 == x2 && y1 - n - 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 > x1 && y2 < y1) {
+                for (int n = 1; x1 + n < 8 && y1 - n > 0; n++) {
+                    if (board[y1 - n][x1 + n] == 'r' || board[y1 - n][x1 + n] == 'R') {
+                        break;
+                    }
+                    if (board[y1 - n][x1 + n] == 'w' || board[y1 - n][x1 + n] == 'W') {
+                        if (x1 + n + 1 == x2 && y1 - n - 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 < x1 && y2 > y1) {
+                for (int n = 1; x1 - n > 0 && y1 + n < 8; n++) {
+                    if (board[y1 + n][x1 - n] == 'r' || board[y1 + n][x1 - n] == 'R') {
+                        break;
+                    }
+                    if (board[y1 + n][x1 - n] == 'w' || board[y1 + n][x1 - n] == 'W') {
+                        if (x1 - n - 1 == x2 && y1 + n + 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            if (x2 > x1 && y2 > y1) {
+                for (int n = 1; x1 + n < 8 && y1 + n < 8; n++) {
+                    if (board[y1 + n][x1 + n] == 'r' || board[y1 + n][x1 + n] == 'R') {
+                        break;
+                    }
+                    if (board[y1 + n][x1 + n] == 'w' || board[y1 + n][x1 + n] == 'W') {
+                        if (x1 + n + 1 == x2 && y1 + n + 1 == y2)
+                            goto lets_attack;
+                        else
+                            break;
+                    }
+                }
+                printf("Incorrect, try again.\n");
+                continue;
+            }
+            break;
         }
     }
 
     lets_attack:
     attacking(board, x1, y1, x2, y2);
+    King_check(board, x2, y2, player);
 }
 
+//Вывод вариантов хода при необходимости атаки
 void attack_options(char** board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
@@ -178,7 +350,31 @@ void attack_options(char** board) {
 void attacking(char** board, int x1, int y1, int x2, int y2)
 {
     move_checker(board, x1, y1, x2, y2);
-    board[(y1 + y2) / 2][(x1 + x2) / 2] = 0;
+    switch (board[y2][x2])
+    {
+    case 'r':
+    case 'w':
+        board[(y1 + y2) / 2][(x1 + x2) / 2] = 0;
+        break;
+    case 'R':
+    case 'W':
+        if (y2 < y1 && x2 < x1) {
+            board[y2 + 1][x2 + 1] = 0;
+            break;
+        }
+        if (y2 < y1 && x2 > x1) {
+            board[y2 + 1][x2 - 1] = 0;
+            break;
+        }
+        if (y2 > y1 && x2 < x1) {
+            board[y2 - 1][x2 + 1] = 0;
+            break;
+        }
+        if (y2 > y1 && x2 > x1) {
+            board[y2 - 1][x2 - 1] = 0;
+            break;
+        }
+    }
 }
 
 //Проверяет все фигуры player-а на возможность рубить и возвращает указатель на динамический массив массивов, где указаны фигуры которые могут и должны рубить,
@@ -205,23 +401,73 @@ char** attack_check(char** board, char player)
     switch (player) 
     {
     case 'w':
-        for (int i = 2; i < 8; i++) 
+        for (int i = 0; i < 8; i++) 
         {
             for (int j = 0; j < 8; j++) 
-            {                               //          РАБОТАЕТ!!! ахуеть !!!
-                if (board[i][j] == 'w') {
+            {                        
+                //Обычная шашка
+                if (i >= 2 && board[i][j] == 'w') 
+                {
                     //Бьёт ли фигура вправо вверх
                     if (j >= 0 && j <= 5) {
-                        if (board[i - 1][j + 1] == 'r' && board[i - 2][j + 2] == 0) {
+                        if ((board[i - 1][j + 1] == 'r' || board[i - 1][j + 1] == 'R') && board[i - 2][j + 2] == 0) {
                             board_of_rub[i][j] = 'w';
                             flag++;
                         }
                     }
                     //Бьёт ли фигура влево вверх
                     if (j >= 2 && j <= 7) {
-                        if (board[i - 1][j - 1] == 'r' && board[i - 2][j - 2] == 0) {
+                        if ((board[i - 1][j - 1] == 'r' || board[i - 1][j - 1] == 'R') && board[i - 2][j - 2] == 0) {
                             board_of_rub[i][j] = 'w';
                             flag++;
+                        }
+                    }
+                }
+                //Если фигура - Дамка
+                if (board[i][j] == 'W') 
+                {
+                    //Бьёт ли фигура влево вверх
+                    for (int n = 1; i - n > 0 && j - n > 0; n++) {
+                        if (board[i - n][j - n] == 'w' || board[i - n][j - n] == 'W') {
+                            break;
+                        }
+                        if ((board[i - n][j - n] == 'r' || board[i - n][j - n] == 'R') && board[i - n - 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = 'W';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура вправо вверх
+                    for (int n = 1; i - n > 0 && j + n < 8; n++) {
+                        if (board[i - n][j + n] == 'w' || board[i - n][j + n] == 'W') {
+                            break;
+                        }
+                        if ((board[i - n][j + n] == 'r' || board[i - n][j + n] == 'R') && board[i - n - 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = 'W';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура влево вниз
+                    for (int n = 1; i + n < 8 && j - n > 0; n++) {
+                        if (board[i + n][j - n] == 'w' || board[i + n][j - n] == 'W') {
+                            break;
+                        }
+                        if ((board[i + n][j - n] == 'r' || board[i + n][j - n] == 'R') && board[i + n + 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = 'W';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура вправо вниз
+                    for (int n = 1; i + n < 8 && j + n < 8; n++) {
+                        if (board[i + n][j + n] == 'w' || board[i + n][j + n] == 'W') {
+                            break;
+                        }
+                        if ((board[i + n][j + n] == 'r' || board[i + n][j + n] == 'R') && board[i + n + 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = 'W';
+                            flag++;
+                            break;
                         }
                     }
                 }
@@ -229,19 +475,72 @@ char** attack_check(char** board, char player)
         }
         break;
     case 'r':
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board[i][j] == 'r') {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (i < 8 && board[i][j] == 'r')
+                {
                     if (j >= 0 && j < 6) {
-                        if (board[i + 1][j + 1] == 'w' && board[i + 2][j + 2] == 0) {
+                        if ((board[i + 1][j + 1] == 'w' || board[i + 1][j + 1] == 'W') && board[i + 2][j + 2] == 0) {
                             board_of_rub[i][j] = 'r';
                             flag++;
                         }
                     }
+                    //Бьёт ли фигура влево вверх
                     if (j > 1 && j <= 7) {
-                        if (board[i + 1][j - 1] == 'w' && board[i + 2][j - 2] == 0) {
+                        if ((board[i + 1][j - 1] == 'w' || board[i + 1][j - 1] == 'W') && board[i + 2][j - 2] == 0) {
                             board_of_rub[i][j] = 'r';
                             flag++;
+                        }
+                    }
+                    continue;
+                }
+                //Если фигура - Дамка
+                if (board[i][j] == 'R')
+                {
+                    //Бьёт ли фигура влево вверх
+                    for (int n = 1; i - n > 0 && j - n > 0; n++) {
+                        if (board[i - n][j - n] == 'r' || board[i - n][j - n] == 'R') {
+                            break;
+                        }
+                        if ((board[i - n][j - n] == 'w' || board[i - n][j - n] == 'W') && board[i - n - 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = 'R';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура вправо вверх
+                    for (int n = 1; i - n > 0 && j + n < 8; n++) {
+                        if (board[i - n][j + n] == 'r' || board[i - n][j + n] == 'R') {
+                            break;
+                        }
+                        if ((board[i - n][j + n] == 'w' || board[i - n][j + n] == 'W') && board[i - n - 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = 'R';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура влево вниз
+                    for (int n = 1; i + n < 8 && j - n > 0; n++) {
+                        if (board[i + n][j - n] == 'r' || board[i + n][j - n] == 'R') {
+                            break;
+                        }
+                        if ((board[i + n][j - n] == 'w' || board[i + n][j - n] == 'W') && board[i + n + 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = 'R';
+                            flag++;
+                            break;
+                        }
+                    }
+                    //Бьёт ли фигура вправо вниз
+                    for (int n = 1; i + n < 8 && j + n < 8; n++) {
+                        if (board[i + n][j + n] == 'r' || board[i + n][j + n] == 'R') {
+                            break;
+                        }
+                        if ((board[i + n][j + n] == 'w' || board[i + n][j + n] == 'W') && board[i + n + 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = 'R';
+                            flag++;
+                            break;
                         }
                     }
                 }
@@ -299,6 +598,7 @@ void board_cleanup(char** board)
     for (int i = 0; i < 8; i++) {
         free(board[i]);
     }
+    free(board);
 }
 
 //передвигает фигуру с позиции x1 y1 на позицию x2 y2
