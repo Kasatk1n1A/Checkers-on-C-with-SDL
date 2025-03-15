@@ -1,48 +1,49 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <pthread.h>
-#include "visualise.h"
+// #include <stdio.h>
+// #include <stdbool.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <time.h>
+// #include "visualise.h"
 
-struct Game* game;
+Game* game;
 
-void checkers(struct Game* game);
-bool continue_attack(char** board, int x, int y, char player);
-bool Win_Check(char** board, char player);
-void attack_options(char** board);
-void board_cleanup(char** board);
-struct Board** add_board(struct Game* game);
-void attack(char** board, char** atack_board, char player);
-void attacking(char** board, int x1, int y1, int x2, int y2);
-char** attack_check(char** board, char player);
-void out_board(char** board);
-bool try_to_move(char** board, int x, int y, char player);
-void move_checker(char** board, int x1, int y1, int x2, int y2);
-void move_without_attack(char** board, char player);
-void King_check(char** board, int x, int y, char player);
-
-int main()
+enum checker_type
 {
-    struct Game* game;
-        if (sdl_initialize(game)){
-        game_cleanup(game, EXIT_FAILURE);
-    }
-    
-    // Game game = {
-    //     .window = NULL,
-    //     .renderer = NULL,
-    //     .background = NULL,
-    // };
-    // checkers(&game);
-    // struct Game = game;
-}
+    WHITE_CH = 1,
+    RED_CH,
+    PICKED_WHITE_CH,
+    PICKED_RED_CH,
+    KING_WHITE_CH,
+    KING_RED_CH,
+    KING_PICKED_WHITE_CH,
+    KING_PICKED_RED_CH
+};
 
-void checkers(struct Game* game)
+enum player
 {
-    game->board->arrangment = add_board();
+    WHITE_PLAYER = 1,
+    RED_PLAYER
+};
+
+int checkers(void* ptr);
+bool continue_attack(int** board, int x, int y, int player);
+bool Win_Check(int** board, int player);
+void attack_options(int** board);
+void board_cleanup(int** board);
+int** add_board(void);
+void attack(int** board, int** atack_board, int player);
+void attacking(int** board, int x1, int y1, int x2, int y2);
+int** attack_check(int** board, int player);
+void out_board(int** board);
+bool try_to_move(int** board, int x, int y, int player);
+void move_checker(int** board, int x1, int y1, int x2, int y2);
+void move_without_attack(int** board, int player);
+void King_check(int** board, int x, int y, int player);
+
+int checkers(void* ptr)
+{
+    int** board = add_board();
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
     //  c { 0, r, 0, r, 0, r, 0, r } g
@@ -53,17 +54,16 @@ void checkers(struct Game* game)
     //  h { w, 0, w, 0, w, 0, w, 0 } !
     //      1  2  3  4  5  6  7  8
 
-    char player = 'w';
+    int player = WHITE_PLAYER;
     while (true) {
         out_board(board);
-
-        if (player == 'r')
-            printf("Red turn.\n");
+        if (player == RED_PLAYER)
+            printf("Red turn.\n");            
         else
             printf("White turn.\n");
 
-        //Проверка на необходимость атаки
-        char** attack_board = attack_check(board, player);
+        //проверка на необходимость атаки
+        int** attack_board = attack_check(board, player);
         if (attack_board) {
             attack(board, attack_board, player);
             board_cleanup(attack_board);
@@ -76,35 +76,35 @@ void checkers(struct Game* game)
         if (Win_Check(board, player)) {
             switch (player)
             {
-            case 'w':
+            case WHITE_PLAYER:
                 printf("White won!\n");
                 break;
-            case 'r':
+            case RED_PLAYER:
                 printf("Red won!\n");
-                break;
+                    break;
             }
             break;
         }
         //смена игрока
-        player = (player == 'w') ? 'r' : 'w';
+        player = (player == WHITE_PLAYER) ? RED_PLAYER : WHITE_PLAYER;
     }
 
     board_cleanup(board);
-    return;
+    return 0;
 }
 
-bool Win_Check(char** board, char player)
+bool Win_Check(int** board, int player)
 {
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++) {
             switch (player) 
             {
-            case 'w':
-                if (board[i][j] == 'r' || board[i][j] == 'R')
+            case WHITE_PLAYER:
+                if (board[i][j] == RED_CH || board[i][j] == KING_RED_CH)
                     return false;
                 break;
-            case 'r':
-                if (board[i][j] == 'w' || board[i][j] == 'R')
+            case RED_PLAYER:
+                if (board[i][j] == WHITE_CH || board[i][j] == KING_RED_CH)
                     return false;
                 break;
             }
@@ -114,22 +114,22 @@ bool Win_Check(char** board, char player)
 }
 
 //Проверяет условие появления дамки
-void King_check(char** board, int x, int y, char player)
+void King_check(int** board, int x, int y, int player)
 {
     if (!board[y][x])
         return;
-    switch (player) 
+    switch (board[y][x]) 
     {
         //Превращает белую шашку в дамку
-    case 'w':
+    case WHITE_CH:
         if (y == 0) {
-            board[y][x] = 'W';
+            board[y][x] = KING_WHITE_CH;
         }
         break;
         //Превращает красную шашку в дамку
-    case 'r':
+    case RED_CH:
         if (y == 7) {
-            board[y][x] = 'R';
+            board[y][x] = KING_RED_CH;
         }
         break;
     default:
@@ -138,7 +138,7 @@ void King_check(char** board, int x, int y, char player)
 }
 
 //Делает обычный ход, никого не съедая
-void move_without_attack(char** board, char player)
+void move_without_attack(int** board, int player)
 {
     int x1, y1;
     while (true)
@@ -148,13 +148,25 @@ void move_without_attack(char** board, char player)
         char str[3];
         if (!scanf("%s", str) || !(str[0] >= 'a' && str[0] <= 'h') || !(str[1] >= '1' && str[1] <= '8'))
             exit(EXIT_FAILURE);
-
-        //Ввод координат передвигаемой фигуры
         x1 = str[1] - '1';
         y1 = str[0] - 'a';
+        // SDL_LockMutex(game->mutex);
+        // while (SDL_CondWait(game->cond, game->mutex)) 
+        //     ;
+        // x1 = game->Mouse.x;
+        // y1 = game->Mouse.y;
+        // SDL_UnlockMutex(game->mutex);
 
+        // Вывод координат в консоль
+        // printf("Координаты нажатия: (%d, %d)\n", x1, y1);
+        //Ввод координат передвигаемой фигуры
+        // x1 = (game->Mouse.x - 239 - 43) / 105;
+        // y1 = (game->Mouse.y - 41) / 105;
+        // printf("%d %d\n", x1, y1);
+        // SDL_UnlockMutex(game->mutex);
+        
         //Проверка на корректность введёных координат и может ли фигура двигаться
-        if (x1 < 0 && x1 > 8 || y1 < 0 && y1 > 8) {
+        if (x1 < 0 || x1 > 7 || y1 < 0 || y1 > 7) {
             printf("Incorrect, try again.\n");
             continue;
         }
@@ -164,11 +176,15 @@ void move_without_attack(char** board, char player)
         break;
     }
 
-    int x2, y2;
+    // SDL_LockMutex(game->mutex);
+    // game->board->checkers[y1][x1]->flag = KING_PICKED_WHITE_CH;
+    // SDL_UnlockMutex(game->mutex);
+
     //Ожидание выбора куда сходить
+    int x2, y2;
     while (true) 
     {
-       //Ввод координат куда двигать фигуру
+        //Ввод координат куда двигать фигуру
         printf("Where to move:");
         char str[3];
         if (!scanf("%s", str) || !(str[0] >= 'a' && str[0] <= 'h') || !(str[1] >= '1' && str[1] <= '8'))
@@ -181,124 +197,81 @@ void move_without_attack(char** board, char player)
             printf("Incorrect move, try again.\n");
             continue;
         }
-        if (board[y2][x2]){
-            printf("Incorrect move, try again.\n");
+        if (board[y2][x2])
             continue;
-        }
 
-        switch (player) 
-        {   //Надо добавить дамку
-        case 'w':
-            switch (board[y1][x1])
-            {
-                case 'w':
-                    if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 - 1){
-                        move_checker(board, x1, y1, x2, y2);
-                        goto end_move;
-                    }
-                    break;
-                case 'W':
-                    for (int n = 1; y1 - n > 0 && x1 - n > 0; n++) {
-                        if (y1 - n == y2 && x1 - n == x2) {
-                            move_checker(board, x1, y1, x2, y2);
-                            goto end_move;
-                        }
-                        if (board[y1 - n][x1 - n] == 'w' || board[y1 - n][x1 - n] == 'W') {
-                            break;
-                        }
-                    }
-                    for (int n = 1; y1 + n > 0 && x1 - n > 0; n++) {
-                        if (y1 + n == y2 && x1 - n == x2) {
-                            move_checker(board, x1, y1, x2, y2);
-                            goto end_move;
-                        }
-                        if (board[y1 + n][x1 - n] == 'w' || board[y1 + n][x1 - n] == 'W') {
-                            break;
-                        }
-                    }
-                    for (int n = 1; y1 - n > 0 && x1 + n > 0; n++) {
-                        if (y1 - n == y2 && x1 + n == x2) {
-                            move_checker(board, x1, y1, x2, y2);
-                            goto end_move;
-                        }
-                        if (board[y1 - n][x1 + n] == 'w' || board[y1 - n][x1 + n] == 'W') {
-                            break;
-                        }
-                    }
-                    for (int n = 1; y1 + n > 0 && x1 + n > 0; n++) {
-                        if (y1 + n  == y2 && x1 + n == x2) {
-                            move_checker(board, x1, y1, x2, y2);
-                            goto end_move;
-                        }
-                        if (board[y1 + n][x1 + n] == 'w' || board[y1 + n][x1 + n] == 'W') {
-                            break;
-                        }
-                    }
-                    break;
+        bool f = false;
+        switch (board[y1][x1]) {
+        case WHITE_CH:
+            if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 - 1) {
+                f = true;
+                move_checker(board, x1, y1, x2, y2);
             }
-        case 'r':
-            switch (board[x1][y1])
+            break;
+        case RED_CH:
+            if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 + 1) {
+                f = true;
+                move_checker(board, x1, y1, x2, y2);
+            }
+            break;
+        case KING_WHITE_CH:
+        case KING_RED_CH:
+            for (int n = 1; x1 + n < 8 && y1 + n < 8; n++)
             {
-            case 'r':
-                if ((x2 == x1 - 1 || x2 == x1 + 1) && y2 == y1 + 1) {
+                if (board[y1 + n][x1 + n])
+                    break;
+                if (x1 + n == x2 && y1 + n == y2) {
+                    f = true;
                     move_checker(board, x1, y1, x2, y2);
-                    goto end_move;
+                    break;
                 }
-                break;
-            case 'R':
-                for (int n = 1; y1 - n > 0 && x1 - n > 0; n++) {
-                    if (y1 - n == y2 && x1 - n == x2) {
-                        move_checker(board, x1, y1, x2, y2);
-                        goto end_move;
-                    }
-                    if (board[y1 - n][x1 - n] == 'r' || board[y1 - n][x1 - n] == 'R') {
-                        break;
-                    }
-                }
-                for (int n = 1; y1 + n > 0 && x1 - n > 0; n++) {
-                    if (y1 + n  == y2 && x1 - n == x2) {
-                        move_checker(board, x1, y1, x2, y2);
-                        goto end_move;
-                    }
-                    if (board[y1 + n][x1 - n] == 'r' || board[y1 + n][x1 - n] == 'R') {
-                        break;
-                    }
-                }
-                for (int n = 1; y1 - n > 0 && x1 + n > 0; n++) {
-                    if (y1 - n  == y2 && x1 + n == x2) {
-                        move_checker(board, x1, y1, x2, y2);
-                        goto end_move;
-                    }
-                    if (board[y1 - n][x1 + n] == 'r' || board[y1 - n][x1 + n] == 'R') {
-                        break;
-                    }
-                }
-                for (int n = 1; y1 + n > 0 && x1 + n > 0; n++) {
-                    if (y1 + n  == y2 && x1 + n == x2) {
-                        move_checker(board, x1, y1, x2, y2);
-                        goto end_move;
-                    }
-                    if (board[y1 + n][x1 + n] == 'r' || board[y1 + n][x1 + n] == 'R') {
-                        break;
-                    }
-                }
-                break;
             }
+            for (int n = 1; x1 - n >= 0 && y1 + n < 8; n++)
+            {
+                if (board[y1 + n][x1 - n])
+                    break;
+                if (x1 - n == x2 && y1 + n == y2) {
+                    f = true;
+                    move_checker(board, x1, y1, x2, y2);
+                    break;
+                }
+            }
+            for (int n = 1; x1 + n < 8 && y1 - n >= 0; n++)
+            {
+                if (board[y1 - n][x1 + n])
+                    break;
+                if (x1 + n == x2 && y1 - n == y2) {
+                    f = true;
+                    move_checker(board, x1, y1, x2, y2);
+                    break;
+                }
+            }
+            for (int n = 1; x1 - n >= 0 && y1 - n >= 0; n++)
+            {
+                if (board[y1 - n][x1 - n])
+                    break;
+                if (x1 - n == x2 && y1 - n == y2) {
+                    f = true;
+                    move_checker(board, x1, y1, x2, y2);
+                    break;
+                }
+            }
+            break;
+        default:
+            continue;
+            break;
         }
-        break;
+        if (f) {
+            King_check(board, x2, y2, player);
+            break;
+        }
     }
-    end_move:
-    King_check(board, x2, y2, player);
 }
 
-bool continue_attack(char** board, int x, int y, char player)
+bool continue_attack(int** board, int x, int y, int player)
 {
-    char** board_of_rub = attack_check(board, player);
-    if (board_of_rub == NULL) {
-        return false;
-    }
-    else if (!board_of_rub[y][x]){ //необходимо 2 условия потому что в первом случае доска указывает на NULL и её не надо очищать
-        board_cleanup(board_of_rub);
+    int** board_of_rub = attack_check(board, player);
+    if (board_of_rub == NULL || !board_of_rub[y][x]) {
         return false;
     }
 
@@ -316,7 +289,7 @@ bool continue_attack(char** board, int x, int y, char player)
 }
 
 //Ход со съеданием
-void attack(char** board, char** atack_board, char player)
+void attack(int** board, int** atack_board, int player)
 {
     attack_options(atack_board);
 
@@ -360,21 +333,21 @@ void attack(char** board, char** atack_board, char player)
             continue;
         }
         switch (board[y1][x1]) {
-        case 'w':
-        case 'r':
+        case WHITE_CH:
+        case RED_CH:
             if (!((x1 == x2 - 2 && y1 == y2 + 2) || (x1 == x2 + 2 && y1 == y2 + 2) || (x1 == x2 - 2 && y1 == y2 - 2) || (x1 == x2 + 2 && y1 == y2 - 2))) {
                 printf("Incorrect, try again.\n");
                 continue;
             }
             goto lets_attack;
             break;
-        case 'W':   //может можно как-то получше сделать
+        case KING_WHITE_CH:   //может можно как-то получше сделать
             if (x2 < x1 && y2 < y1) {
                 for (int n = 1; x1 - n > 0 && y1 - n > 0; n++) {
-                    if (board[y1 - n][x1 - n] == 'w' || board[y1 - n][x1 - n] == 'W') {
+                    if (board[y1 - n][x1 - n] == WHITE_CH || board[y1 - n][x1 - n] == KING_WHITE_CH) {
                         break;
                     }
-                    if (board[y1 - n][x1 - n] == 'r' || board[y1 - n][x1 - n] == 'R') {
+                    if (board[y1 - n][x1 - n] == RED_CH || board[y1 - n][x1 - n] == KING_RED_CH) {
                         if (x1 - n - 1 == x2 && y1 - n - 1 == y2)
                             goto lets_attack;
                         else
@@ -386,10 +359,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 > x1 && y2 < y1) {
                 for (int n = 1; x1 + n < 8 && y1 - n > 0; n++) {
-                    if (board[y1 - n][x1 + n] == 'w' || board[y1 - n][x1 + n] == 'W') {
+                    if (board[y1 - n][x1 + n] == WHITE_CH || board[y1 - n][x1 + n] == KING_WHITE_CH) {
                         break;
                     }
-                    if (board[y1 - n][x1 + n] == 'r' || board[y1 - n][x1 + n] == 'R') {
+                    if (board[y1 - n][x1 + n] == RED_CH || board[y1 - n][x1 + n] == KING_RED_CH) {
                         if (x1 + n + 1 == x2 && y1 - n - 1 == y2)
                             goto lets_attack;
                         else
@@ -401,10 +374,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 < x1 && y2 > y1) {
                 for (int n = 1; x1 - n > 0 && y1 + n < 8; n++) {
-                    if (board[y1 + n][x1 - n] == 'w' || board[y1 + n][x1 - n] == 'W') {
+                    if (board[y1 + n][x1 - n] == WHITE_CH || board[y1 + n][x1 - n] == KING_WHITE_CH) {
                         break;
                     }
-                    if (board[y1 + n][x1 - n] == 'r' || board[y1 + n][x1 - n] == 'R') {
+                    if (board[y1 + n][x1 - n] == RED_CH || board[y1 + n][x1 - n] == KING_RED_CH) {
                         if (x1 - n - 1 == x2 && y1 + n + 1 == y2)
                             goto lets_attack;
                         else
@@ -416,10 +389,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 > x1 && y2 > y1) {
                 for (int n = 1; x1 + n < 8 && y1 + n < 8; n++) {
-                    if (board[y1 + n][x1 + n] == 'w' || board[y1 + n][x1 + n] == 'W') {
+                    if (board[y1 + n][x1 + n] == WHITE_CH || board[y1 + n][x1 + n] == KING_WHITE_CH) {
                         break;
                     }
-                    if (board[y1 + n][x1 + n] == 'r' || board[y1 + n][x1 + n] == 'R') {
+                    if (board[y1 + n][x1 + n] == RED_CH || board[y1 + n][x1 + n] == KING_RED_CH) {
                         if (x1 + n + 1 == x2 && y1 + n + 1 == y2)
                             goto lets_attack;
                         else
@@ -430,13 +403,13 @@ void attack(char** board, char** atack_board, char player)
                 continue;
             }
             break;
-        case 'R':
+        case KING_RED_CH:
             if (x2 < x1 && y2 < y1) {
                 for (int n = 1; x1 - n > 0 && y1 - n > 0; n++) {
-                    if (board[y1 - n][x1 - n] == 'r' || board[y1 - n][x1 - n] == 'R') {
+                    if (board[y1 - n][x1 - n] == RED_CH || board[y1 - n][x1 - n] == KING_RED_CH) {
                         break;
                     }
-                    if (board[y1 - n][x1 - n] == 'w' || board[y1 - n][x1 - n] == 'W') {
+                    if (board[y1 - n][x1 - n] == WHITE_CH || board[y1 - n][x1 - n] == KING_WHITE_CH) {
                         if (x1 - n - 1 == x2 && y1 - n - 1 == y2)
                             goto lets_attack;
                         else
@@ -448,10 +421,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 > x1 && y2 < y1) {
                 for (int n = 1; x1 + n < 8 && y1 - n > 0; n++) {
-                    if (board[y1 - n][x1 + n] == 'r' || board[y1 - n][x1 + n] == 'R') {
+                    if (board[y1 - n][x1 + n] == RED_CH || board[y1 - n][x1 + n] == KING_RED_CH) {
                         break;
                     }
-                    if (board[y1 - n][x1 + n] == 'w' || board[y1 - n][x1 + n] == 'W') {
+                    if (board[y1 - n][x1 + n] == WHITE_CH || board[y1 - n][x1 + n] == KING_WHITE_CH) {
                         if (x1 + n + 1 == x2 && y1 - n - 1 == y2)
                             goto lets_attack;
                         else
@@ -463,10 +436,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 < x1 && y2 > y1) {
                 for (int n = 1; x1 - n > 0 && y1 + n < 8; n++) {
-                    if (board[y1 + n][x1 - n] == 'r' || board[y1 + n][x1 - n] == 'R') {
+                    if (board[y1 + n][x1 - n] == RED_CH || board[y1 + n][x1 - n] == KING_RED_CH) {
                         break;
                     }
-                    if (board[y1 + n][x1 - n] == 'w' || board[y1 + n][x1 - n] == 'W') {
+                    if (board[y1 + n][x1 - n] == WHITE_CH || board[y1 + n][x1 - n] == KING_WHITE_CH) {
                         if (x1 - n - 1 == x2 && y1 + n + 1 == y2)
                             goto lets_attack;
                         else
@@ -478,10 +451,10 @@ void attack(char** board, char** atack_board, char player)
             }
             if (x2 > x1 && y2 > y1) {
                 for (int n = 1; x1 + n < 8 && y1 + n < 8; n++) {
-                    if (board[y1 + n][x1 + n] == 'r' || board[y1 + n][x1 + n] == 'R') {
+                    if (board[y1 + n][x1 + n] == RED_CH || board[y1 + n][x1 + n] == KING_RED_CH) {
                         break;
                     }
-                    if (board[y1 + n][x1 + n] == 'w' || board[y1 + n][x1 + n] == 'W') {
+                    if (board[y1 + n][x1 + n] == WHITE_CH || board[y1 + n][x1 + n] == KING_WHITE_CH) {
                         if (x1 + n + 1 == x2 && y1 + n + 1 == y2)
                             goto lets_attack;
                         else
@@ -507,7 +480,7 @@ void attack(char** board, char** atack_board, char player)
 }
 
 //Вывод вариантов хода при необходимости атаки
-void attack_options(char** board) {
+void attack_options(int** board) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             if (board[i][j])
@@ -518,31 +491,46 @@ void attack_options(char** board) {
 }
 
 //Передвигает фигуру с позиции (x1, y1) на позицию  (x2, y2) удаляя шашку между ними
-void attacking(char** board, int x1, int y1, int x2, int y2)
+void attacking(int** board, int x1, int y1, int x2, int y2)
 {
     move_checker(board, x1, y1, x2, y2);
     switch (board[y2][x2])
     {
-    case 'r':
-    case 'w':
+    case RED_CH:
+    case WHITE_CH:
         board[(y1 + y2) / 2][(x1 + x2) / 2] = 0;
+        SDL_LockMutex(game->mutex);
+        checker_cleanup_SDL(game->board->checkers[(y1 + y2) / 2][(x1 + x2) / 2]);
+        SDL_UnlockMutex(game->mutex);
         break;
-    case 'R':
-    case 'W':
+    case KING_RED_CH:
+    case KING_WHITE_CH:
         if (y2 < y1 && x2 < x1) {
             board[y2 + 1][x2 + 1] = 0;
+            SDL_LockMutex(game->mutex);
+            checker_cleanup_SDL(game->board->checkers[y2 + 1][x2 + 1]);
+            SDL_UnlockMutex(game->mutex);
             break;
         }
         if (y2 < y1 && x2 > x1) {
             board[y2 + 1][x2 - 1] = 0;
+            SDL_LockMutex(game->mutex);
+            checker_cleanup_SDL(game->board->checkers[y2 + 1][x2 - 1]);
+            SDL_UnlockMutex(game->mutex);
             break;
         }
         if (y2 > y1 && x2 < x1) {
             board[y2 - 1][x2 + 1] = 0;
+            SDL_LockMutex(game->mutex);
+            checker_cleanup_SDL(game->board->checkers[y2 - 1][x2 + 1]);
+            SDL_UnlockMutex(game->mutex);
             break;
         }
         if (y2 > y1 && x2 > x1) {
             board[y2 - 1][x2 - 1] = 0;
+            SDL_LockMutex(game->mutex);
+            checker_cleanup_SDL(game->board->checkers[y2 - 1][x2 - 1]);
+            SDL_UnlockMutex(game->mutex);
             break;
         }
     }
@@ -550,12 +538,12 @@ void attacking(char** board, int x1, int y1, int x2, int y2)
 
 //Проверяет все фигуры player-а на возможность рубить и возвращает указатель на динамический массив массивов, где указаны фигуры которые могут и должны рубить,
 //если таковых нет то возвращает NULL
-char** attack_check(char** board, char player)
+int** attack_check(int** board, int player)
 {
-    char** board_of_rub = (char**)malloc(sizeof(char*) * 8);
+    int** board_of_rub = (int**)malloc(sizeof(int*) * 8);
     for (int i = 0; i < 8; i++) {
-        board_of_rub[i] = (char*)malloc(sizeof(char) * 8);
-        memset(board_of_rub[i], 0, sizeof(char) * 8);
+        board_of_rub[i] = (int*)malloc(sizeof(int) * 8);
+        memset(board_of_rub[i], 0, sizeof(int) * 8);
     }
     //    {0, 0, 0, 0, 0, 0, 0, 0},
     //    {0, 0, 0, 0, 0, 0, 0, 0},
@@ -571,7 +559,7 @@ char** attack_check(char** board, char player)
 
     switch (player) 
     {
-    case 'w':
+    case WHITE_PLAYER:
         for (int i = 0; i < 8; i++) 
         {
             for (int j = 0; j < 8; j++) 
@@ -579,74 +567,74 @@ char** attack_check(char** board, char player)
                 //Обычная шашка
                 switch (board[i][j]) 
                 {
-                case 'w':
+                case WHITE_CH:
                     if (j >= 0 && j <= 5) {
                         //Бьёт ли фигура вправо вверх
-                        if (i >= 2 && (board[i - 1][j + 1] == 'r' || board[i - 1][j + 1] == 'R') && board[i - 2][j + 2] == 0) {
-                            board_of_rub[i][j] = 'w';
+                        if (i >= 2 && (board[i - 1][j + 1] == RED_CH || board[i - 1][j + 1] == KING_RED_CH) && board[i - 2][j + 2] == 0) {
+                            board_of_rub[i][j] = WHITE_CH;
                             flag++;
                         }
                         //Бьёт ли фигура вправо вниз
-                        if (i <= 5 && (board[i + 1][j + 1] == 'r' || board[i + 1][j + 1] == 'R') && board[i + 2][j + 2] == 0) {
-                            board_of_rub[i][j] = 'w';
+                        if (i <= 5 && (board[i + 1][j + 1] == RED_CH || board[i + 1][j + 1] == KING_RED_CH) && board[i + 2][j + 2] == 0) {
+                            board_of_rub[i][j] = WHITE_CH;
                             flag++;
                         }
                     }
                     if (j >= 2 && j <= 7) {
                         //Бьёт ли фигура влево вверх
-                        if (i >= 2 && (board[i - 1][j - 1] == 'r' || board[i - 1][j - 1] == 'R') && board[i - 2][j - 2] == 0) {
-                            board_of_rub[i][j] = 'w';
+                        if (i >= 2 && (board[i - 1][j - 1] == RED_CH || board[i - 1][j - 1] == KING_RED_CH) && board[i - 2][j - 2] == 0) {
+                            board_of_rub[i][j] = WHITE_CH;
                             flag++;
                         }
                         //Бьёт ли фигура влево вниз
-                        if (i <= 5 && (board[i + 1][j - 1] == 'r' || board[i + 1][j - 1] == 'R') && board[i + 2][j - 2] == 0) {
-                            board_of_rub[i][j] = 'w';
+                        if (i <= 5 && (board[i + 1][j - 1] == RED_CH || board[i + 1][j - 1] == KING_RED_CH) && board[i + 2][j - 2] == 0) {
+                            board_of_rub[i][j] = WHITE_CH;
                             flag++;
                         }
                     }
                     break;
                 //Если фигура - Дамка
-                case 'W':
+                case KING_WHITE_CH:
                     //Бьёт ли фигура влево вверх
                     for (int n = 1; i - n > 0 && j - n > 0; n++) {
-                        if (board[i - n][j - n] == 'w' || board[i - n][j - n] == 'W') {
+                        if (board[i - n][j - n] == WHITE_CH || board[i - n][j - n] == KING_WHITE_CH) {
                             break;
                         }
-                        if ((board[i - n][j - n] == 'r' || board[i - n][j - n] == 'R') && board[i - n - 1][j - n - 1] == 0) {
-                            board_of_rub[i][j] = 'W';
+                        if ((board[i - n][j - n] == RED_CH || board[i - n][j - n] == KING_RED_CH) && board[i - n - 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = KING_WHITE_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура вправо вверх
                     for (int n = 1; i - n > 0 && j + n < 8; n++) {
-                        if (board[i - n][j + n] == 'w' || board[i - n][j + n] == 'W') {
+                        if (board[i - n][j + n] == WHITE_CH || board[i - n][j + n] == KING_WHITE_CH) {
                             break;
                         }
-                        if ((board[i - n][j + n] == 'r' || board[i - n][j + n] == 'R') && board[i - n - 1][j + n + 1] == 0) {
-                            board_of_rub[i][j] = 'W';
+                        if ((board[i - n][j + n] == RED_CH || board[i - n][j + n] == KING_RED_CH) && board[i - n - 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = KING_WHITE_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура влево вниз
                     for (int n = 1; i + n < 8 && j - n > 0; n++) {
-                        if (board[i + n][j - n] == 'w' || board[i + n][j - n] == 'W') {
+                        if (board[i + n][j - n] == WHITE_CH || board[i + n][j - n] == KING_WHITE_CH) {
                             break;
                         }
-                        if ((board[i + n][j - n] == 'r' || board[i + n][j - n] == 'R') && board[i + n + 1][j - n - 1] == 0) {
-                            board_of_rub[i][j] = 'W';
+                        if ((board[i + n][j - n] == RED_CH || board[i + n][j - n] == KING_RED_CH) && board[i + n + 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = KING_WHITE_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура вправо вниз
                     for (int n = 1; i + n < 8 && j + n < 8; n++) {
-                        if (board[i + n][j + n] == 'w' || board[i + n][j + n] == 'W') {
+                        if (board[i + n][j + n] == WHITE_CH || board[i + n][j + n] == KING_WHITE_CH) {
                             break;
                         }
-                        if ((board[i + n][j + n] == 'r' || board[i + n][j + n] == 'R') && board[i + n + 1][j + n + 1] == 0) {
-                            board_of_rub[i][j] = 'W';
+                        if ((board[i + n][j + n] == RED_CH || board[i + n][j + n] == KING_RED_CH) && board[i + n + 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = KING_WHITE_CH;
                             flag++;
                             break;
                         }
@@ -656,82 +644,82 @@ char** attack_check(char** board, char player)
             }
         }
         break;
-    case 'r':
+    case RED_PLAYER:
         for (int i = 0; i < 8; i++)
         {
             for (int j = 0; j < 8; j++)
             {
-                if (i < 8 && board[i][j] == 'r')
+                if (i < 8 && board[i][j] == RED_CH)
                 {
                     if (j >= 0 && j <= 5) {
                         //Бьёт ли фигура вправо вверх
-                        if (i >= 2 && (board[i - 1][j + 1] == 'w' || board[i - 1][j + 1] == 'W') && board[i - 2][j + 2] == 0) {
-                            board_of_rub[i][j] = 'r';
+                        if (i >= 2 && (board[i - 1][j + 1] == WHITE_CH || board[i - 1][j + 1] == KING_WHITE_CH) && board[i - 2][j + 2] == 0) {
+                            board_of_rub[i][j] = RED_CH;
                             flag++;
                         }
                         //Бьёт ли фигура вправо вниз
-                        if (i <= 5 && (board[i + 1][j + 1] == 'w' || board[i + 1][j + 1] == 'W') && board[i + 2][j + 2] == 0) {
-                            board_of_rub[i][j] = 'r';
+                        if (i <= 5 && (board[i + 1][j + 1] == WHITE_CH || board[i + 1][j + 1] == KING_WHITE_CH) && board[i + 2][j + 2] == 0) {
+                            board_of_rub[i][j] = RED_CH;
                             flag++;
                         }
                     }
                     if (j >= 2 && j <= 7) {
                         //Бьёт ли фигура влево вверх
-                        if (i >= 2 && (board[i - 1][j - 1] == 'w' || board[i - 1][j - 1] == 'W') && board[i - 2][j - 2] == 0) {
-                            board_of_rub[i][j] = 'r';
+                        if (i >= 2 && (board[i - 1][j - 1] == WHITE_CH || board[i - 1][j - 1] == KING_WHITE_CH) && board[i - 2][j - 2] == 0) {
+                            board_of_rub[i][j] = RED_CH;
                             flag++;
                         }
                         //Бьёт ли фигура влево вниз
-                        if (i <= 5 && (board[i + 1][j - 1] == 'w' || board[i + 1][j - 1] == 'W') && board[i + 2][j - 2] == 0) {
-                            board_of_rub[i][j] = 'r';
+                        if (i <= 5 && (board[i + 1][j - 1] == WHITE_CH || board[i + 1][j - 1] == KING_WHITE_CH) && board[i + 2][j - 2] == 0) {
+                            board_of_rub[i][j] = RED_CH;
                             flag++;
                         }
                     }
                     continue;
                 }
                 //Если фигура - Дамка
-                if (board[i][j] == 'R')
+                if (board[i][j] == KING_RED_CH)
                 {
                     //Бьёт ли фигура влево вверх
                     for (int n = 1; i - n > 0 && j - n > 0; n++) {
-                        if (board[i - n][j - n] == 'r' || board[i - n][j - n] == 'R') {
+                        if (board[i - n][j - n] == RED_CH || board[i - n][j - n] == KING_RED_CH) {
                             break;
                         }
-                        if ((board[i - n][j - n] == 'w' || board[i - n][j - n] == 'W') && board[i - n - 1][j - n - 1] == 0) {
-                            board_of_rub[i][j] = 'R';
+                        if ((board[i - n][j - n] == WHITE_CH || board[i - n][j - n] == KING_WHITE_CH) && board[i - n - 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = KING_RED_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура вправо вверх
                     for (int n = 1; i - n > 0 && j + n < 8; n++) {
-                        if (board[i - n][j + n] == 'r' || board[i - n][j + n] == 'R') {
+                        if (board[i - n][j + n] == RED_CH || board[i - n][j + n] == KING_RED_CH) {
                             break;
                         }
-                        if ((board[i - n][j + n] == 'w' || board[i - n][j + n] == 'W') && board[i - n - 1][j + n + 1] == 0) {
-                            board_of_rub[i][j] = 'R';
+                        if ((board[i - n][j + n] == WHITE_CH || board[i - n][j + n] == KING_WHITE_CH) && board[i - n - 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = KING_RED_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура влево вниз
                     for (int n = 1; i + n < 8 && j - n > 0; n++) {
-                        if (board[i + n][j - n] == 'r' || board[i + n][j - n] == 'R') {
+                        if (board[i + n][j - n] == RED_CH || board[i + n][j - n] == KING_RED_CH) {
                             break;
                         }
-                        if ((board[i + n][j - n] == 'w' || board[i + n][j - n] == 'W') && board[i + n + 1][j - n - 1] == 0) {
-                            board_of_rub[i][j] = 'R';
+                        if ((board[i + n][j - n] == WHITE_CH || board[i + n][j - n] == KING_WHITE_CH) && board[i + n + 1][j - n - 1] == 0) {
+                            board_of_rub[i][j] = KING_RED_CH;
                             flag++;
                             break;
                         }
                     }
                     //Бьёт ли фигура вправо вниз
                     for (int n = 1; i + n < 8 && j + n < 8; n++) {
-                        if (board[i + n][j + n] == 'r' || board[i + n][j + n] == 'R') {
+                        if (board[i + n][j + n] == RED_CH || board[i + n][j + n] == KING_RED_CH) {
                             break;
                         }
-                        if ((board[i + n][j + n] == 'w' || board[i + n][j + n] == 'W') && board[i + n + 1][j + n + 1] == 0) {
-                            board_of_rub[i][j] = 'R';
+                        if ((board[i + n][j + n] == WHITE_CH || board[i + n][j + n] == KING_WHITE_CH) && board[i + n + 1][j + n + 1] == 0) {
+                            board_of_rub[i][j] = KING_RED_CH;
                             flag++;
                             break;
                         }
@@ -750,10 +738,9 @@ char** attack_check(char** board, char player)
 }
 
 //Создаёт изначальную доску в качестве массива из динамических массивов
-struct Checker** add_board(struct Game* game)
+int** add_board(void)
 {
-    add_chessboard(board, game);
-    struct Checker** board = (struct Checker**)malloc(sizeof(struct Checker*) * 8);       
+    int** board = (int**)malloc(sizeof(int*) * 8);       
 
     //{ 0, r, 0, r, 0, r, 0, r },
     //{ r, 0, r, 0, r, 0, r, 0 },
@@ -765,75 +752,87 @@ struct Checker** add_board(struct Game* game)
     //{ w, 0, w, 0, w, 0, w, 0 },
 
     for (int i = 0; i < 8; i++){
-        board[i] = (struct Checker*)malloc(sizeof(struct Checker) * 8);
-        for (int j = 0; j < 8; j++){
-            board[i][j].flag = NULL;
-            board[i][j].rect = {283, 43, 0, 0};
-            board[i][j].image = NULL;
-        }
+        board[i] = (int*)malloc(sizeof(int) * 8);
+        memset(board[i], 0, sizeof(int) * 8);
     }
 
     for (int i = 1; i < 8; i += 2)
-        add_checker(&board[0][i], game, 'r', 0, i);
+        board[0][i] = RED_CH;
     for (int i = 0; i < 8; i += 2)
-        add_checker(&board[1][i], game, 'r', 1, i);
+        board[1][i] = RED_CH;
     for (int i = 1; i < 8; i += 2)
-        add_checker(&board[1][i], game, 'r', 2, i);
+        board[2][i] = RED_CH;
 
     for (int i = 0; i < 8; i += 2)
-        add_checker(&board[5][i], game, 'w', 5, i);
+        board[5][i] = WHITE_CH;
     for (int i = 1; i < 8; i += 2)
-        add_checker(&board[6][i], game, 'w', 6, i);
+        board[6][i] = WHITE_CH;
     for (int i = 0; i < 8; i += 2)
-        add_checker(&board[7][i], game, 'w', 7, i);
+        board[7][i] = WHITE_CH;
 
     return board;
 }
 
 //удаляет массив из динамических массивов (игральную доску)
-void board_cleanup(char** board)
-{
+void board_cleanup(int** board) {
+    if (!board) 
+        return;
     for (int i = 0; i < 8; i++) {
-        free(board[i]);
+        if (board[i]) {
+            free(board[i]);
+        }
     }
     free(board);
 }
 
 //передвигает фигуру с позиции x1 y1 на позицию x2 y2
-void move_checker(char** board, int x1, int y1, int x2, int y2)
+void move_checker(int** board, int x1, int y1, int x2, int y2)
 {
-    board[y2][x2] = board[y1][x1];
+    int f = board[y1][x1];
     board[y1][x1] = 0;
+    board[y2][x2] = f;
+
+    SDL_LockMutex(game->mutex);
+    Checker* tmp = game->board->checkers[y1][x1];
+    game->board->checkers[y2][x2] = game->board->checkers[y1][x1];
+    game->board->checkers[y1][x1] = NULL;
+    game->board->checkers[y2][x2]->rect.x = 282 + 105 * x2;
+    game->board->checkers[y2][x2]->rect.y = 43 + 105 * y2;
+    SDL_UnlockMutex(game->mutex);
 }
-//Попытка фигуры двигаться без съедания, возвращает false если невозможно
-bool try_to_move(char** board, int x, int y, char player)
+
+bool try_to_move(int** board, int x, int y, int player)
 {
     switch (player)
     {
-    case ('w'):
-        if (!(board[y][x] == 'w' || board[y][x] == 'W')) {
+    case (WHITE_PLAYER):
+        if (board[y][x] != WHITE_CH && board[y][x] != KING_WHITE_CH) {
             printf("Incorrect figure, try another.\n");
             return true;
         }
-        if (x > 0 && x < 7) {   //проверка ходьбы влево вверх и вправо вверх когда шашка не на краю доски
+        if (x > 0 && x < 7) {
             if (board[y - 1][x - 1] != 0 && board[y - 1][x + 1] != 0) {
                 printf("This checker locked, try another.\n");
                 return true;
             }
         }
-        else if (x == 0) {  //тут если на левом краю доски
+        else if (x == 0) {
             if (board[y - 1][x + 1] != 0) {
                 printf("This checker locked, try another.\n");
                 return true;
             }
         }
-        else {  //тут если на правом краю
+        else {
             if (board[y - 1][x - 1] != 0)
                 printf("This checker locked, try another.\n");
             return true;
         }
         break;
-    case ('r'): //тут всё аналогично белой фигуре но вниз
+    case (RED_PLAYER):
+        if (board[y][x] != RED_CH && board[y][x] != KING_RED_CH) {
+            printf("Incorrect figure, try another.\n");
+            return true;
+        }
         if (x > 0 && x < 7) {
             if (board[y + 1][x - 1] != 0 && board[y + 1][x + 1] != 0) {
                 printf("This checker locked, try another.\n");
@@ -856,14 +855,14 @@ bool try_to_move(char** board, int x, int y, char player)
 
     return false;
 }
-//Вывод доски в терминал
-void out_board(char** board)
+
+void out_board(int** board)
 {
     for (int i = 0; i < 8; i++) {
         printf("%c|\t", 'a' + i);
         for (int j = 0; j < 8; j++) {
             if (board[i][j])
-                printf("%c\t", board[i][j]);
+                printf("%d\t", board[i][j]);
             else
                 printf("0\t");
         }
