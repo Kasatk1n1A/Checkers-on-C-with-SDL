@@ -4,7 +4,6 @@
 bool add_board_SDL(Game* game);
 void out_board_SDL(Game* game);
 
-
 Game* game;
 
 int main()
@@ -38,7 +37,7 @@ int main()
             case SDL_QUIT:
                 game_cleanup(game, EXIT_SUCCESS);
                 break;  
-                case SDL_KEYDOWN:
+            case SDL_KEYDOWN:
                 switch (event.key.keysym.scancode)
                 {
                     //Close game if press esc
@@ -135,7 +134,7 @@ bool add_board_SDL(Game* game)
             game->board->checkers[j][i]->picked_image = IMG_LoadTexture(game->renderer, "images/picked_red_checker.png");
             game->board->checkers[j][i]->King_image = IMG_LoadTexture(game->renderer, "images/red_super_checker.png");
             game->board->checkers[j][i]->King_picked_image = IMG_LoadTexture(game->renderer, "images/picked_red_superchecker.png");
-            game->board->checkers[j][i]->flag = RED_CH;
+            game->board->checkers[j][i]->flag = RED_PAWN;
             game->board->checkers[j][i]->rect.x = 282 + 105 * i;
             game->board->checkers[j][i]->rect.y = 43 + 105 * j;
             game->board->checkers[j][i]->rect.w = 0; 
@@ -157,7 +156,7 @@ bool add_board_SDL(Game* game)
             game->board->checkers[j][i]->picked_image = IMG_LoadTexture(game->renderer, "images/picked_white_checker.png");
             game->board->checkers[j][i]->King_image = IMG_LoadTexture(game->renderer, "images/white_super_checker.png");
             game->board->checkers[j][i]->King_picked_image = IMG_LoadTexture(game->renderer, "images/picked_white_superchecker.png");
-            game->board->checkers[j][i]->flag = WHITE_CH;
+            game->board->checkers[j][i]->flag = WHITE_PAWN;
             game->board->checkers[j][i]->rect.x = 282 + 105 * i;
             game->board->checkers[j][i]->rect.y = 43 + 105 * j; 
             game->board->checkers[j][i]->rect.w = 0; 
@@ -185,21 +184,21 @@ void out_board_SDL(Game* game)
 
             switch (game->board->checkers[i][j]->flag)
             {
-            case RED_CH:
-            case WHITE_CH:
+            case RED_PAWN:
+            case WHITE_PAWN:
                 SDL_RenderCopy(game->renderer, game->board->checkers[i][j]->default_image, NULL, &game->board->checkers[i][j]->rect);
                 break;
-            case KING_RED_CH:
-            case KING_WHITE_CH:
+            case RED_KING:
+            case WHITE_KING:
                 SDL_RenderCopy(game->renderer, game->board->checkers[i][j]->King_image, NULL, &game->board->checkers[i][j]->rect);
                 break; 
-            case PICKED_WHITE_CH:
-            case PICKED_RED_CH:
+            case PICKED_WHITE_PAWN:
+            case PICKED_RED_PAWN:
                 SDL_RenderCopy(game->renderer, game->board->checkers[i][j]->picked_image, NULL, &game->board->checkers[i][j]->rect);
                 // printf("%d %d checker printed\n", i, j);
                 break; 
-            case KING_PICKED_WHITE_CH:
-            case KING_PICKED_RED_CH:
+            case PICKED_WHITE_KING:
+            case PICKED_RED_KING:
                 SDL_RenderCopy(game->renderer, game->board->checkers[i][j]->King_picked_image, NULL, &game->board->checkers[i][j]->rect);
                 // printf("%d %d checker printed\n", i, j);
                 break; 
