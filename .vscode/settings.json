@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "CHECKERS.C": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

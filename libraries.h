@@ -1,3 +1,6 @@
+#ifndef LIBRARIES
+#define LIBRARIES
+
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -8,4 +11,6 @@
 #include <time.h>
 #include <pthread.h>
 #include "visualise.h"
-#include "checkers.h"
+#include "checkers and board/checkers_main.h"
+
+#endif

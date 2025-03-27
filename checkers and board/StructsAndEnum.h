@@ -1,0 +1,22 @@
+#ifndef STRUCTSANDENUM
+#define STRUCTSANDENUM
+
+typedef enum {
+    WHITE,
+    RED
+} Player;
+
+typedef enum 
+{
+    EMPTY = 0,
+    WHITE_PAWN = 1,
+    PICKED_WHITE_PAWN = 2,
+    WHITE_KING = 3,
+    PICKED_WHITE_KING = 4,
+    RED_PAWN = -1,
+    PICKED_RED_PAWN = -2,
+    RED_KING = -3,
+    PICKED_RED_KING = -4
+} CH_Type;
+
+#endif
