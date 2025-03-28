@@ -70,27 +70,24 @@ void executeCaptureMove(CH_Type** board, bool** attack_board, Player player)
 
     // 2. Выбор шашки для хода
     while (true) {
-        printf("\nSelect checker to move [a1-h8]:");
+        // printf("\nSelect checker to move [a1-h8]:");
         
         // Чтение и проверка формата ввода
-        if (!scanf("%2s", input) || 
-            !(input[0] >= 'a' && input[0] <= 'h') || 
-            !(input[1] >= '1' && input[1] <= '8')) {
-            printf("Invalid input format. Use letter (a-h) and number (1-8).\n");
+
+        if (!CheckerCoordinates(game, &fromX, &fromY))
             continue;
-        }
-
-        // Преобразование координат
-        fromY = input[0] - 'a';  // Буква -> столбец (0-7)
-        fromX = input[1] - '1';  // Цифра -> строка (0-7)
-
+        printf("%d %d\n", fromX, fromY);
         // Проверка допустимости выбора
         if (fromX < 0 || fromX >= 8 || fromY < 0 || fromY >= 8) {
-            printf("Coordinates out of board range.\n");
+            // printf("Coordinates out of board range.\n");
             continue;
         }
+
+        if (board[fromY][fromX] != (player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (player == WHITE ? WHITE_KING : RED_KING))
+            continue;
+
         if (!attack_board[fromY][fromX]) {
-            printf("Selected checker has no capture moves available.\n");
+            // printf("Selected checker has no capture moves available.\n");
             continue;
         }
         break;
@@ -101,26 +98,19 @@ void executeCaptureMove(CH_Type** board, bool** attack_board, Player player)
 
     // 4. Основной цикл выполнения хода (с возможностью продолжения взятий)
     while (true) {
-        printf("Enter target position [a1-h8]:");
         
         // Ввод целевой позиции
-        if (!scanf("%2s", input) || 
-            !(input[0] >= 'a' && input[0] <= 'h') || 
-            !(input[1] >= '1' && input[1] <= '8')) {
-            printf("Invalid input format. Try again.\n");
+        
+        if (!CheckerCoordinates(game, &toX, &toY))
             continue;
-        }
-
-        toY = input[0] - 'a';
-        toX = input[1] - '1';
-
+        printf("%d %d\n", toX, toY);
         // Проверка целевой клетки
         if (board[toY][toX] != EMPTY) {
-            printf("Target position must be empty.\n");
+            // printf("Target position must be empty.\n");
             continue;
         }
         if (toX < 0 || toX >= 8 || toY < 0 || toY >= 8) {
-            printf("Coordinates out of board range.\n");
+            // printf("Coordinates out of board range.\n");
             continue;
         }
         

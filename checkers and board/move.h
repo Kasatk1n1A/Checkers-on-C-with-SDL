@@ -3,6 +3,7 @@
 
 #include "StructsAndEnum.h"
 #include "board_visual.h"
+#include "../mouse actions.h"
 
 // //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
@@ -17,6 +18,17 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
 Game* game;
 
 // //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
+
+bool CheckerCoordinates(Game* game, int* x, int* y)
+{
+    if (get_mouse_click(x, y, game))
+    {
+        *x = (*x - (239 + 43)) / 105;
+        *y = (*y - 41) / 105;
+        return true;
+    }
+    return false;
+}
 
 //Проверяет условие появления дамки
 void King_check(CH_Type** board, int x, int y, Player player)
@@ -43,23 +55,24 @@ void executeRegularMove(CH_Type** board, Player player)
     while (true)
     {
         // Ввод координат шашки
-        printf("\nSelect checker to move [a1-h8]:");
-        char input[3];
-        if (!scanf("%2s", input) || !(input[0] >= 'a' && input[0] <= 'h') || !(input[1] >= '1' && input[1] <= '8'))
-            exit(EXIT_FAILURE);
-        
-        // Преобразование координат
-        fromX = input[1] - '1'; // Цифра -> строка (0-7)
-        fromY = input[0] - 'a'; // Буква -> столбец (0-7)
-        
+        if (!CheckerCoordinates(game, &fromX, &fromY))
+            continue;
+        printf("%d %d\n", fromX, fromY);
+
         // Проверка корректности координат
         if (fromX < 0 || fromX > 7 || fromY < 0 || fromY > 7) {
-            printf("Coordinates out of range. Try again.\n");
+            // printf("Coordinates out of range. Try again.\n");
             continue;
         }
         
+        if (board[fromY][fromX] != (player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (player == WHITE ? WHITE_KING : RED_KING))
+        {
+            printf("Not your\n");
+            continue;
+        }
         // Проверка, что шашка не заблокирована
-        if (isCheckerBlocked(board, fromX, fromY)) {
+        if (isCheckerBlocked(board, fromX, fromY)) 
+        {
             printf("Selected checker cannot move. Choose another.\n");
             continue;
         }
@@ -74,24 +87,19 @@ void executeRegularMove(CH_Type** board, Player player)
     while (true) 
     {
         // Ввод координат для хода
-        printf("Enter target position [a1-h8]:");
-        char input[3];
-        if (!scanf("%2s", input) || !(input[0] >= 'a' && input[0] <= 'h') || !(input[1] >= '1' && input[1] <= '8'))
-            exit(EXIT_FAILURE);
 
-        // Преобразование координат
-        toX = input[1] - '1';
-        toY = input[0] - 'a';
-
+        if (!CheckerCoordinates(game, &toX, &toY))
+            continue;
+        printf("%d %d\n", toX, toY);
         // Проверка границ доски
         if (toX < 0 || toX > 7 || toY < 0 || toY > 7) {
-            printf("Invalid coordinates. Try again.\n");
+            // printf("Invalid coordinates. Try again.\n");
             continue;
         }
         
         // Проверка, что целевая клетка свободна
         if (board[toY][toX] != EMPTY) {
-            printf("Target position must be empty.\n");
+            // printf("Target position must be empty.\n");
             continue;
         }
 
@@ -197,13 +205,13 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
     int dirCount = isKing ? 4 : 2; // Для обычных шашек только 2 направления (вперед)
     
     for (int i = 0; i < dirCount; i++) {
-        int dx = directions[i][0];
-        int dy = directions[i][1];
+        int dy = directions[i][0];
+        int dx = directions[i][1];
         
         // Для обычных шашек корректируем направление
         if (!isKing) {
             // Основное направление движения (вперед)
-            int forwardDir = isWhite ? -1 : 1;
+            dy = isWhite ? -1 : 1;
         }
         
         int nx = x + dx;
@@ -244,6 +252,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  */
 bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board)
 {
+    printf(color == WHITE ? "WHITE\n" : "RED\n");
     /***********************
      * Базовые проверки
      ***********************/
@@ -262,11 +271,12 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
     // Вычисляем смещение по осям
     int dx = x2 - x1;
     int dy = y2 - y1;
-
+    printf("dx: %d  dy: %d\n", dx, dy);
     /***********************
      * Логика для обычных шашек
      ***********************/
-    if (!isKing) {
+    if (!isKing) 
+    {
         // Определяем основное направление движения:
         // Белые шашки ходят вверх (dy = -1), красные - вниз (dy = 1)
         int forward = (color == WHITE) ? -1 : 1;
@@ -296,7 +306,8 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
     /***********************
      * Логика для дамок
      ***********************/
-    else {
+    else 
+    {
         // Дамка может ходить по диагонали на любое расстояние
         // Проверяем движение строго по диагонали
         if (abs(dx) == abs(dy)) {
