@@ -42,6 +42,7 @@ typedef struct
 
 typedef struct
 {
+    bool ClickDetected;
     int x; 
     int y;
 } MousePos;
@@ -83,10 +84,17 @@ bool load_text(Game* game, char* text, int r, int g, int b, int a, int x, int y,
 
 void game_cleanup(Game *game, int exit_status)
 {
+    // SDL_Texture* BlackWindow = IMG_LoadTexture(game->renderer, "images/BlackWindow.png");
+    // if (!BlackWindow) {
+    //     fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+    // }
+    // SDL_RenderClear(game->renderer);
+    // SDL_RenderCopy(game->renderer, BlackWindow, NULL, NULL);
+    // SDL_RenderPresent(game->renderer);
+
     // Очистка игровой доски (если существует)
-    if (game->board){
+    if (game->board)
         board_cleanup_SDL(game->board);
-    }
     
     // Очистка текстовых элементов (если существуют)
     if (game->texts){

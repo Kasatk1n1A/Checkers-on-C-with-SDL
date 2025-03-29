@@ -25,34 +25,12 @@ int main()
         game_cleanup(game, EXIT_FAILURE);
     
     // Создание потока для игровой логики
-    SDL_Thread* test_thread = SDL_CreateThread(checkers, "checkers", NULL);
-
+    SDL_Thread* Thread1 = SDL_CreateThread(checkers, "checkers", NULL);
+    // SDL_Thread* Thread2 = SDL_CreateThread(playerActionStream, "PlayerActions", NULL);
     // Основной цикл обработки событий и отрисовки
     while (true)
     {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) 
-        {
-            switch (event.type) 
-            {
-            case SDL_QUIT:  // Обработка закрытия окна
-                game_cleanup(game, EXIT_SUCCESS);
-                break;  
-            case SDL_KEYDOWN:  // Обработка нажатий клавиш
-                switch (event.key.keysym.scancode)
-                {
-                case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                    game_cleanup(game, EXIT_SUCCESS);
-                    break;
-                default:
-                    break;
-                }
-                break;
-            default:
-                break;
-            }
-        }
-
+        playerAction(game);
         // Блокировка мьютекса для безопасного доступа к ресурсам
         SDL_LockMutex(game->mutex);
         
@@ -65,18 +43,20 @@ int main()
         // Отрисовка игровой доски
         out_board_SDL(game);
            
-        // Обновление экрана
-        SDL_RenderPresent(game->renderer);
-
         // Разблокировка мьютекса
         SDL_UnlockMutex(game->mutex);
+        
+        game->Mouse.ClickDetected = false;
+
+        // Обновление экрана
+        SDL_RenderPresent(game->renderer);
 
         // Задержка для контроля FPS
         SDL_Delay(16);
     }
     
     // Ожидание завершения потока игровой логики
-    SDL_WaitThread(test_thread, NULL);
+    // SDL_WaitThread(test_thread, NULL);
 
     // Очистка ресурсов
     game_cleanup(game, EXIT_SUCCESS);

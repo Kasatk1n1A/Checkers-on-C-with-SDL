@@ -23,6 +23,7 @@ bool CheckerCoordinates(Game* game, int* x, int* y)
 {
     if (get_mouse_click(x, y, game))
     {
+        printf("%d %d\n", *x, *y);
         *x = (*x - (239 + 43)) / 105;
         *y = (*y - 41) / 105;
         return true;
@@ -37,10 +38,13 @@ void King_check(CH_Type** board, int x, int y, Player player)
         return;
     //Превращает белую шашку в дамку
     if (board[y][x] == WHITE_PAWN && y == 0)
+    {
         board[y][x] = WHITE_KING;
+        game->board->checkers[y][x]->flag = WHITE_KING;
+    }
     // Превращает красную шашку в дамку
     if (board[y][x] == RED_PAWN && y == 7)
-        board[y][x] = RED_KING;
+        game->board->checkers[y][x]->flag = RED_KING;
 }
 /*
  * Выполняет обычный ход без взятия фигур противника

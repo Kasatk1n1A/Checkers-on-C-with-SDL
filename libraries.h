@@ -12,5 +12,6 @@
 #include <pthread.h>
 #include "visualise.h"
 #include "checkers and board/checkers_main.h"
+#include "mouse actions.h"
 
 #endif
