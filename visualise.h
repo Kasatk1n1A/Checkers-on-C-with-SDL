@@ -132,7 +132,7 @@ bool sdl_initialize(Game *game)
     }
     
     // Загрузка фоновой текстуры
-    game->background = IMG_LoadTexture(game->renderer, "images/background.png");
+    SDL_Texture* background = IMG_LoadTexture(game->renderer, "images/background.png");
     if (!game->background) {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
