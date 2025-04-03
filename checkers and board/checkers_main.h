@@ -14,8 +14,8 @@
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-int checkers(void* ptr);
 void NIGGERS(Game* game);
+int checkers(Board* CheckersBoard);
 bool Win_Check(CH_Type** board, Player player);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
@@ -30,39 +30,11 @@ void NIGGERS(Game* game)
     CheckersBoard->board = add_board();
     LoadBoardTextures(CheckersBoard, game);
 
-
-    SDL_Thread* Thread1 = SDL_CreateThread(checkers, "checkers", (void*)CheckersBoard);
-
-    while (true)
-    {
-        playerAction(game);
-        // Блокировка мьютекса для безопасного доступа к ресурсам
-        SDL_LockMutex(game->mutex);
-        
-        // Очистка экрана
-        SDL_RenderClear(game->renderer);
-            
-        // Отрисовка фона
-        SDL_RenderCopy(game->renderer, game->background, NULL, NULL);
-    
-        // Отрисовка игровой доски
-        out_board_SDL(game, CheckersBoard);
-           
-        // Разблокировка мьютекса
-        SDL_UnlockMutex(game->mutex);
-
-        // Обновление экрана
-        SDL_RenderPresent(game->renderer);
-
-        // Задержка для контроля FPS
-        SDL_Delay(16);
-    }
+    checkers(CheckersBoard);
 }
 
-int checkers(void* ptr)
+int checkers(Board* CheckersBoard)
 {
-    Board* CheckersBoard = (Board*)ptr;
-
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
     //  c { 0, r, 0, r, 0, r, 0, r } g
@@ -80,7 +52,8 @@ int checkers(void* ptr)
             printf("Red turn.\n");            
         else
             printf("White turn.\n");
-
+        
+        renderBoardFrame(CheckersBoard);
         //проверка на необходимость атаки
         bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
         if (attack_board) {
@@ -89,7 +62,7 @@ int checkers(void* ptr)
         }
         else {
             //Обычный ход
-            executeRegularMove(CheckersBoard->board, player);
+            executeRegularMove(CheckersBoard->board, player, CheckersBoard);
         }
 
         if (Win_Check(CheckersBoard->board, player)) {

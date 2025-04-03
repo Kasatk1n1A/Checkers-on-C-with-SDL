@@ -56,22 +56,13 @@ Game* game;
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-bool load_media(Game* game);
-void text_out(Text* Texts, int N);
 void board_cleanup_SDL(Board* board);
-void text_cleanup(Text* text, int N);
 void checker_cleanup_SDL(Checker* checker);
-bool load_text(Game* game, char* text, int r, int g, int b, int a, int x, int y, int size);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
 void app_cleanup(Game *game, int exit_status)
-{    
-    // Очистка текстовых элементов (если существуют)
-    if (game->texts){
-        text_cleanup(game->texts, game->text_count);
-    }
-    
+{        
     // Уничтожение объектов синхронизации
     SDL_DestroyMutex(game->mutex);
     SDL_DestroyCond(game->cond);
@@ -106,102 +97,17 @@ void text_out(Text* Texts, int N)
     }
 }
 
-bool load_media(Game* game)
-{
-    // Загрузка текстовых сообщений для игры
-    if (load_text(game, "Red Turn", 0, 0, 0, 255, 100, 400, 80))
-        return true;
-    if (load_text(game, "White Turn", 0, 0, 0, 255, 100, 400, 80))
-        return true;
-    return false;
-}
-
-bool load_text(Game* game, char* text, int r, int g, int b, int a, int x, int y, int size)
-{
-    // Выделение памяти для нового текста (расширение массива при необходимости)
-    if (game->text_count == 0)
-        game->texts = (Text*)malloc(sizeof(Text));
-    else
-    {
-        // Создание временного массива с увеличенным размером
-        Text* tmp = (Text*)malloc(sizeof(Text) * (game->text_count + 1));
-        
-        // Копирование существующих текстов
-        for (int i = 0; i < game->text_count + 1; i++)
-        {
-            memcpy(&tmp[i], &game->texts[i], sizeof(Text));
-        }
-        
-        // Замена старого массива новым
-        free(game->texts);
-        game->texts = tmp;
-    }
-    
-    // Увеличение счетчика текстов
-    game->text_count++;
-
-    // Установка цвета текста
-    game->texts[game->text_count - 1].color.r = r;
-    game->texts[game->text_count - 1].color.g = g;
-    game->texts[game->text_count - 1].color.b = b;
-    game->texts[game->text_count - 1].color.a = a;
-
-    // Загрузка шрифта указанного размера
-    game->texts[game->text_count - 1].font = TTF_OpenFont("fonts/bleedingcowboysrus.ttf", size);
-    if (!game->texts[game->text_count - 1].font) {
-        fprintf(stderr, "Error creating Font: %s\n", TTF_GetError());
-        return true;
-    }
-
-    // Создание поверхности с текстом
-    SDL_Surface *surface = TTF_RenderText_Blended(game->texts[game->text_count - 1].font, text, game->texts[game->text_count - 1].color);
-    if (!surface) {
-        fprintf(stderr, "Error creating Surface: %s\n", SDL_GetError());
-        return true;
-    }
-
-    // Создание текстуры из поверхности
-    game->texts[game->text_count - 1].image = SDL_CreateTextureFromSurface(game->renderer, surface);
-    SDL_FreeSurface(surface);  // Освобождение поверхности
-    if (!game->texts[game->text_count - 1].image) {
-        fprintf(stderr, "Error creating Texture: %s\n", SDL_GetError());
-        return true;
-    }
-
-    // Установка параметров отображения текста
-    game->texts[game->text_count - 1].Rect.w = surface->w;
-    game->texts[game->text_count - 1].Rect.h = surface->h;
-    game->texts[game->text_count - 1].Rect.x = 700 - surface->w / 2;  // Центрирование по X
-    game->texts[game->text_count - 1].Rect.y = y;
-    game->texts[game->text_count - 1].flag = false;  // По умолчанию текст скрыт
-
-    return false;
-}
-
-void text_cleanup(Text* text, int N)
-{
-    // Удаление всех текстовых элементов
-    for (int i = 0; i < N; i++)
-    {
-        // Удаление текстуры текста
-        if (text[i].image)
-            SDL_DestroyTexture(text[i].image);
-        
-        // Закрытие шрифта
-        if (text[i].font)
-            TTF_CloseFont(text[i].font);
-    }
-    
-    // Освобождение массива текстов
-    free(text);
-}
-
 bool sdl_initialize(Game *game)
 {
     // Инициализация основных компонентов SDL
     if (SDL_Init(SDL_INIT_EVERYTHING)){
         fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
         return true;  
+    }
+
+    if (TTF_Init()){
+        fprintf(stderr, "Error initializing TTF: %s\n", TTF_GetError());
+        return true;
     }
 
     // Инициализация SDL_image для работы с изображениями

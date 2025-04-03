@@ -9,10 +9,10 @@
 
 bool CheckerCoordinates(Game* game, int* x, int* y);
 bool isCheckerBlocked(CH_Type** board, int x, int y);
-void executeRegularMove(CH_Type** board, Player player);
 void King_check(CH_Type** board, int x, int y, Player player);
-bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board);
 void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
+void executeRegularMove(CH_Type** board, Player player, Board* CheckersBoard);
+bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board);
 
 // //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
@@ -52,7 +52,7 @@ void King_check(CH_Type** board, int x, int y, Player player)
  * @param board Игровая доска
  * @param player Текущий игрок (WHITE/RED)
  */
-void executeRegularMove(CH_Type** board, Player player)
+void executeRegularMove(CH_Type** board, Player player, Board* CheckersBoard)
 {
     int fromX, fromY; // Координаты исходной позиции
     
@@ -86,7 +86,7 @@ void executeRegularMove(CH_Type** board, Player player)
 
     // 2. Визуальное выделение выбранной шашки
     highlightChecker(game, fromX, fromY, board);
-    
+    renderBoardFrame(CheckersBoard);
     // 3. Фаза выбора целевой позиции
     int toX, toY;
     while (true) 
@@ -119,7 +119,7 @@ void executeRegularMove(CH_Type** board, Player player)
 
         // 5. Снятие визуального выделения
         unhighlightChecker(game, board, toX, toY);
-
+        renderBoardFrame(CheckersBoard);
         // 6. Проверка на превращение в дамку
         // King_check(board, toX, toY, player);
         break;

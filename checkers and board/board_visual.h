@@ -22,6 +22,24 @@ void unhighlightChecker(Game* game, CH_Type** board, int x2, int y2);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
+void renderBoardFrame(Board* CheckersBoard)
+{
+    // Очистка экрана
+    SDL_RenderClear(game->renderer);
+        
+    // Отрисовка фона
+    SDL_RenderCopy(game->renderer, game->background, NULL, NULL);
+
+    // Отрисовка игровой доски
+    out_board_SDL(game, CheckersBoard);
+
+    // Обновление экрана
+    SDL_RenderPresent(game->renderer);
+
+    // Задержка для контроля FPS
+    SDL_Delay(16);
+}
+
 void highlightChecker(Game* game, int x1, int y1, CH_Type** board)
 {
     SDL_LockMutex(game->mutex);

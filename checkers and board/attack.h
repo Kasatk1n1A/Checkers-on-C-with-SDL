@@ -161,12 +161,12 @@ void executeCaptureMove(CH_Type** board, bool** attack_board, Player player, Boa
 
     // 3. Визуально выделяем выбранную шашку
     highlightChecker(game, fromX, fromY, board);
-
     // 4. Основной цикл выполнения хода (с возможностью продолжения взятий)
     bool FirstMove = true;
     while (true) 
     {
         // Ввод целевой позиции
+        renderBoardFrame(CheckersBoard);
         Choice c = CheckerCoordinates(game, &toX, &toY);
         printf("%d\n", c);
         if (c == ENTER && !FirstMove)
