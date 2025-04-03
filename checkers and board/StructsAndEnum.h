@@ -19,4 +19,34 @@ typedef enum
     PICKED_RED_KING = -4
 } CH_Type;
 
+typedef enum
+{
+    ENTER,
+    MOUSE_LEFT
+} Choice;
+
+typedef struct 
+{
+    int flag;
+    SDL_Rect rect;
+    SDL_Texture *white_image;
+    SDL_Texture *picked_white_image;
+    SDL_Texture *white_King_image;
+    SDL_Texture *picked_white_king_image;
+    SDL_Texture *red_image;
+    SDL_Texture *picked_red_image;
+    SDL_Texture *red_King_image;
+    SDL_Texture *picked_red_king_image;
+} Checker;
+
+typedef struct
+{
+
+    CH_Type** board;
+    SDL_Rect rect;
+    SDL_Texture *image;
+    Checker* checkers;
+} Board;
+
+
 #endif

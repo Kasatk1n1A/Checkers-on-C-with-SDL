@@ -2,11 +2,12 @@
 #define MOUSE_ACTIONS
 
 #include "visualise.h"
+#include "checkers and board/StructsAndEnum.h"
 
 Game* game;
 
 void playerAction(Game* game);
-int get_mouse_click(int* x, int* y, Game* game);
+Choice get_mouse_click(int* x, int* y, Game* game);
 
 void playerAction(Game* game)
 {
@@ -18,7 +19,7 @@ void playerAction(Game* game)
         case SDL_QUIT:  // Обработка закрытия окна
             printf("Quit\n");
             SDL_LockMutex(game->mutex);
-            game_cleanup(game, EXIT_SUCCESS);
+            app_cleanup(game, EXIT_SUCCESS);
             SDL_UnlockMutex(game->mutex);
             break;  
         case SDL_KEYDOWN:  // Обработка нажатий клавиш
@@ -26,7 +27,7 @@ void playerAction(Game* game)
             {
             case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
                 SDL_LockMutex(game->mutex);
-                game_cleanup(game, EXIT_SUCCESS);
+                app_cleanup(game, EXIT_SUCCESS);
                 SDL_UnlockMutex(game->mutex);
                 break;
             default:
@@ -39,41 +40,47 @@ void playerAction(Game* game)
     }
 }
 
-int get_mouse_click(int* x, int* y, Game* game)
+Choice get_mouse_click(int* x, int* y, Game* game)
 {
     SDL_Event event;
-    int click_detected = 0;
 
-    // Проверяем события в очереди
-    while (SDL_PollEvent(&event)) 
+    while (true)
     {
-        switch (event.type)
+    // Проверяем события в очереди
+        while (SDL_PollEvent(&event)) 
         {
-        case SDL_QUIT:  // Обработка закрытия окна
-            game_cleanup(game, EXIT_SUCCESS);
-            break;  
-        case SDL_KEYDOWN:  // Обработка нажатий клавиш
-            switch (event.key.keysym.scancode)
+            switch (event.type)
             {
-            case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                game_cleanup(game, EXIT_SUCCESS);
+            case SDL_QUIT:  // Обработка закрытия окна
+                app_cleanup(game, EXIT_SUCCESS);
+                break;  
+
+            case SDL_KEYDOWN:  // Обработка нажатий клавиш
+                switch (event.key.keysym.scancode)
+                {
+                case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
+                    app_cleanup(game, EXIT_SUCCESS);
+                    break;
+                case SDL_SCANCODE_RETURN:
+                    return ENTER;
+                default:
+                    break;
+                }
                 break;
-            default:
+
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT) // ЛКМ
+                {            
+                    *x = event.button.x;
+                    *y = event.button.y;
+                }
+                // Выходим после первого обнаруженного клика
+                return MOUSE_LEFT;
                 break;
             }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if (event.button.button == SDL_BUTTON_LEFT) // ЛКМ
-            {            
-                *x = event.button.x;
-                *y = event.button.y;
-                click_detected = 1;
-            }
-            // Выходим после первого обнаруженного клика
-            break;
+        }
     }
-    }
-    return click_detected;
+    return 0;
 }
 
 #endif

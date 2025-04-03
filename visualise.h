@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <time.h>
+#include "checkers and board/StructsAndEnum.h"
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
@@ -30,29 +31,12 @@ typedef struct
     SDL_Texture *image;
 } Text;
 
-typedef struct 
-{
-    int flag;
-    SDL_Rect rect;
-    SDL_Texture *default_image;
-    SDL_Texture *picked_image;
-    SDL_Texture *King_image;
-    SDL_Texture *King_picked_image;
-} Checker;
-
 typedef struct
 {
     bool ClickDetected;
     int x; 
     int y;
 } MousePos;
-
-typedef struct
-{
-    SDL_Rect rect;
-    SDL_Texture *image;
-    Checker*** checkers;
-} Board;
 
 typedef struct 
 {
@@ -61,7 +45,6 @@ typedef struct
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *background;
-    Board* board;
     SDL_mutex* mutex;
     MousePos Mouse;
     SDL_cond* cond;
@@ -82,20 +65,8 @@ bool load_text(Game* game, char* text, int r, int g, int b, int a, int x, int y,
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-void game_cleanup(Game *game, int exit_status)
-{
-    // SDL_Texture* BlackWindow = IMG_LoadTexture(game->renderer, "images/BlackWindow.png");
-    // if (!BlackWindow) {
-    //     fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-    // }
-    // SDL_RenderClear(game->renderer);
-    // SDL_RenderCopy(game->renderer, BlackWindow, NULL, NULL);
-    // SDL_RenderPresent(game->renderer);
-
-    // Очистка игровой доски (если существует)
-    if (game->board)
-        board_cleanup_SDL(game->board);
-    
+void app_cleanup(Game *game, int exit_status)
+{    
     // Очистка текстовых элементов (если существуют)
     if (game->texts){
         text_cleanup(game->texts, game->text_count);
@@ -223,29 +194,6 @@ void text_cleanup(Text* text, int N)
     
     // Освобождение массива текстов
     free(text);
-}
-
-void board_cleanup_SDL(Board* board)
-{
-    // Удаление текстуры доски
-    if (board->image)
-        SDL_DestroyTexture(board->image);
-    
-    // Рекурсивное удаление всех шашек на доске
-    for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 8; j++){
-            if (board->checkers[i][j])
-                checker_cleanup_SDL(board->checkers[i][j]);
-        }
-        // Освобождение памяти для строки шашек
-        free(board->checkers[i]);
-    }
-    
-    // Освобождение основного массива шашек
-    free(board->checkers);
-    
-    // Освобождение структуры доски
-    free(board);
 }
 
 bool sdl_initialize(Game *game)

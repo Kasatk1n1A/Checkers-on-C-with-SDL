@@ -7,11 +7,12 @@
 
 // //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
+bool CheckerCoordinates(Game* game, int* x, int* y);
 bool isCheckerBlocked(CH_Type** board, int x, int y);
 void executeRegularMove(CH_Type** board, Player player);
 void King_check(CH_Type** board, int x, int y, Player player);
-void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
 bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board);
+void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
 
 // //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
@@ -21,14 +22,14 @@ Game* game;
 
 bool CheckerCoordinates(Game* game, int* x, int* y)
 {
-    if (get_mouse_click(x, y, game))
+    Choice c = get_mouse_click(x, y, game);
+    if (c == MOUSE_LEFT)
     {
         printf("%d %d\n", *x, *y);
         *x = (*x - (239 + 43)) / 105;
         *y = (*y - 41) / 105;
-        return true;
     }
-    return false;
+    return c;
 }
 
 //Проверяет условие появления дамки
@@ -40,11 +41,11 @@ void King_check(CH_Type** board, int x, int y, Player player)
     if (board[y][x] == WHITE_PAWN && y == 0)
     {
         board[y][x] = WHITE_KING;
-        game->board->checkers[y][x]->flag = WHITE_KING;
+        board[y][x] = WHITE_KING;
     }
     // Превращает красную шашку в дамку
     if (board[y][x] == RED_PAWN && y == 7)
-        game->board->checkers[y][x]->flag = RED_KING;
+        board[y][x] = RED_KING;
 }
 /*
  * Выполняет обычный ход без взятия фигур противника
@@ -59,13 +60,13 @@ void executeRegularMove(CH_Type** board, Player player)
     while (true)
     {
         // Ввод координат шашки
-        if (!CheckerCoordinates(game, &fromX, &fromY))
+        if (CheckerCoordinates(game, &fromX, &fromY) != MOUSE_LEFT)
             continue;
+
         printf("%d %d\n", fromX, fromY);
 
         // Проверка корректности координат
         if (fromX < 0 || fromX > 7 || fromY < 0 || fromY > 7) {
-            // printf("Coordinates out of range. Try again.\n");
             continue;
         }
         
@@ -92,23 +93,21 @@ void executeRegularMove(CH_Type** board, Player player)
     {
         // Ввод координат для хода
 
-        if (!CheckerCoordinates(game, &toX, &toY))
+        if (CheckerCoordinates(game, &toX, &toY) != MOUSE_LEFT)
             continue;
+
         printf("%d %d\n", toX, toY);
+        
         // Проверка границ доски
-        if (toX < 0 || toX > 7 || toY < 0 || toY > 7) {
-            // printf("Invalid coordinates. Try again.\n");
+        if (toX < 0 || toX > 7 || toY < 0 || toY > 7)
             continue;
-        }
         
         // Проверка, что целевая клетка свободна
-        if (board[toY][toX] != EMPTY) {
-            // printf("Target position must be empty.\n");
+        if (board[toY][toX] != EMPTY)
             continue;
-        }
 
         // Проверка правильности хода
-        bool isKing = (board[fromY][fromX] == WHITE_KING || board[fromY][fromX] == RED_KING);
+        bool isKing = (board[fromY][fromX] == PICKED_WHITE_KING || board[fromY][fromX] == PICKED_RED_KING);
         if(!canCheckerMove(fromX, fromY, toX, toY, isKing, player, board))
         {
             printf("This move is not allowed by game rules.\n");
@@ -119,10 +118,10 @@ void executeRegularMove(CH_Type** board, Player player)
         performCapture(board, fromX, fromY, toX, toY);
 
         // 5. Снятие визуального выделения
-        unhighlightChecker(game, toX, toY);
+        unhighlightChecker(game, board, toX, toY);
 
         // 6. Проверка на превращение в дамку
-        King_check(board, toX, toY, player);
+        // King_check(board, toX, toY, player);
         break;
     }
 }
@@ -141,7 +140,7 @@ void executeRegularMove(CH_Type** board, Player player)
 void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY)
 {    
     // 1. Сначала обновляем графическое представление перемещения
-    moveCheckerOnBoard(game, fromX, fromY, toX, toY, board);
+    // moveCheckerOnBoard(game, fromX, fromY, toX, toY, board);
     
     // 2. Определяем направление движения
     int dx = (toX > fromX) ? 1 : -1;  // Шаг по X (1 вправо, -1 влево)
@@ -163,9 +162,6 @@ void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY)
             // 4.1. Удаляем вражескую фигуру с доски
             board[y][x] = EMPTY;
             
-            // 4.2. Освобождаем графические ресурсы побитой фигуры
-            destroyCheckerTexture(game->board->checkers[y][x]);
-            
             // 4.3. Перепрыгиваем через побитую фигуру
             x += dx;
             y += dy;
@@ -173,13 +169,13 @@ void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY)
     }
 
     // 5. Проверяем превращение в дамку
-    if (movingPiece == WHITE_PAWN && toY == 7) {
+    if (movingPiece == PICKED_WHITE_PAWN && toY == 0) {
         // Белая пешка достигла последней линии (нижний край доски)
-        movingPiece = WHITE_KING;
+        movingPiece = PICKED_WHITE_KING;
     }
-    else if (movingPiece == RED_PAWN && toY == 0) {
+    else if (movingPiece == PICKED_RED_PAWN && toY == 7) {
         // Красная пешка достигла последней линии (верхний край доски)
-        movingPiece = RED_KING;
+        movingPiece = PICKED_RED_KING;
     }
     
     // 6. Устанавливаем фигуру на новую позицию

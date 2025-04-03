@@ -15,6 +15,7 @@
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
 int checkers(void* ptr);
+void NIGGERS(Game* game);
 bool Win_Check(CH_Type** board, Player player);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
@@ -23,9 +24,45 @@ Game* game;
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
+void NIGGERS(Game* game)
+{
+    Board* CheckersBoard = (Board*)malloc(sizeof(Board));
+    CheckersBoard->board = add_board();
+    LoadBoardTextures(CheckersBoard, game);
+
+
+    SDL_Thread* Thread1 = SDL_CreateThread(checkers, "checkers", (void*)CheckersBoard);
+
+    while (true)
+    {
+        playerAction(game);
+        // Блокировка мьютекса для безопасного доступа к ресурсам
+        SDL_LockMutex(game->mutex);
+        
+        // Очистка экрана
+        SDL_RenderClear(game->renderer);
+            
+        // Отрисовка фона
+        SDL_RenderCopy(game->renderer, game->background, NULL, NULL);
+    
+        // Отрисовка игровой доски
+        out_board_SDL(game, CheckersBoard);
+           
+        // Разблокировка мьютекса
+        SDL_UnlockMutex(game->mutex);
+
+        // Обновление экрана
+        SDL_RenderPresent(game->renderer);
+
+        // Задержка для контроля FPS
+        SDL_Delay(16);
+    }
+}
+
 int checkers(void* ptr)
 {
-    CH_Type** board = add_board();
+    Board* CheckersBoard = (Board*)ptr;
+
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
     //  c { 0, r, 0, r, 0, r, 0, r } g
@@ -38,24 +75,24 @@ int checkers(void* ptr)
 
     Player player = WHITE;
     while (true) {
-        out_board(board);
+        out_board(CheckersBoard->board);
         if (player == RED)
             printf("Red turn.\n");            
         else
             printf("White turn.\n");
 
         //проверка на необходимость атаки
-        bool** attack_board = canCapture(board, player == WHITE ? true : false);
+        bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
         if (attack_board) {
-            executeCaptureMove(board, attack_board, player);
+            executeCaptureMove(CheckersBoard->board, attack_board, player, CheckersBoard);
             freeBoard((void**)attack_board);
         }
         else {
             //Обычный ход
-            executeRegularMove(board, player);
+            executeRegularMove(CheckersBoard->board, player);
         }
 
-        if (Win_Check(board, player)) {
+        if (Win_Check(CheckersBoard->board, player)) {
             switch (player)
             {
             case WHITE:
@@ -71,7 +108,7 @@ int checkers(void* ptr)
         player = (player == WHITE) ? RED : WHITE;
     }
 
-    freeBoard((void**)board);
+    freeBoard((void**)CheckersBoard->board);
     return 0;
 }
 
