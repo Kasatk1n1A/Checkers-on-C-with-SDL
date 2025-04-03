@@ -42,7 +42,6 @@ void renderBoardFrame(Board* CheckersBoard)
 
 void highlightChecker(Game* game, int x1, int y1, CH_Type** board)
 {
-    SDL_LockMutex(game->mutex);
     switch (board[y1][x1])
     {
     case WHITE_PAWN:
@@ -58,12 +57,10 @@ void highlightChecker(Game* game, int x1, int y1, CH_Type** board)
         board[y1][x1] = PICKED_RED_KING;
         break;
     }
-    SDL_UnlockMutex(game->mutex);
 }
 
 void unhighlightChecker(Game* game, CH_Type** board, int x2, int y2)
 {
-    SDL_LockMutex(game->mutex);
     switch (board[y2][x2]) 
     {
     case PICKED_WHITE_PAWN:
@@ -79,7 +76,6 @@ void unhighlightChecker(Game* game, CH_Type** board, int x2, int y2)
         board[y2][x2] = RED_KING;
         break;
     }
-    SDL_UnlockMutex(game->mutex);
 }
 
 bool LoadBoardTextures(Board* CheckersBoard, Game* game)

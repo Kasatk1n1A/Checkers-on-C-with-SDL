@@ -14,8 +14,7 @@
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-void NIGGERS(Game* game);
-int checkers(Board* CheckersBoard);
+int checkers(Game* game);
 bool Win_Check(CH_Type** board, Player player);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
@@ -24,17 +23,11 @@ Game* game;
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-void NIGGERS(Game* game)
+int checkers(Game* game)
 {
     Board* CheckersBoard = (Board*)malloc(sizeof(Board));
     CheckersBoard->board = add_board();
     LoadBoardTextures(CheckersBoard, game);
-
-    checkers(CheckersBoard);
-}
-
-int checkers(Board* CheckersBoard)
-{
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
     //  c { 0, r, 0, r, 0, r, 0, r } g

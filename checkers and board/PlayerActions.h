@@ -19,14 +19,14 @@
 //             switch (event.type)
 //             {
 //             case SDL_QUIT:  // Обработка закрытия окна
-//                 app_cleanup(game, EXIT_SUCCESS);
+//                 game_cleanup(game, EXIT_SUCCESS);
 //                 break;  
 
 //             case SDL_KEYDOWN:  // Обработка нажатий клавиш
 //                 switch (event.key.keysym.scancode)
 //                 {
 //                 case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-//                     app_cleanup(game, EXIT_SUCCESS);
+//                     game_cleanup(game, EXIT_SUCCESS);
 //                     break;
 //                 case SDL_SCANCODE_RETURN:
 //                     return ENTER;

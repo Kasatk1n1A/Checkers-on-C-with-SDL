@@ -6,16 +6,11 @@ Game* game;
 
 int main()
 {
-    // Инициализация структуры игры
-    game = (Game*)malloc(sizeof(Game));
-    game->window = NULL;
-    game->renderer = NULL;
-    game->background = NULL; 
-    game->text_count = 0; 
+
     
     // Инициализация SDL
     if (sdl_initialize(game)) 
-        app_cleanup(game, EXIT_FAILURE);
+        game_cleanup(game, EXIT_FAILURE);
     
     NIGGERS(game);
     
@@ -23,7 +18,7 @@ int main()
     // SDL_WaitThread(test_thread, NULL);
 
     // Очистка ресурсов
-    app_cleanup(game, EXIT_SUCCESS);
+    game_cleanup(game, EXIT_SUCCESS);
 
     return 0;
 }

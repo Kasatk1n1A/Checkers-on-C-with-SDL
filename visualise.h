@@ -17,37 +17,11 @@
 #define SCREEN_HEIGHT 923
 #define IMAGE_FLAGS IMG_INIT_PNG
 
-struct Text;
-struct Checker;
-struct Board;
-struct Game;
-
-typedef struct
-{
-    bool flag;
-    TTF_Font *font;
-    SDL_Color color;
-    SDL_Rect Rect;
-    SDL_Texture *image;
-} Text;
-
-typedef struct
-{
-    bool ClickDetected;
-    int x; 
-    int y;
-} MousePos;
-
 typedef struct 
 {
-    Text* texts;
-    int text_count;
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *background;
-    SDL_mutex* mutex;
-    MousePos Mouse;
-    SDL_cond* cond;
 } Game;
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
@@ -56,46 +30,10 @@ Game* game;
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-void board_cleanup_SDL(Board* board);
-void checker_cleanup_SDL(Checker* checker);
+bool sdl_initialize(Game *game);
+void game_cleanup(Game *game, int exit_status);
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-void app_cleanup(Game *game, int exit_status)
-{        
-    // Уничтожение объектов синхронизации
-    SDL_DestroyMutex(game->mutex);
-    SDL_DestroyCond(game->cond);
-    
-    // Освобождение графических ресурсов
-    SDL_DestroyTexture(game->background);
-    SDL_DestroyRenderer(game->renderer);
-    SDL_DestroyWindow(game->window);
-    
-    // Завершение работы библиотек
-    TTF_Quit();  // Библиотека шрифтов
-    IMG_Quit();  // Библиотека загрузки изображений
-    SDL_Quit();  // Основная SDL библиотека
-    
-    // Освобождение структуры игры
-    free(game);
-    
-    // Завершение программы с указанным статусом
-    exit(exit_status);
-}
-
-void text_out(Text* Texts, int N)
-{
-    // Отрисовка всех активных текстовых элементов
-    for (int i = 0; i < N; i++)
-    {
-        if (Texts[i].flag)  // Проверка флага видимости
-        {
-            // Отрисовка текста
-            SDL_RenderCopy(game->renderer, Texts[i].image, NULL, &Texts[i].Rect);
-        }
-    }
-}
 
 bool sdl_initialize(Game *game)
 {
@@ -130,22 +68,32 @@ bool sdl_initialize(Game *game)
         fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
         return true;  
     }
-    
-    // Загрузка фоновой текстуры
-    SDL_Texture* background = IMG_LoadTexture(game->renderer, "images/background.png");
-    if (!game->background) {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        return true;
-    }
-
-    // Инициализация объектов синхронизации
-    game->mutex = SDL_CreateMutex();
-    game->cond = SDL_CreateCond();
 
     // Инициализация генератора случайных чисел
     srand((unsigned)time(NULL));
 
     return false;
 }
+
+void game_cleanup(Game *game, int exit_status)
+{        
+    // Освобождение графических ресурсов
+    SDL_DestroyTexture(game->background);
+    SDL_DestroyRenderer(game->renderer);
+    SDL_DestroyWindow(game->window);
+    
+    // Завершение работы библиотек
+    TTF_Quit();  // Библиотека шрифтов
+    IMG_Quit();  // Библиотека загрузки изображений
+    SDL_Quit();  // Основная SDL библиотека
+    
+    // Освобождение структуры игры
+    free(game);
+    
+    // Завершение программы с указанным статусом
+    exit(exit_status);
+}
+
+
 
 #endif

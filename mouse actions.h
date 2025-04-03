@@ -17,18 +17,13 @@ void playerAction(Game* game)
         switch (event.type) 
         {
         case SDL_QUIT:  // Обработка закрытия окна
-            printf("Quit\n");
-            SDL_LockMutex(game->mutex);
-            app_cleanup(game, EXIT_SUCCESS);
-            SDL_UnlockMutex(game->mutex);
+            game_cleanup(game, EXIT_SUCCESS);
             break;  
         case SDL_KEYDOWN:  // Обработка нажатий клавиш
             switch (event.key.keysym.scancode)
             {
             case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                SDL_LockMutex(game->mutex);
-                app_cleanup(game, EXIT_SUCCESS);
-                SDL_UnlockMutex(game->mutex);
+                game_cleanup(game, EXIT_SUCCESS);
                 break;
             default:
                 break;
@@ -52,14 +47,14 @@ Choice get_mouse_click(int* x, int* y, Game* game)
             switch (event.type)
             {
             case SDL_QUIT:  // Обработка закрытия окна
-                app_cleanup(game, EXIT_SUCCESS);
+                game_cleanup(game, EXIT_SUCCESS);
                 break;  
 
             case SDL_KEYDOWN:  // Обработка нажатий клавиш
                 switch (event.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                    app_cleanup(game, EXIT_SUCCESS);
+                    game_cleanup(game, EXIT_SUCCESS);
                     break;
                 case SDL_SCANCODE_RETURN:
                     return ENTER;
