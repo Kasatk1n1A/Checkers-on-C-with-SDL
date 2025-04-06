@@ -43,32 +43,31 @@ int checkers(Window* window)
             executeRegularMove(window, CheckersBoard->board, player, CheckersBoard);
 
         if (Win_Check(CheckersBoard->board, player))
+        {
             player == WHITE ? printf("White won!\n") : printf("Red won!\n");
-
+            break;
+        }
         //смена игрока
         player = (player == WHITE) ? RED : WHITE;
     }
 
-    freeBoard((void**)CheckersBoard->board);
+    SDL_DestroyTexture(background);
+    board_cleanup_SDL(CheckersBoard);
+    showMainMenu(window);
     return 0;
 }
 
 bool Win_Check(CH_Type** board, Player player)
 {
-    for (int i = 0; i < 8; i++)
+    CH_Type enemy_pawn = (player == WHITE) ? RED_PAWN : WHITE_PAWN;
+    CH_Type enemy_king = (player == WHITE) ? RED_KING : WHITE_KING;
+
+    for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            switch (player) 
-            {
-            case WHITE:
-                if (board[i][j] == RED_PAWN || board[i][j] == RED_KING)
-                    return false;
-                break;
-            case RED:
-                if (board[i][j] == WHITE_PAWN || board[i][j] == RED_KING)
-                    return false;
-                break;
+            if (board[i][j] == enemy_pawn || board[i][j] == enemy_king) {
+                return false;
             }
         }
-
+    }
     return true;
 }

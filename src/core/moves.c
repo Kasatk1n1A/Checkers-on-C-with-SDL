@@ -265,18 +265,14 @@ bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player playe
     int dy = y2 - y1;
     int stepX = (dx > 0) ? 1 : -1;
     int stepY = (dy > 0) ? 1 : -1;
-    printf("%d %d\n", x1, y1);
-    printf("dx: %d dy: %d\n", dx, dy);
+
     // 6. Для обычной шашки проверяем прыжок через одну клетку
-    printf("%d %d\n", our_pawn, board[y1][x1]);
-    printf("%d\n", board[y1][x1] == our_pawn);
     if (board[y1][x1] == our_pawn) 
     {
         if (abs(dx) == 2 && abs(dy) == 2) 
         {
             int midX = x1 + stepX;
             int midY = y1 + stepY;
-            printf("%d %d\n", midX, midY);
             // Проверяем, что между нами и целью - вражеская фигура
             if (board[midY][midX] == enemy_pawn || board[midY][midX] == enemy_king)
                 return true;
