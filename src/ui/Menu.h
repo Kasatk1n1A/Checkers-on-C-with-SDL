@@ -1,0 +1,14 @@
+#ifndef MENU_H
+#define MENU_H
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include "../../include/core/ui_types.h"
+#include "../../include/core/Board_types.h"
+
+int showMainMenu(Window* window);
+void MiniMenu(Window* window, Board* CheckersBoard);
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color color);
+
+#endif

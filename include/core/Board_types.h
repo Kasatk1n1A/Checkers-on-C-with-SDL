@@ -1,29 +1,12 @@
-#ifndef STRUCTSANDENUM
-#define STRUCTSANDENUM
+#ifndef BOARD_TYPES_H
+#define BOARD_TYPES_H
 
-typedef enum {
-    WHITE,
-    RED
-} Player;
+#include "Checkers_types.h"
 
-typedef enum 
-{
-    EMPTY = 0,
-    WHITE_PAWN = 1,
-    PICKED_WHITE_PAWN = 2,
-    WHITE_KING = 3,
-    PICKED_WHITE_KING = 4,
-    RED_PAWN = -1,
-    PICKED_RED_PAWN = -2,
-    RED_KING = -3,
-    PICKED_RED_KING = -4
-} CH_Type;
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
-typedef enum
-{
-    ENTER,
-    MOUSE_LEFT
-} Choice;
 
 typedef struct 
 {
@@ -48,5 +31,4 @@ typedef struct
     Checker* checkers;
 } Board;
 
-
-#endif
+#endif 

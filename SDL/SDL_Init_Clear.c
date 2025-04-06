@@ -1,39 +1,4 @@
-#ifndef VISUALISE
-#define VISUALISE
-
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <time.h>
-#include "checkers and board/StructsAndEnum.h"
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-#define MAIN_MENU_BACK "Checkers"
-#define SCREEN_WIDTH 1400
-#define SCREEN_HEIGHT 923
-#define IMAGE_FLAGS IMG_INIT_PNG
-
-typedef struct 
-{
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Texture *background;
-} Game;
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-Game* game;
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-bool sdl_initialize(Game *game);
-void game_cleanup(Game *game, int exit_status);
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
+#include "SDL_init_Clear.h"
 
 bool sdl_initialize(Game *game)
 {
@@ -75,25 +40,10 @@ bool sdl_initialize(Game *game)
     return false;
 }
 
-void game_cleanup(Game *game, int exit_status)
-{        
-    // Освобождение графических ресурсов
-    SDL_DestroyTexture(game->background);
-    SDL_DestroyRenderer(game->renderer);
-    SDL_DestroyWindow(game->window);
-    
+void SDL_cleanup()
+{
     // Завершение работы библиотек
     TTF_Quit();  // Библиотека шрифтов
     IMG_Quit();  // Библиотека загрузки изображений
     SDL_Quit();  // Основная SDL библиотека
-    
-    // Освобождение структуры игры
-    free(game);
-    
-    // Завершение программы с указанным статусом
-    exit(exit_status);
 }
-
-
-
-#endif

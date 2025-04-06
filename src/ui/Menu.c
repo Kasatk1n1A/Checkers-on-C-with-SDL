@@ -1,4 +1,4 @@
-#include "libraries.h"
+#include "Menu.h"
 
 #define IMAGE_FLAGS IMG_INIT_PNG
 #define SCREEN_WIDTH 1400
@@ -6,33 +6,14 @@
 #define FONT_SIZE 72  // Увеличенный размер шрифта
 #define FPS 60
 
-typedef struct {
-    SDL_Rect rect;
-    const char* text;
-    bool hovered;
-} MenuItem;
 
-void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, 
-                int x, int y, SDL_Color color) {
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect rect = {x, y, surface->w, surface->h};
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
 
-int showMainMenu(Game* game) 
+int showMainMenu(Window* window)
 {
-    SDL_Renderer* renderer = game->renderer;
-    if (TTF_Init() == -1) 
-    {
-        fprintf(stderr, "TTF_Init error: %s", TTF_GetError());
-        return -1;
-    }
+    SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("fonts/freesansbold.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -40,8 +21,8 @@ int showMainMenu(Game* game)
         return -1;
     }
 
-    game->background = IMG_LoadTexture(renderer, "images/Kover2.png");
-    if (!game->background) 
+    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover2.png");
+    if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return -1;
@@ -75,18 +56,19 @@ int showMainMenu(Game* game)
                 running = false;
                 selectedItem = 3;
                 break;
-            case SDL_MOUSEMOTION: {
+            case SDL_MOUSEMOTION:
                 int x = event.motion.x;
                 int y = event.motion.y;
 
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++) 
+                {
                     items[i].hovered = (x >= items[i].rect.x && 
                                         x <= items[i].rect.x + items[i].rect.w && 
                                         y >= items[i].rect.y && 
                                         y <= items[i].rect.y + items[i].rect.h);
                 }
                 break;
-            }
+                
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     for (int i = 0; i < 4; i++) {
@@ -103,7 +85,7 @@ int showMainMenu(Game* game)
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, game->background, NULL, NULL);
+        SDL_RenderCopy(renderer, background, NULL, NULL);
 
         for (int i = 0; i < 4; i++) 
         {
@@ -113,7 +95,7 @@ int showMainMenu(Game* game)
             TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
             int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
             int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
-            
+
             renderText(renderer, font, items[i].text, textX, textY, color);
         }
 
@@ -121,39 +103,18 @@ int showMainMenu(Game* game)
 
         Uint32 frameTime = SDL_GetTicks() - frameStart;
         if (frameTime < 1000/FPS)
-            SDL_Delay(1000/FPS - frameTime);
+        SDL_Delay(1000/FPS - frameTime);
     }
 
     return selectedItem;
 }
 
-int main() {
-    // Инициализация структуры игры
-    game = (Game*)malloc(sizeof(Game));
-    game->window = NULL;
-    game->renderer = NULL;
-    game->background = NULL; 
-
-    if (sdl_initialize(game)) 
-        game_cleanup(game, EXIT_FAILURE);
-
-    int choice = showMainMenu(game);
-
-    switch (choice) 
-    {
-        case 0: 
-            printf("New game selected\n"); 
-            checkers(game);
-            break;
-        case 1: printf("Load game selected\n"); break;
-        case 2: printf("Leaderboard selected\n"); break;
-        case 3: 
-            printf("Quit selected\n"); 
-            game_cleanup(game, EXIT_SUCCESS);
-            break;
-        default: 
-            break;
-    }
-
-    return 0;
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color color) 
+{
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }

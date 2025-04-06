@@ -1,15 +1,10 @@
-#ifndef MOUSE_ACTIONS
-#define MOUSE_ACTIONS
+#include <SDL2/SDL.h>
+#include "../../include/core/ui_types.h"
+#include "../../include/core/Board_types.h"
+#include "../utils/sdl_utils.h"
+#include "input.h"
 
-#include "visualise.h"
-#include "checkers and board/StructsAndEnum.h"
-
-Game* game;
-
-void playerAction(Game* game);
-Choice get_mouse_click(int* x, int* y, Game* game);
-
-void playerAction(Game* game)
+void playerAction(Window* window)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) 
@@ -17,13 +12,13 @@ void playerAction(Game* game)
         switch (event.type) 
         {
         case SDL_QUIT:  // Обработка закрытия окна
-            game_cleanup(game, EXIT_SUCCESS);
+            Game_cleanup(window, EXIT_SUCCESS);
             break;  
         case SDL_KEYDOWN:  // Обработка нажатий клавиш
             switch (event.key.keysym.scancode)
             {
             case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                game_cleanup(game, EXIT_SUCCESS);
+                Game_cleanup(window, EXIT_SUCCESS);
                 break;
             default:
                 break;
@@ -35,7 +30,7 @@ void playerAction(Game* game)
     }
 }
 
-Choice get_mouse_click(int* x, int* y, Game* game)
+Choice get_mouse_click(int* x, int* y, Window* window)
 {
     SDL_Event event;
 
@@ -47,14 +42,14 @@ Choice get_mouse_click(int* x, int* y, Game* game)
             switch (event.type)
             {
             case SDL_QUIT:  // Обработка закрытия окна
-                game_cleanup(game, EXIT_SUCCESS);
+                Game_cleanup(window, EXIT_SUCCESS);
                 break;  
 
             case SDL_KEYDOWN:  // Обработка нажатий клавиш
                 switch (event.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                    game_cleanup(game, EXIT_SUCCESS);
+                    // MiniMenu(game, CheckersBoard);
                     break;
                 case SDL_SCANCODE_RETURN:
                     return ENTER;
@@ -77,5 +72,3 @@ Choice get_mouse_click(int* x, int* y, Game* game)
     }
     return 0;
 }
-
-#endif

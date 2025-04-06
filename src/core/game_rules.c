@@ -1,33 +1,18 @@
-#ifndef CHECKERS_MAIN
-#define CHECKERS_MAIN
+#include "game_rules.h"
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
-#include "board.h"
-#include "move.h"
-#include "attack.h"
-#include "board_visual.h"
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-int checkers(Game* game);
-bool Win_Check(CH_Type** board, Player player);
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-Game* game;
-
-//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
-
-int checkers(Game* game)
+int checkers(Window* window)
 {
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover2.png");
+    if (!background) 
+    {
+        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+        return -1;
+    }
+
     Board* CheckersBoard = (Board*)malloc(sizeof(Board));
     CheckersBoard->board = add_board();
-    LoadBoardTextures(CheckersBoard, game);
+    LoadBoardTextures(CheckersBoard, window);
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
     //  c { 0, r, 0, r, 0, r, 0, r } g
@@ -46,30 +31,20 @@ int checkers(Game* game)
         else
             printf("White turn.\n");
         
-        renderBoardFrame(CheckersBoard);
+        renderBoardFrame(window, CheckersBoard, background);
         //проверка на необходимость атаки
         bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
         if (attack_board) {
-            executeCaptureMove(CheckersBoard->board, attack_board, player, CheckersBoard);
+            executeCaptureMove(window, CheckersBoard->board, attack_board, player, CheckersBoard);
             freeBoard((void**)attack_board);
         }
-        else {
+        else
             //Обычный ход
-            executeRegularMove(CheckersBoard->board, player, CheckersBoard);
-        }
+            executeRegularMove(window, CheckersBoard->board, player, CheckersBoard);
 
-        if (Win_Check(CheckersBoard->board, player)) {
-            switch (player)
-            {
-            case WHITE:
-                printf("White won!\n");
-                break;
-            case RED:
-                printf("Red won!\n");
-                    break;
-            }
-            break;
-        }
+        if (Win_Check(CheckersBoard->board, player))
+            player == WHITE ? printf("White won!\n") : printf("Red won!\n");
+
         //смена игрока
         player = (player == WHITE) ? RED : WHITE;
     }
@@ -97,5 +72,3 @@ bool Win_Check(CH_Type** board, Player player)
 
     return true;
 }
-
-#endif
