@@ -24,6 +24,6 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
 void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard, double Time);
 
 void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
-bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, int* x, int* y);
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int* x, int* y);
 
 #endif

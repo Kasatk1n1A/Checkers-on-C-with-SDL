@@ -12,7 +12,7 @@
 #include "board.h"
 #include "moves.h"
 
-int checkers(Window* window);
 bool Win_Check(CH_Type** board, Player player);
+int checkers(Window* window, CH_Type** board, double Time, Player player);
 
 #endif

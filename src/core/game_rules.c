@@ -1,7 +1,7 @@
 #include "game_rules.h"
 
 
-int checkers(Window* window)
+int checkers(Window* window, CH_Type** board, double Time, Player color)
 {
     SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
     if (!background) 
@@ -11,7 +11,12 @@ int checkers(Window* window)
     }
 
     Board* CheckersBoard = (Board*)malloc(sizeof(Board));
-    CheckersBoard->board = add_board();
+
+    if (board == NULL)
+        CheckersBoard->board = add_board();
+    else
+        CheckersBoard->board = board;
+    
     LoadBoardTextures(CheckersBoard, window);
     //  a { 0, r, 0, r, 0, r, 0, r } n
     //  b { r, 0, r, 0, r, 0, r, 0 } i
@@ -22,12 +27,14 @@ int checkers(Window* window)
     //  g { 0, w, 0, w, 0, w, 0, w } s
     //  h { w, 0, w, 0, w, 0, w, 0 } !
     //      1  2  3  4  5  6  7  8
-
-    double white_time_used = 0.0;  // Общее время для белых
+    
+    
     clock_t start, end;
+    double white_time_used = Time;  // Общее время для белых
 
-    Player player = WHITE;
-    while (true) {
+    Player player = color;
+    while (true)
+    {
         out_board(CheckersBoard->board);
         if (player == RED)
             printf("Red turn.\n");            

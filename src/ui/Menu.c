@@ -38,91 +38,105 @@ void showMainMenu(Window* window)
     SDL_Color black = {0, 0, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
-    bool running = true;
-    int selectedItem = -1;
-
-    while (running) 
+    while (true)
     {
-        Uint32 frameStart = SDL_GetTicks();
+        bool running = true;
+        int selectedItem = -1;
 
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) 
+        while (running) 
         {
-            switch (event.type) 
-            {
-            case SDL_QUIT:
-                running = false;
-                selectedItem = 3;
-                break;
-            case SDL_MOUSEMOTION:
-                int x = event.motion.x;
-                int y = event.motion.y;
+            Uint32 frameStart = SDL_GetTicks();
 
-                for (int i = 0; i < 5; i++) 
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) 
+            {
+                switch (event.type) 
                 {
-                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
-                }
-                break;
-                
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.button == SDL_BUTTON_LEFT) {
-                    for (int i = 0; i < 5; i++) {
-                        if (items[i].hovered) {
-                            selectedItem = i;
-                            running = false;
-                            break;
+                case SDL_QUIT:
+                    running = false;
+                    selectedItem = 3;
+                    break;
+                case SDL_MOUSEMOTION:
+                    int x = event.motion.x;
+                    int y = event.motion.y;
+
+                    for (int i = 0; i < 5; i++) 
+                    {
+                        items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
+                                            y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    }
+                    break;
+                    
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT) {
+                        for (int i = 0; i < 5; i++) {
+                            if (items[i].hovered) {
+                                selectedItem = i;
+                                running = false;
+                                break;
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, background, NULL, NULL);
+
+            for (int i = 0; i < 5; i++) 
+            {
+                SDL_Color color = items[i].hovered ? red : black;
+                // Центрирование текста внутри увеличенных прямоугольников
+                int textWidth, textHeight;
+                TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
+                int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
+                int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
+
+                renderText(renderer, font, items[i].text, textX, textY, color);
+            }
+
+            SDL_RenderPresent(renderer);
+
+            Uint32 frameTime = SDL_GetTicks() - frameStart;
+            if (frameTime < 1000/FPS)
+            SDL_Delay(1000/FPS - frameTime);
         }
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, background, NULL, NULL);
-
-        for (int i = 0; i < 5; i++) 
+        switch (selectedItem)
         {
-            SDL_Color color = items[i].hovered ? red : black;
-            // Центрирование текста внутри увеличенных прямоугольников
-            int textWidth, textHeight;
-            TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
-            int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
-            int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
+            case 0: 
+                printf("New game selected\n"); 
+                SDL_DestroyTexture(background);
+                checkers(window, NULL, 0, 0);
+                break;
+            case 1: 
+                double Time;
+                Player player = WHITE;
+                CH_Type** board = load_from_save(&Time, &player);
+                if (board == NULL)
+                    break;
 
-            renderText(renderer, font, items[i].text, textX, textY, color);
+                SDL_DestroyTexture(background);
+                checkers(window, board, Time, player);
+                break;
+            case 2: printf("Leaderboard selected\n"); break;
+            case 3: printf("About selected\n"); break;
+            case 4: 
+                printf("Quit selected\n"); 
+                SDL_DestroyTexture(background);
+                Game_cleanup(window, EXIT_SUCCESS);
+                break;
+            default: 
+                break;
         }
-
-        SDL_RenderPresent(renderer);
-
-        Uint32 frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < 1000/FPS)
-        SDL_Delay(1000/FPS - frameTime);
     }
-
+    
     SDL_DestroyTexture(background);
-
-    switch (selectedItem)
-    {
-        case 0: 
-            printf("New game selected\n"); 
-            checkers(window);
-            break;
-        case 1: printf("Load game selected\n"); break;
-        case 2: printf("Leaderboard selected\n"); break;
-        case 3: printf("About selected\n"); break;
-        case 4: 
-            printf("Quit selected\n"); 
-            Game_cleanup(window, EXIT_SUCCESS);
-            break;
-        default: 
-            break;
-    }
 }
 
-void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time)
+void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player)
 {
     SDL_Renderer* renderer = window->renderer;
 
@@ -227,7 +241,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time)
                 return;
                 break;
             case 1: 
-                SaveGame(CheckersBoard->board, Time);
+                SaveGame(CheckersBoard->board, Time, player);
                 break;
             case 2: 
                 board_cleanup_SDL(CheckersBoard);
