@@ -22,7 +22,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y);
 void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard);
 bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board);
 
-bool CheckerCoordinates(Window* window, int* x, int* y);
 void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, int* x, int* y);
 
 #endif

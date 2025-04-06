@@ -198,8 +198,6 @@ void board_cleanup_SDL(Board* CheckersBoard)
 
     // Освобождение основного массива шашек
     free(CheckersBoard->checkers);
-    
-    freeBoard((void**)CheckersBoard->board); 
 
     // Освобождение структуры доски
     free(CheckersBoard);

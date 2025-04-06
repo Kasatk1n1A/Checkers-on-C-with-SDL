@@ -266,7 +266,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     while (true) 
     {        
         // Чтение и проверка формата ввода
-        if (CheckerCoordinates(window, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, &fromX, &fromY) != MOUSE_LEFT)
             continue;
         printf("%d %d\n", fromX, fromY);
         // Проверка допустимости выбора
@@ -291,7 +291,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     {
         // Ввод целевой позиции
         renderBoardFrame(window, CheckersBoard, background);
-        Choice c = CheckerCoordinates(window, &toX, &toY);
+        Choice c = CheckerCoordinates(window, CheckersBoard, &toX, &toY);
         printf("%d\n", c);
         if (c == ENTER && !FirstMove)
             break;
@@ -415,7 +415,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
     while (true)
     {
         // Ввод координат шашки
-        if (CheckerCoordinates(window, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, &fromX, &fromY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", fromX, fromY);
@@ -448,7 +448,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
     {
         // Ввод координат для хода
 
-        if (CheckerCoordinates(window, &toX, &toY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, &toX, &toY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", toX, toY);
@@ -597,9 +597,9 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-bool CheckerCoordinates(Window* window, int* x, int* y)
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, int* x, int* y)
 {
-    Choice c = get_mouse_click(x, y, window);
+    Choice c = get_mouse_click(x, y, window, CheckersBoard);
     if (c == MOUSE_LEFT)
     {
         printf("%d %d\n", *x, *y);
