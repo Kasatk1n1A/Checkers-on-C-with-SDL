@@ -3,7 +3,7 @@
 
 int checkers(Window* window)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover2.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());

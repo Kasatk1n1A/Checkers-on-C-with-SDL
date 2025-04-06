@@ -16,6 +16,7 @@ void showCaptureOptions(bool** board);
 bool** canCapture(CH_Type** board, bool isWhiteTurn);
 bool CanContinue(CH_Type** board, int x, int y, Player player);
 bool CanCheckerAttack(CH_Type** board, int x, int y, bool isWhite);
+bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player player);
 void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard);
 
 bool isCheckerBlocked(CH_Type** board, int x, int y);

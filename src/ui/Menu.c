@@ -18,7 +18,7 @@ void showMainMenu(Window* window)
         return;
     }
 
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover2.png");
+    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -35,8 +35,8 @@ void showMainMenu(Window* window)
         {{SCREEN_WIDTH/2 - 200, 600, 400, 80}, "Quit", false}
     };
 
-    SDL_Color black = {255, 255, 255, 255};
-    SDL_Color red = {0, 0, 255, 255};
+    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
 
     bool running = true;
     int selectedItem = -1;
@@ -134,7 +134,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard)
         return;
     }
 
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover2.png");
+    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -149,8 +149,8 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard)
         {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "Main Menu", false}
     };
 
-    SDL_Color black = {255, 255, 255, 255};
-    SDL_Color red = {0, 0, 255, 255};
+    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
 
     bool running = true;
     int selectedItem = -1;

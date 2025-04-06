@@ -243,6 +243,68 @@ bool CanCheckerAttack(CH_Type** board, int x, int y, bool isWhite)
 }
 
 /*
+ * Проверяет, будет ли взята вражеская шашка при ходе с (x1,y1) на (x2,y2)
+ * 
+ * @param board Игровая доска 8x8
+ * @param x1,y1 Начальная позиция шашки
+ * @param x2,y2 Конечная позиция шашки
+ * @param player Текущий игрок (WHITE или RED)
+ * 
+ * @return true - если будет взятие, false - если ход без взятия
+ */
+bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player player)
+{
+    // 2. Определяем типы фигур
+    CH_Type our_pawn = (player == WHITE) ? PICKED_WHITE_PAWN : PICKED_RED_PAWN;
+    CH_Type our_king = (player == WHITE) ? PICKED_WHITE_KING : PICKED_RED_KING;
+    CH_Type enemy_pawn = (player == WHITE) ? RED_PAWN : WHITE_PAWN;
+    CH_Type enemy_king = (player == WHITE) ? RED_KING : WHITE_KING;
+
+    // 5. Вычисляем направление движения
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int stepX = (dx > 0) ? 1 : -1;
+    int stepY = (dy > 0) ? 1 : -1;
+    printf("%d %d\n", x1, y1);
+    printf("dx: %d dy: %d\n", dx, dy);
+    // 6. Для обычной шашки проверяем прыжок через одну клетку
+    printf("%d %d\n", our_pawn, board[y1][x1]);
+    printf("%d\n", board[y1][x1] == our_pawn);
+    if (board[y1][x1] == our_pawn) 
+    {
+        if (abs(dx) == 2 && abs(dy) == 2) 
+        {
+            int midX = x1 + stepX;
+            int midY = y1 + stepY;
+            printf("%d %d\n", midX, midY);
+            // Проверяем, что между нами и целью - вражеская фигура
+            if (board[midY][midX] == enemy_pawn || board[midY][midX] == enemy_king)
+                return true;
+        }
+        return false;
+    }
+    // 7. Для дамки проверяем все клетки по пути
+    else if (board[y1][x1] == our_king) 
+    {
+        int x = x1 + stepX;
+        int y = y1 + stepY;
+
+        while (x != x2 && y != y2) 
+        {
+            if (board[y][x] != EMPTY) 
+                if (board[y][x] == enemy_pawn || board[y][x] == enemy_king) 
+                    return true;
+
+            x += stepX;
+            y += stepY;
+        }
+
+    }
+
+    return false;
+}
+
+/*
 * Выполняет ход со взятием фигур противника с возможностью множественных взятий
 * @param board Игровая доска
 * @param attack_board Матрица возможных взятий
@@ -250,7 +312,7 @@ bool CanCheckerAttack(CH_Type** board, int x, int y, bool isWhite)
 */
 void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover2.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -310,7 +372,13 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
         
         // Проверка правил перемещения
         bool isKing = (board[fromY][fromX] == PICKED_WHITE_KING || board[fromY][fromX] == PICKED_RED_KING);
-        if(!canCheckerMove(fromX, fromY, toX, toY, isKing, player, board))
+        if (!canCheckerMove(fromX, fromY, toX, toY, isKing, player, board))
+        {
+            printf("This move violates game rules.\n");
+            continue;
+        }
+
+        if (!isCaptureMove(board, fromX, fromY, toX, toY, player))
         {
             printf("This move violates game rules.\n");
             continue;
@@ -402,7 +470,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  */
 void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover2.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
