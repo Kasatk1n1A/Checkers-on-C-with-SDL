@@ -27,7 +27,7 @@ void playerAction(Window* window)
     }
 }
 
-Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard)
+Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, double Time)
 {
     SDL_Event event;
 
@@ -46,7 +46,7 @@ Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard)
                 switch (event.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_ESCAPE:  // Закрытие по ESC
-                    ShowMiniMenu(window, CheckersBoard);
+                    ShowMiniMenu(window, CheckersBoard, Time);
                     break;
                 case SDL_SCANCODE_RETURN:
                     return ENTER;

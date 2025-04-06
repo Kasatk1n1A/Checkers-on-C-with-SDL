@@ -122,7 +122,7 @@ void showMainMenu(Window* window)
     }
 }
 
-void ShowMiniMenu(Window* window, Board* CheckersBoard)
+void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time)
 {
     SDL_Renderer* renderer = window->renderer;
 
@@ -152,85 +152,92 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard)
     SDL_Color black = {0, 0, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
-    bool running = true;
-    int selectedItem = -1;
-
-    while (running) 
+    while (true)
     {
-        Uint32 frameStart = SDL_GetTicks();
 
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) 
+        bool running = true;
+        int selectedItem = -1;
+
+        while (running) 
         {
-            switch (event.type) 
-            {
-            case SDL_QUIT:
-                running = false;
-                selectedItem = 3;
-                break;
-            case SDL_MOUSEMOTION:
-                int x = event.motion.x;
-                int y = event.motion.y;
+            Uint32 frameStart = SDL_GetTicks();
 
-                for (int i = 0; i < 3; i++) 
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) 
+            {
+                switch (event.type) 
                 {
-                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
-                }
-                break;
-                
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.button == SDL_BUTTON_LEFT) {
-                    for (int i = 0; i < 3; i++) {
-                        if (items[i].hovered) {
-                            selectedItem = i;
-                            running = false;
-                            break;
+                case SDL_QUIT:
+                    running = false;
+                    selectedItem = 3;
+                    break;
+                case SDL_MOUSEMOTION:
+                    int x = event.motion.x;
+                    int y = event.motion.y;
+
+                    for (int i = 0; i < 3; i++) 
+                    {
+                        items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
+                                            y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    }
+                    break;
+                    
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT) {
+                        for (int i = 0; i < 3; i++) {
+                            if (items[i].hovered) {
+                                selectedItem = i;
+                                running = false;
+                                break;
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, background, NULL, NULL);
+
+            for (int i = 0; i < 3; i++) 
+            {
+                SDL_Color color = items[i].hovered ? red : black;
+                // Центрирование текста внутри увеличенных прямоугольников
+                int textWidth, textHeight;
+                TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
+                int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
+                int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
+
+                renderText(renderer, font, items[i].text, textX, textY, color);
+            }
+
+            SDL_RenderPresent(renderer);
+
+            Uint32 frameTime = SDL_GetTicks() - frameStart;
+            if (frameTime < 1000/FPS)
+            SDL_Delay(1000/FPS - frameTime);
         }
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, background, NULL, NULL);
-
-        for (int i = 0; i < 3; i++) 
+        switch (selectedItem)
         {
-            SDL_Color color = items[i].hovered ? red : black;
-            // Центрирование текста внутри увеличенных прямоугольников
-            int textWidth, textHeight;
-            TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
-            int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
-            int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
-
-            renderText(renderer, font, items[i].text, textX, textY, color);
+            case 0: 
+                renderBoardFrame(window, CheckersBoard, background);
+                SDL_DestroyTexture(background);
+                return;
+                break;
+            case 1: 
+                SaveGame(CheckersBoard->board, Time);
+                break;
+            case 2: 
+                board_cleanup_SDL(CheckersBoard);
+                SDL_DestroyTexture(background);
+                showMainMenu(window);
+                break;
+            default: 
+                break;
         }
-
-        SDL_RenderPresent(renderer);
-
-        Uint32 frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < 1000/FPS)
-        SDL_Delay(1000/FPS - frameTime);
     }
-
-    switch (selectedItem)
-    {
-        case 0: 
-            renderBoardFrame(window, CheckersBoard, background);
-            break;
-        case 1: printf("Save game selected\n"); break;
-        case 2: 
-            board_cleanup_SDL(CheckersBoard);
-            SDL_DestroyTexture(background);
-            showMainMenu(window);
-            break;
-        default: 
-            break;
-    }
-    SDL_DestroyTexture(background);
 }
 
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color color) 

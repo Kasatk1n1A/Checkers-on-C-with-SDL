@@ -41,12 +41,12 @@ int checkers(Window* window)
         //проверка на необходимость атаки
         bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
         if (attack_board) {
-            executeCaptureMove(window, CheckersBoard->board, attack_board, player, CheckersBoard);
+            executeCaptureMove(window, CheckersBoard->board, attack_board, player, CheckersBoard, white_time_used);
             freeBoard((void**)attack_board);
         }
         else
             //Обычный ход
-            executeRegularMove(window, CheckersBoard->board, player, CheckersBoard);
+            executeRegularMove(window, CheckersBoard->board, player, CheckersBoard, white_time_used);
 
         if (player == WHITE) {
             end = clock();
