@@ -23,13 +23,19 @@ int checkers(Window* window)
     //  h { w, 0, w, 0, w, 0, w, 0 } !
     //      1  2  3  4  5  6  7  8
 
+    double white_time_used = 0.0;  // Общее время для белых
+    clock_t start, end;
+
     Player player = WHITE;
     while (true) {
         out_board(CheckersBoard->board);
         if (player == RED)
             printf("Red turn.\n");            
         else
+        {
             printf("White turn.\n");
+            start = clock();  // Начинаем замер времени только для белых
+        }
         
         renderBoardFrame(window, CheckersBoard, background);
         //проверка на необходимость атаки
@@ -42,6 +48,13 @@ int checkers(Window* window)
             //Обычный ход
             executeRegularMove(window, CheckersBoard->board, player, CheckersBoard);
 
+        if (player == WHITE) {
+            end = clock();
+            white_time_used += ((double)(end - start)) / CLOCKS_PER_SEC;
+            printf("White's move time: %.3f sec (Total: %.3f sec)\n", 
+                ((double)(end - start)) / CLOCKS_PER_SEC, white_time_used);
+        }
+
         if (Win_Check(CheckersBoard->board, player))
         {
             player == WHITE ? printf("White won!\n") : printf("Red won!\n");
@@ -50,6 +63,8 @@ int checkers(Window* window)
         //смена игрока
         player = (player == WHITE) ? RED : WHITE;
     }
+
+    printf("Total: %.3f sec\n", white_time_used);
 
     SDL_DestroyTexture(background);
     board_cleanup_SDL(CheckersBoard);

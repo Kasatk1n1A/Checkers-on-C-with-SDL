@@ -67,7 +67,7 @@ void showMainMenu(Window* window)
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                    for (int i = 0; i < 4; i++) {
+                    for (int i = 0; i < 5; i++) {
                         if (items[i].hovered) {
                             selectedItem = i;
                             running = false;
