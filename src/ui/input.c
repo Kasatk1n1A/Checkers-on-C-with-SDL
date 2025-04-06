@@ -1,7 +1,4 @@
-#include <SDL2/SDL.h>
-#include "../../include/core/ui_types.h"
-#include "../../include/core/Board_types.h"
-#include "../utils/sdl_utils.h"
+
 #include "input.h"
 
 void playerAction(Window* window)

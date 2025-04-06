@@ -6,8 +6,6 @@
 #define FONT_SIZE 72  // Увеличенный размер шрифта
 #define FPS 60
 
-
-
 int showMainMenu(Window* window)
 {
     SDL_Renderer* renderer = window->renderer;

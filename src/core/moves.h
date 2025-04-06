@@ -1,6 +1,17 @@
 #ifndef MOVES_H
 #define MOVES_H
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include "../../include/core/ui_types.h"
+#include "../../include/core/Board_types.h"
+#include "../../include/core/Checkers_types.h"
+#include "../ui/input.h"
+#include "board.h"
+
 void showCaptureOptions(bool** board);
 bool** canCapture(CH_Type** board, bool isWhiteTurn);
 bool CanContinue(CH_Type** board, int x, int y, Player player);

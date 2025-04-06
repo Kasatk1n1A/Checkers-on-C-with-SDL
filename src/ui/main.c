@@ -1,10 +1,4 @@
-#include "main.h"
-#include "../../include/core/ui_types.h"
-#include "../utils/sdl_utils.h"
-#include "../../src/core/game_rules.h"
 #include "Menu.h"
-
-
 
 int main(void)
 {
