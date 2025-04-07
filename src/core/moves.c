@@ -308,7 +308,7 @@ bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player playe
 */
 void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard, double Time)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -467,7 +467,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  */
 void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard, double Time)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());

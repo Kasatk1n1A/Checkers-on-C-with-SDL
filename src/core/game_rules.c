@@ -3,7 +3,7 @@
 
 int checkers(Window* window, CH_Type** board, double Time, Player color)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/Kover.png");
+    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());

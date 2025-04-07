@@ -18,7 +18,7 @@ void showMainMenu(Window* window)
         return;
     }
 
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover.png");
+    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/background.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -148,7 +148,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
         return;
     }
 
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/Kover.png");
+    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/background.png");
     if (!background) 
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
