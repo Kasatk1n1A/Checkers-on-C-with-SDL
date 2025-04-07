@@ -84,12 +84,27 @@ bool Win_Check(CH_Type** board, Player player)
     CH_Type enemy_pawn = (player == WHITE) ? RED_PAWN : WHITE_PAWN;
     CH_Type enemy_king = (player == WHITE) ? RED_KING : WHITE_KING;
 
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            if (board[i][j] == enemy_pawn || board[i][j] == enemy_king) {
-                return false;
-            }
-        }
+    bool EnemyHasCheckers = false;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == enemy_pawn || board[i][j] == enemy_king)
+                EnemyHasCheckers = true;
+    
+    if (!EnemyHasCheckers)
+    {
+        printf("Enemy hasn`t checkers\n");
+        return true;
     }
+
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == enemy_pawn || board[i][j] == enemy_king)
+            {
+                printf("y: %d x: %d\n", i, j);
+                if (!isCheckerBlocked(board, j, i))
+                    return false;
+            }
+
+    printf("All enemy`s checkers blocked\n");
     return true;
 }

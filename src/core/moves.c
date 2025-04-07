@@ -456,6 +456,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
     }
     
     // Если ни один ход невозможен - шашка заблокирована
+    printf("123412341234\n");
     return true;
 }
 
