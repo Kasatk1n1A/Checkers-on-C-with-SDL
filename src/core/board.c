@@ -143,13 +143,13 @@ void out_board_SDL(Window* window, Board* CheckersBoard)
     }
 }
 
-void renderBoardFrame(Window* window, Board* CheckersBoard, SDL_Texture* background)
+void renderBoardFrame(Window* window, Board* CheckersBoard)
 {
     // Очистка экрана
     SDL_RenderClear(window->renderer);
         
     // Отрисовка фона
-    SDL_RenderCopy(window->renderer, background, NULL, NULL);
+    SDL_RenderCopy(window->renderer, window->background, NULL, NULL);
 
     // Отрисовка игровой доски
     out_board_SDL(window, CheckersBoard);

@@ -308,13 +308,6 @@ bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player playe
 */
 void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard, double Time)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
-    if (!background) 
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        return;
-    }
-
     // 1. Отображаем доступные варианты взятия
     showCaptureOptions(attack_board);
 
@@ -348,7 +341,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     while (true) 
     {
         // Ввод целевой позиции
-        renderBoardFrame(window, CheckersBoard, background);
+        renderBoardFrame(window, CheckersBoard);
         Choice c = CheckerCoordinates(window, CheckersBoard, Time, player, &toX, &toY);
         printf("%d\n", c);
         if (c == ENTER && !FirstMove)
@@ -467,13 +460,6 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  */
 void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard, double Time)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
-    if (!background) 
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        return;
-    }
-
     int fromX, fromY; // Координаты исходной позиции
     
     // 1. Фаза выбора шашки для хода
@@ -506,7 +492,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
 
     // 2. Визуальное выделение выбранной шашки
     highlightChecker(board, fromX, fromY);
-    renderBoardFrame(window, CheckersBoard, background);
+    renderBoardFrame(window, CheckersBoard);
     // 3. Фаза выбора целевой позиции
     int toX, toY;
     while (true) 
@@ -539,7 +525,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
 
         // 5. Снятие визуального выделения
         unhighlightChecker(board, toX, toY);
-        renderBoardFrame(window, CheckersBoard, background);
+        renderBoardFrame(window, CheckersBoard);
         break;
     }
 }

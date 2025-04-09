@@ -16,7 +16,7 @@ void freeBoard(void** board);
 void out_board(CH_Type** board);
 
 void out_board_SDL(Window* window, Board* CheckersBoard);
-void renderBoardFrame(Window* window, Board* CheckersBoard, SDL_Texture* background);
+void renderBoardFrame(Window* window, Board* CheckersBoard);
 
 void board_cleanup_SDL(Board* CheckersBoard);
 bool LoadBoardTextures(Board* CheckersBoard, Window* window);

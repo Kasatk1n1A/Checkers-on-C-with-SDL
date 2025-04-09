@@ -3,13 +3,6 @@
 
 int checkers(Window* window, CH_Type** board, double Time, Player color)
 {
-    SDL_Texture* background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
-    if (!background) 
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        return -1;
-    }
-
     Board* CheckersBoard = (Board*)malloc(sizeof(Board));
 
     if (board == NULL)
@@ -44,7 +37,7 @@ int checkers(Window* window, CH_Type** board, double Time, Player color)
             start = clock();  // Начинаем замер времени только для белых
         }
         
-        renderBoardFrame(window, CheckersBoard, background);
+        renderBoardFrame(window, CheckersBoard);
         //проверка на необходимость атаки
         bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
         if (attack_board) {
@@ -73,7 +66,6 @@ int checkers(Window* window, CH_Type** board, double Time, Player color)
 
     printf("Total: %.3f sec\n", white_time_used);
 
-    SDL_DestroyTexture(background);
     board_cleanup_SDL(CheckersBoard);
     showMainMenu(window);
     return 0;

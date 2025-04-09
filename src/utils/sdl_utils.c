@@ -54,11 +54,18 @@ bool CreateWindow(Window* window)
         return true;  
     }
 
+    window->background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
+    if (!window->background){
+        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+        return true;
+    }
+
     return false;
 }
 
 void Window_cleanup(Window* window)
 {
+    SDL_DestroyTexture(window->background);
     SDL_DestroyRenderer(window->renderer);
     SDL_DestroyWindow(window->window);
     free(window);
@@ -66,7 +73,7 @@ void Window_cleanup(Window* window)
 
 void Game_cleanup(Window* window, int exit_status)
 {        
-    Window_cleanup(window);    
+    Window_cleanup(window);
     SDL_cleanup();
 
     // Завершение программы с указанным статусом

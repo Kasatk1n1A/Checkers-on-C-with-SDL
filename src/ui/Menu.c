@@ -18,13 +18,6 @@ void showMainMenu(Window* window)
         return;
     }
 
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/background.png");
-    if (!background) 
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        return;
-    }
-
     // Пункты меню с увеличенными размерами и отступами
     MenuItem items[5] = 
     {
@@ -83,7 +76,7 @@ void showMainMenu(Window* window)
 
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, background, NULL, NULL);
+            SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
             for (int i = 0; i < 5; i++) 
             {
@@ -108,7 +101,6 @@ void showMainMenu(Window* window)
         {
             case 0: 
                 printf("New game selected\n"); 
-                SDL_DestroyTexture(background);
                 checkers(window, NULL, 0, 0);
                 break;
             case 1: 
@@ -118,14 +110,12 @@ void showMainMenu(Window* window)
                 if (board == NULL)
                     break;
 
-                SDL_DestroyTexture(background);
                 checkers(window, board, Time, player);
                 break;
             case 2: printf("Leaderboard selected\n"); break;
             case 3: printf("About selected\n"); break;
             case 4: 
                 printf("Quit selected\n"); 
-                SDL_DestroyTexture(background);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
             default: 
@@ -133,7 +123,6 @@ void showMainMenu(Window* window)
         }
     }
     
-    SDL_DestroyTexture(background);
 }
 
 void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player)
@@ -145,13 +134,6 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        return;
-    }
-
-    SDL_Texture* background = IMG_LoadTexture(renderer, "assets/images/Main/background.png");
-    if (!background) 
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return;
     }
 
@@ -212,7 +194,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
 
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, background, NULL, NULL);
+            SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
             for (int i = 0; i < 3; i++) 
             {
@@ -236,8 +218,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
         switch (selectedItem)
         {
             case 0: 
-                renderBoardFrame(window, CheckersBoard, background);
-                SDL_DestroyTexture(background);
+                renderBoardFrame(window, CheckersBoard);
                 return;
                 break;
             case 1: 
@@ -245,7 +226,6 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
                 break;
             case 2: 
                 board_cleanup_SDL(CheckersBoard);
-                SDL_DestroyTexture(background);
                 showMainMenu(window);
                 break;
             default: 
