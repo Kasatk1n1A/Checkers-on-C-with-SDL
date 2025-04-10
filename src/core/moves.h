@@ -17,13 +17,13 @@ bool** canCapture(CH_Type** board, bool isWhiteTurn);
 bool CanContinue(CH_Type** board, int x, int y, Player player);
 bool CanCheckerAttack(CH_Type** board, int x, int y, bool isWhite);
 bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player player);
-void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard, double Time);
+void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, int difficult, Board* CheckersBoard, double Time);
 
 bool isCheckerBlocked(CH_Type** board, int x, int y);
 bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, CH_Type** board);
-void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard, double Time);
+void executeRegularMove(Window* window, CH_Type** board, Player player, int difficult, Board* CheckersBoard, double Time);
 
 void performCapture(CH_Type** board, int fromX, int fromY, int toX, int toY);
-bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int* x, int* y);
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int difficult, int* x, int* y);
 
 #endif

@@ -306,7 +306,7 @@ bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player playe
 * @param attack_board Матрица возможных взятий
 * @param player Текущий игрок (WHITE/RED)
 */
-void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, Board* CheckersBoard, double Time)
+void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, int difficult, Board* CheckersBoard, double Time)
 {
     // 1. Отображаем доступные варианты взятия
     showCaptureOptions(attack_board);
@@ -317,7 +317,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     while (true) 
     {        
         // Чтение и проверка формата ввода
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &fromX, &fromY) != MOUSE_LEFT)
             continue;
         printf("%d %d\n", fromX, fromY);
         // Проверка допустимости выбора
@@ -342,7 +342,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     {
         // Ввод целевой позиции
         renderBoardFrame(window, CheckersBoard);
-        Choice c = CheckerCoordinates(window, CheckersBoard, Time, player, &toX, &toY);
+        Choice c = CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &toX, &toY);
         printf("%d\n", c);
         if (c == ENTER && !FirstMove)
             break;
@@ -458,7 +458,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  * @param board Игровая доска
  * @param player Текущий игрок (WHITE/RED)
  */
-void executeRegularMove(Window* window, CH_Type** board, Player player, Board* CheckersBoard, double Time)
+void executeRegularMove(Window* window, CH_Type** board, Player player, int difficult, Board* CheckersBoard, double Time)
 {
     int fromX, fromY; // Координаты исходной позиции
     
@@ -466,7 +466,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
     while (true)
     {
         // Ввод координат шашки
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &fromX, &fromY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", fromX, fromY);
@@ -499,7 +499,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, Board* C
     {
         // Ввод координат для хода
 
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, &toX, &toY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &toX, &toY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", toX, toY);
@@ -648,9 +648,9 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int* x, int* y)
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int difficult, int* x, int* y)
 {
-    Choice c = get_mouse_click(x, y, window, CheckersBoard, Time, player);
+    Choice c = get_mouse_click(x, y, window, CheckersBoard, Time, player, difficult);
     if (c == MOUSE_LEFT)
     {
         printf("%d %d\n", *x, *y);

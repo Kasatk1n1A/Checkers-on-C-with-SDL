@@ -11,7 +11,8 @@
 #include "../core/saves.h"
 
 void showMainMenu(Window* window);
-void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player);
+void SetDifficult(Window* window);
+void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player, int difficult);
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color color);
 
 #endif

@@ -46,9 +46,9 @@ void showMainMenu(Window* window)
                 switch (event.type) 
                 {
                 case SDL_QUIT:
-                    running = false;
-                    selectedItem = 3;
+                    Game_cleanup(window, EXIT_SUCCESS);
                     break;
+
                 case SDL_MOUSEMOTION:
                     int x = event.motion.x;
                     int y = event.motion.y;
@@ -100,17 +100,17 @@ void showMainMenu(Window* window)
         switch (selectedItem)
         {
             case 0: 
-                printf("New game selected\n"); 
-                checkers(window, NULL, 0, 0);
+                SetDifficult(window);
                 break;
             case 1: 
                 double Time;
-                Player player = WHITE;
-                CH_Type** board = load_from_save(&Time, &player);
+                Player player;
+                int difficult;
+                CH_Type** board = load_from_save(&Time, &player, &difficult);
                 if (board == NULL)
                     break;
 
-                checkers(window, board, Time, player);
+                checkers(window, board, difficult, Time, player);
                 break;
             case 2: printf("Leaderboard selected\n"); break;
             case 3: printf("About selected\n"); break;
@@ -125,7 +125,120 @@ void showMainMenu(Window* window)
     
 }
 
-void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player)
+void SetDifficult(Window* window)
+{
+    SDL_Renderer* renderer = window->renderer;
+
+    // Загрузка шрифта с увеличенным размером
+    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", FONT_SIZE);
+    if (!font) 
+    {
+        fprintf(stderr, "Failed to load font: %s", TTF_GetError());
+        return;
+    }
+
+    // Пункты меню с увеличенными размерами и отступами
+    MenuItem items[4] = 
+    {
+        {{SCREEN_WIDTH/2 - 200, 200, 400, 80}, "Baby", false},
+        {{SCREEN_WIDTH/2 - 200, 300, 400, 80}, "Your grandfather", false},
+        {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "GOD", false},
+        {{SCREEN_WIDTH/2 - 200, 500, 400, 80}, "Back", false},
+    };
+
+    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+
+    while (true)
+    {
+        bool running = true;
+        int selectedItem = -1;
+
+        while (running) 
+        {
+            Uint32 frameStart = SDL_GetTicks();
+
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) 
+            {
+                switch (event.type) 
+                {
+                case SDL_QUIT:
+                    Game_cleanup(window, EXIT_SUCCESS);
+                    break;
+                case SDL_MOUSEMOTION:
+                    int x = event.motion.x;
+                    int y = event.motion.y;
+
+                    for (int i = 0; i < 5; i++) 
+                    {
+                        items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
+                                            y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    }
+                    break;
+                    
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT) {
+                        for (int i = 0; i < 5; i++) {
+                            if (items[i].hovered) {
+                                selectedItem = i;
+                                running = false;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, window->background, NULL, NULL);
+
+            for (int i = 0; i < 4; i++) 
+            {
+                SDL_Color color = items[i].hovered ? red : black;
+                // Центрирование текста внутри увеличенных прямоугольников
+                int textWidth, textHeight;
+                TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
+                int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
+                int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
+
+                renderText(renderer, font, items[i].text, textX, textY, color);
+            }
+
+            SDL_RenderPresent(renderer);
+
+            Uint32 frameTime = SDL_GetTicks() - frameStart;
+            if (frameTime < 1000/FPS)
+            SDL_Delay(1000/FPS - frameTime);
+        }
+
+        switch (selectedItem)
+        {
+            case 0: 
+                printf("Baby difficult\n"); 
+                checkers(window, NULL, 1, 0, 0);
+                break;
+            case 1: 
+                printf("Middle difficult\n"); 
+                checkers(window, NULL, 3, 0, 0);
+                break;
+            case 2: 
+                printf("GOD difficult\n"); 
+                checkers(window, NULL, 5, 0, 0);
+            break;
+            case 4: 
+                printf("Back selected\n"); 
+                return;
+                break;
+            default: 
+                break;
+        }
+    }
+}
+
+void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player, int difficult)
 {
     SDL_Renderer* renderer = window->renderer;
 
@@ -222,7 +335,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
                 return;
                 break;
             case 1: 
-                SaveGame(CheckersBoard->board, Time, player);
+                SaveGame(CheckersBoard->board, Time, player, difficult);
                 break;
             case 2: 
                 board_cleanup_SDL(CheckersBoard);

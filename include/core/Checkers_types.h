@@ -6,6 +6,13 @@ typedef enum {
     RED
 } Player;
 
+typedef struct 
+{
+    int difficult;
+    double Time;
+    Player player;
+} GameInfo;
+
 typedef enum 
 {
     EMPTY = 0,
