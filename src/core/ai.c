@@ -403,16 +403,20 @@ void free_move(Move* move) {
 }
 
 // Основная функция для выполнения хода ботом
-void bot_make_move(CH_Type** board, int difficult, Player player) {
+void bot_make_move(CH_Type** board, int difficult, Player player)
+{
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
 
     // Проверяем, есть ли обязательные взятия
     bool** attack_board = canCapture(board, player == WHITE);
+    CH_Type** tmp_board = add_board();
+    CopyBoard(board, tmp_board);
 
-    if (attack_board) {
+    if (attack_board) 
+    {
         // Если есть взятия - выполняем лучший ход со взятием
-        Move* bestMove = find_best_move(board, player, maxDepth);
+        Move* bestMove = find_best_move(tmp_board, player, maxDepth);
 
         if (bestMove) {
             // Выполняем взятие
@@ -439,9 +443,10 @@ void bot_make_move(CH_Type** board, int difficult, Player player) {
 
         freeBoard((void**)attack_board);
     }
-    else {
+    else
+    {
         // Если нет обязательных взятий - выполняем обычный ход
-        Move* bestMove = find_best_move(board, player, maxDepth);
+        Move* bestMove = find_best_move(tmp_board, player, maxDepth);
 
         if (bestMove) {
             // Перемещаем фигуру
@@ -460,4 +465,5 @@ void bot_make_move(CH_Type** board, int difficult, Player player) {
             free_move(bestMove);
         }
     }
+    freeBoard((void**)tmp_board);
 }

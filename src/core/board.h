@@ -14,6 +14,7 @@
 CH_Type** add_board(void);
 void freeBoard(void** board);
 void out_board(CH_Type** board);
+void CopyBoard(CH_Type** board, CH_Type** new);
 
 void out_board_SDL(Window* window, Board* CheckersBoard);
 void renderBoardFrame(Window* window, Board* CheckersBoard);

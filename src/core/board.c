@@ -1,5 +1,12 @@
 #include "board.h"
 
+void CopyBoard(CH_Type** board, CH_Type** new)
+{
+    for (int i = 0; i < 8; i++)
+        memcpy(new[i], board[i], 8 * sizeof(CH_Type));
+}
+
+
 //Создаёт изначальную доску в качестве массива из динамических массивов
 CH_Type** add_board(void)
 {
