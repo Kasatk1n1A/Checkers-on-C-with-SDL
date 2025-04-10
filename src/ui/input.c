@@ -27,7 +27,7 @@ void playerAction(Window* window)
     }
 }
 
-Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, double Time, Player player, int difficult)
+Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, GameInfo info)
 {
     SDL_Event event;
     int last_highlighted_x = -1, last_highlighted_y = -1; // Для хранения последнего подсвеченного поля
@@ -52,7 +52,7 @@ Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, dou
                 switch (event.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_ESCAPE:
-                    ShowMiniMenu(window, CheckersBoard, Time, player, difficult);
+                    ShowMiniMenu(window, CheckersBoard, info);
                     break;
                 case SDL_SCANCODE_RETURN:
                     return ENTER;

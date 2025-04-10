@@ -1,6 +1,6 @@
 #include "saves.h"
 
-void SaveGame(CH_Type** board, double Total, Player player, int difficult)
+void SaveGame(CH_Type** board, GameInfo info)
 {
     char save_name[100] = "saves/";
     fgets(save_name + 6, 94, stdin);
@@ -14,9 +14,9 @@ void SaveGame(CH_Type** board, double Total, Player player, int difficult)
         return;
     }
 
-    fprintf(save_file, "Time: %.3f sec\n", Total);
-    fprintf(save_file, "Player: %d\n", player);
-    fprintf(save_file, "Difficult: %d\n", difficult);
+    fprintf(save_file, "Time: %.3f sec\n", info.Time);
+    fprintf(save_file, "Player: %d\n", info.player);
+    fprintf(save_file, "Difficult: %d\n", info.difficult);
 
     fprintf(save_file, "Board:\n");
     for (int i = 0; i < 8; i++)

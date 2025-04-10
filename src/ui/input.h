@@ -8,6 +8,6 @@
 #include "Menu.h"
 
 void playerAction(Window* window);
-Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, double Time, Player player, int difficult);
+Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, GameInfo info);
 
 #endif

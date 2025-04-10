@@ -306,7 +306,7 @@ bool isCaptureMove(CH_Type** board, int x1, int y1, int x2, int y2, Player playe
 * @param attack_board Матрица возможных взятий
 * @param player Текущий игрок (WHITE/RED)
 */
-void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Player player, int difficult, Board* CheckersBoard, double Time)
+void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Board* CheckersBoard, GameInfo info)
 {
     // 1. Отображаем доступные варианты взятия
     showCaptureOptions(attack_board);
@@ -317,7 +317,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     while (true) 
     {        
         // Чтение и проверка формата ввода
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, info, &fromX, &fromY) != MOUSE_LEFT)
             continue;
         printf("%d %d\n", fromX, fromY);
         // Проверка допустимости выбора
@@ -325,7 +325,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
             continue;
         }
 
-        if (board[fromY][fromX] != (player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (player == WHITE ? WHITE_KING : RED_KING))
+        if (board[fromY][fromX] != (info.player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (info.player == WHITE ? WHITE_KING : RED_KING))
             continue;
 
         if (!attack_board[fromY][fromX]) {
@@ -342,7 +342,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
     {
         // Ввод целевой позиции
         renderBoardFrame(window, CheckersBoard);
-        Choice c = CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &toX, &toY);
+        Choice c = CheckerCoordinates(window, CheckersBoard, info, &toX, &toY);
         printf("%d\n", c);
         if (c == ENTER && !FirstMove)
             break;
@@ -361,13 +361,13 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
         
         // Проверка правил перемещения
         bool isKing = (board[fromY][fromX] == PICKED_WHITE_KING || board[fromY][fromX] == PICKED_RED_KING);
-        if (!canCheckerMove(fromX, fromY, toX, toY, isKing, player, board))
+        if (!canCheckerMove(fromX, fromY, toX, toY, isKing, info.player, board))
         {
             printf("This move violates game rules.\n");
             continue;
         }
 
-        if (!isCaptureMove(board, fromX, fromY, toX, toY, player))
+        if (!isCaptureMove(board, fromX, fromY, toX, toY, info.player))
         {
             printf("This move violates game rules.\n");
             continue;
@@ -379,7 +379,7 @@ void executeCaptureMove(Window* window, CH_Type** board, bool** attack_board, Pl
 
         FirstMove = false;
         // 6. Проверка возможности продолжения взятия
-        if (CanContinue(board, toX, toY, player)) 
+        if (CanContinue(board, toX, toY, info.player)) 
         {
             fromX = toX;  // Продолжаем с новой позиции
             fromY = toY;
@@ -458,7 +458,7 @@ bool isCheckerBlocked(CH_Type** board, int x, int y)
  * @param board Игровая доска
  * @param player Текущий игрок (WHITE/RED)
  */
-void executeRegularMove(Window* window, CH_Type** board, Player player, int difficult, Board* CheckersBoard, double Time)
+void executeRegularMove(Window* window, CH_Type** board, GameInfo info, Board* CheckersBoard)
 {
     int fromX, fromY; // Координаты исходной позиции
     
@@ -466,7 +466,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, int diff
     while (true)
     {
         // Ввод координат шашки
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &fromX, &fromY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, info, &fromX, &fromY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", fromX, fromY);
@@ -476,7 +476,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, int diff
             continue;
         }
         
-        if (board[fromY][fromX] != (player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (player == WHITE ? WHITE_KING : RED_KING))
+        if (board[fromY][fromX] != (info.player == WHITE ? WHITE_PAWN : RED_PAWN) && board[fromY][fromX] != (info.player == WHITE ? WHITE_KING : RED_KING))
         {
             printf("Not your\n");
             continue;
@@ -499,7 +499,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, int diff
     {
         // Ввод координат для хода
 
-        if (CheckerCoordinates(window, CheckersBoard, Time, player, difficult, &toX, &toY) != MOUSE_LEFT)
+        if (CheckerCoordinates(window, CheckersBoard, info, &toX, &toY) != MOUSE_LEFT)
             continue;
 
         printf("%d %d\n", toX, toY);
@@ -514,7 +514,7 @@ void executeRegularMove(Window* window, CH_Type** board, Player player, int diff
 
         // Проверка правильности хода
         bool isKing = (board[fromY][fromX] == PICKED_WHITE_KING || board[fromY][fromX] == PICKED_RED_KING);
-        if(!canCheckerMove(fromX, fromY, toX, toY, isKing, player, board))
+        if(!canCheckerMove(fromX, fromY, toX, toY, isKing, info.player, board))
         {
             printf("This move is not allowed by game rules.\n");
             continue;
@@ -648,9 +648,9 @@ bool canCheckerMove(int x1, int y1, int x2, int y2, bool isKing, Player color, C
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-bool CheckerCoordinates(Window* window, Board* CheckersBoard, double Time, Player player, int difficult, int* x, int* y)
+bool CheckerCoordinates(Window* window, Board* CheckersBoard, GameInfo info, int* x, int* y)
 {
-    Choice c = get_mouse_click(x, y, window, CheckersBoard, Time, player, difficult);
+    Choice c = get_mouse_click(x, y, window, CheckersBoard, info);
     if (c == MOUSE_LEFT)
     {
         printf("%d %d\n", *x, *y);

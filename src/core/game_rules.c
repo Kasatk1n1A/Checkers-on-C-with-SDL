@@ -28,17 +28,14 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     info.difficult = difficult;
     info.player = color;
 
-    double white_time_used = Time;  // Общее время для белых
-
-    Player player = color;
     while (true)
     {
         out_board(CheckersBoard->board);
-        if (player == RED)
+        if (info.player == RED)
         {
             // Ход бота
             printf("Red turn.\n");
-            bot_make_move(CheckersBoard->board, difficult, RED);
+            bot_make_move(CheckersBoard->board, info.difficult, RED);
         }
         else
         {
@@ -47,30 +44,30 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
 
             renderBoardFrame(window, CheckersBoard);
             //проверка на необходимость атаки
-            bool** attack_board = canCapture(CheckersBoard->board, player == WHITE ? true : false);
+            bool** attack_board = canCapture(CheckersBoard->board, info.player == WHITE ? true : false);
             if (attack_board) {
-                executeCaptureMove(window, CheckersBoard->board, attack_board, player, difficult, CheckersBoard, white_time_used);
+                executeCaptureMove(window, CheckersBoard->board, attack_board, CheckersBoard, info);
                 freeBoard((void**)attack_board);
             }
             else    //Обычный ход
-                executeRegularMove(window, CheckersBoard->board, player, difficult, CheckersBoard, white_time_used);
+                executeRegularMove(window, CheckersBoard->board, info, CheckersBoard);
     
             end = clock();
-            white_time_used += ((double)(end - start)) / CLOCKS_PER_SEC;
+            info.Time += ((double)(end - start)) / CLOCKS_PER_SEC;
             printf("White's move time: %.3f sec (Total: %.3f sec)\n", 
-                ((double)(end - start)) / CLOCKS_PER_SEC, white_time_used);
+                ((double)(end - start)) / CLOCKS_PER_SEC, info.Time);
         }
 
-        if (Win_Check(CheckersBoard->board, player))
+        if (Win_Check(CheckersBoard->board, info.player))
         {
-            player == WHITE ? printf("White won!\n") : printf("Red won!\n");
+            info.player == WHITE ? printf("White won!\n") : printf("Red won!\n");
             break;
         }
 
-        player = player == WHITE ? RED : WHITE;
+        info.player = info.player == WHITE ? RED : WHITE;
     }
 
-    printf("Total: %.3f sec\n", white_time_used);
+    printf("Total: %.3f sec\n", info.Time);
 
     board_cleanup_SDL(CheckersBoard);
     showMainMenu(window);

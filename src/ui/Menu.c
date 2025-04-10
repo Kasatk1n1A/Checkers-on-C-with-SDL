@@ -238,7 +238,7 @@ void SetDifficult(Window* window)
     }
 }
 
-void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player player, int difficult)
+void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
 {
     SDL_Renderer* renderer = window->renderer;
 
@@ -335,7 +335,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, double Time, Player play
                 return;
                 break;
             case 1: 
-                SaveGame(CheckersBoard->board, Time, player, difficult);
+                SaveGame(CheckersBoard->board, info);
                 break;
             case 2: 
                 board_cleanup_SDL(CheckersBoard);
