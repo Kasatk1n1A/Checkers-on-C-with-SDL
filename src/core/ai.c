@@ -487,6 +487,15 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
             // Выполняем взятие
             performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
 
+            printf("bestMove->toY: %d\n", bestMove->toY);
+            if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
+                // Белая пешка достигла последней линии (нижний край доски)
+                board[bestMove->toY][bestMove->toX] = WHITE_KING;
+            }
+            else if (board[bestMove->toY][bestMove->toX] == RED_PAWN && bestMove->toY == 7) {
+                // Красная пешка достигла последней линии (верхний край доски)
+                board[bestMove->toY][bestMove->toX] = RED_KING;
+            }
             // Проверяем, можно ли продолжить взятия
             if (CanContinue(board, bestMove->toX, bestMove->toY, player)) {
                 // Создаем временную копию доски
@@ -515,16 +524,15 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
 
         if (bestMove) {
             // Перемещаем фигуру
-            CH_Type piece = board[bestMove->fromY][bestMove->fromX];
-            board[bestMove->fromY][bestMove->fromX] = EMPTY;
-            board[bestMove->toY][bestMove->toX] = piece;
+            performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
 
-            // Проверка на превращение в дамку
-            if ((piece == WHITE_PAWN || piece == PICKED_WHITE_PAWN) && bestMove->toY == 0) {
+            printf("bestMove->toY: %d\n", bestMove->toY);
+            if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
+                // Белая пешка достигла последней линии (нижний край доски)
                 board[bestMove->toY][bestMove->toX] = WHITE_KING;
             }
-            else if ((piece == RED_PAWN || piece == PICKED_RED_PAWN) && bestMove->toY == 7) {
-                printf("I`m a king!!!\n");
+            else if (board[bestMove->toY][bestMove->toX] == RED_PAWN && bestMove->toY == 7) {
+                // Красная пешка достигла последней линии (верхний край доски)
                 board[bestMove->toY][bestMove->toX] = RED_KING;
             }
 
