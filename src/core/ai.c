@@ -5,41 +5,106 @@
 #include <stdbool.h>
 
 // Оценка текущей позиции на доске для указанного игрока
+// Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
     int score = 0;
     const int pawn_value = 10;   // Значение пешки
     const int king_value = 30;   // Значение дамки
+
+    // Коэффициенты для разных ситуаций     
+    const int EAT_BONUS = 30;         // За съедение шашки
+    const int EAT_KING_BONUS = 100;    // За съедение дамки
+    const int SAVE_BONUS = 50;         // За спасение своей шашки
+    const int BLOCK_BONUS = 4;         // За блокировку шашки противника
+    const int KING_BONUS = 300;        // За превращение в дамку
+    const int DIE_PENALTY = -40;       // За потерю шашки
+    const int DIE_KING_PENALTY = -100; // За потерю дамки
+    const int MOBILITY_BONUS = 2;      // За возможность хода
 
     // Проход по всем клеткам доски
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             CH_Type piece = board[y][x];
 
-            // Обработка белых пешек
-            if (piece == WHITE_PAWN || piece == PICKED_WHITE_PAWN) {
-                score += (player == WHITE) ? pawn_value : -pawn_value;
-                // Бонус за продвижение вперёд (чем ближе к дамке, тем лучше)
-                score += (player == WHITE) ? (7 - y) : y;
+            // Обработка белых фигур
+            if (piece == WHITE_PAWN || piece == PICKED_WHITE_PAWN ||
+                piece == WHITE_KING || piece == PICKED_WHITE_KING) {
+
+                bool isKing = (piece == WHITE_KING || piece == PICKED_WHITE_KING);
+                int value = isKing ? king_value : pawn_value;
+
+                if (player == WHITE) {
+                    score += value;
+                    // Бонус за продвижение вперёд (чем ближе к дамке, тем лучше)
+                    if (!isKing) score += (7 - y);
+                    // Бонус за центральное положение
+                    if (x >= 3 && x <= 4) score += 1;
+                }
+                else {
+                    score -= value;
+                    // Штраф за продвижение противника
+                    if (!isKing) score -= (7 - y);
+                    // Штраф за центральное положение противника
+                    if (x >= 3 && x <= 4) score -= 1;
+                }
+
+                // Дополнительный бонус за дамку
+                if (isKing && player == WHITE) score += KING_BONUS / 10;
             }
-            // Обработка белых дамок
-            else if (piece == WHITE_KING || piece == PICKED_WHITE_KING) {
-                score += (player == WHITE) ? king_value : -king_value;
-            }
-            // Обработка красных пешек
-            else if (piece == RED_PAWN || piece == PICKED_RED_PAWN) {
-                score += (player == RED) ? pawn_value : -pawn_value;
-                // Бонус за продвижение вперёд (для красных направление обратное)
-                score += (player == RED) ? y : (7 - y);
-            }
-            // Обработка красных дамок
-            else if (piece == RED_KING || piece == PICKED_RED_KING) {
-                score += (player == RED) ? king_value : -king_value;
+            // Обработка красных фигур
+            else if (piece == RED_PAWN || piece == PICKED_RED_PAWN ||
+                piece == RED_KING || piece == PICKED_RED_KING) {
+
+                bool isKing = (piece == RED_KING || piece == PICKED_RED_KING);
+                int value = isKing ? king_value : pawn_value;
+
+                if (player == RED) {
+                    score += value;
+                    // Бонус за продвижение вперёд (для красных направление обратное)
+                    if (!isKing) score += y;
+                    // Бонус за центральное положение
+                    if (x >= 3 && x <= 4) score += 1;
+                }
+                else {
+                    score -= value;
+                    // Штраф за продвижение противника
+                    if (!isKing) score -= y;
+                    // Штраф за центральное положение противника
+                    if (x >= 3 && x <= 4) score -= 1;
+                }
+
+                // Дополнительный бонус за дамку
+                if (isKing && player == RED) score += KING_BONUS / 10;
             }
         }
     }
+
+    // Оценка мобильности (количество возможных ходов)
+    Move* moves = generate_all_moves(board, player);
+    int mobility = 0;
+    for (Move* m = moves; m != NULL; m = m->next) {
+        mobility++;
+        // Дополнительный бонус за ходы со взятием
+        if (m->captures != NULL) {
+            score += EAT_BONUS;
+            // Проверяем, была ли съедена дамка
+            for (Move* cap = m->captures; cap != NULL; cap = cap->next) {
+                CH_Type captured = board[cap->fromY][cap->fromX];
+                if ((player == WHITE && (captured == RED_KING || captured == PICKED_RED_KING)) ||
+                    (player == RED && (captured == WHITE_KING || captured == PICKED_WHITE_KING))) {
+                    score += EAT_KING_BONUS;
+                }
+            }
+        }
+    }
+    free_move(moves);
+    score += mobility * MOBILITY_BONUS;
+
+    // Оценка безопасности (количество шашек под ударом)
+    // Здесь можно добавить дополнительную логику для оценки безопасности шашек
+
     return score;
 }
-
 // Генерация всех возможных ходов для конкретной фигуры
 Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
     Move* moves = NULL;  // Список возможных ходов
@@ -52,7 +117,7 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
     bool isWhite = (player == WHITE);
 
     // Направления движения (для дамок - все 4 направления, для пешек - только вперёд)
-    int directions[4][2] = { {1,1}, {1,-1}, {-1,1}, {-1,-1} };
+    int directions[4][2] = { {1,1}, {-1,1}, {1,-1}, {-1,-1} };
     int dirCount = isKing ? 4 : 2;
 
     // Проверка всех возможных направлений
@@ -459,6 +524,7 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
                 board[bestMove->toY][bestMove->toX] = WHITE_KING;
             }
             else if ((piece == RED_PAWN || piece == PICKED_RED_PAWN) && bestMove->toY == 7) {
+                printf("I`m a king!!!\n");
                 board[bestMove->toY][bestMove->toX] = RED_KING;
             }
 

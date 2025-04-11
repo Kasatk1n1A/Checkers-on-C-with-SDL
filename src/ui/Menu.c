@@ -11,7 +11,7 @@ void showMainMenu(Window* window)
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -28,7 +28,7 @@ void showMainMenu(Window* window)
         {{SCREEN_WIDTH/2 - 200, 600, 400, 80}, "Quit", false}
     };
 
-    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color black = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
     while (true)
@@ -130,7 +130,7 @@ void SetDifficult(Window* window)
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -146,7 +146,7 @@ void SetDifficult(Window* window)
         {{SCREEN_WIDTH/2 - 200, 500, 400, 80}, "Back", false},
     };
 
-    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color black = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
     while (true)
@@ -243,7 +243,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -258,7 +258,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
         {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "Main Menu", false}
     };
 
-    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color black = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
     while (true)
