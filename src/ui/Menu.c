@@ -21,7 +21,7 @@ void showMainMenu(Window* window)
     // Пункты меню с увеличенными размерами и отступами
     MenuItem items[5] = 
     {
-        {{SCREEN_WIDTH/2 - 200, 200, 400, 80}, "New game", false},
+        {{SCREEN_WIDTH/2 - 200 - 50, 200, 400, 80}, "New game", false},
         {{SCREEN_WIDTH/2 - 200, 300, 400, 80}, "Load game", false},
         {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "Leaderboard", false},
         {{SCREEN_WIDTH/2 - 200, 500, 400, 80}, "About", false},
@@ -101,6 +101,7 @@ void showMainMenu(Window* window)
         {
             case 0: 
                 SetDifficult(window);
+                printf("returned\n");
                 break;
             case 1: 
                 double Time;
@@ -140,101 +141,99 @@ void SetDifficult(Window* window)
     // Пункты меню с увеличенными размерами и отступами
     MenuItem items[4] = 
     {
-        {{SCREEN_WIDTH/2 - 200, 200, 400, 80}, "Baby", false},
+        {{SCREEN_WIDTH/2 - 230, 200, 400, 80}, "Baby", false},
         {{SCREEN_WIDTH/2 - 200, 300, 400, 80}, "Your grandfather", false},
-        {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "GOD", false},
-        {{SCREEN_WIDTH/2 - 200, 500, 400, 80}, "Back", false},
+        {{SCREEN_WIDTH/2 - 200, 410, 400, 80}, "GOD", false},
+        {{SCREEN_WIDTH/2 - 210, 500, 400, 80}, "Back", false},
     };
 
     SDL_Color black = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
 
-    while (true)
+    bool running = true;
+    int selectedItem = -1;
+
+    while (running) 
     {
-        bool running = true;
-        int selectedItem = -1;
+        Uint32 frameStart = SDL_GetTicks();
 
-        while (running) 
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) 
         {
-            Uint32 frameStart = SDL_GetTicks();
-
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) 
+            switch (event.type) 
             {
-                switch (event.type) 
-                {
-                case SDL_QUIT:
-                    Game_cleanup(window, EXIT_SUCCESS);
-                    break;
-                case SDL_MOUSEMOTION:
-                    int x = event.motion.x;
-                    int y = event.motion.y;
+            case SDL_QUIT:
+                Game_cleanup(window, EXIT_SUCCESS);
+                break;
+            case SDL_MOUSEMOTION:
+                int x = event.motion.x;
+                int y = event.motion.y;
 
-                    for (int i = 0; i < 5; i++) 
-                    {
-                        items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                            y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
-                    }
-                    break;
-                    
-                case SDL_MOUSEBUTTONDOWN:
-                    if (event.button.button == SDL_BUTTON_LEFT) {
-                        for (int i = 0; i < 5; i++) {
-                            if (items[i].hovered) {
-                                selectedItem = i;
-                                running = false;
-                                break;
-                            }
+                for (int i = 0; i < 4; i++) 
+                {
+                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
+                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                }
+                break;
+                
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    for (int i = 0; i < 5; i++) {
+                        if (items[i].hovered) {
+                            selectedItem = i;
+                            running = false;
+                            break;
                         }
                     }
-                    break;
                 }
+                break;
             }
-
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, window->background, NULL, NULL);
-
-            for (int i = 0; i < 4; i++) 
-            {
-                SDL_Color color = items[i].hovered ? red : black;
-                // Центрирование текста внутри увеличенных прямоугольников
-                int textWidth, textHeight;
-                TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
-                int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
-                int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
-
-                renderText(renderer, font, items[i].text, textX, textY, color);
-            }
-
-            SDL_RenderPresent(renderer);
-
-            Uint32 frameTime = SDL_GetTicks() - frameStart;
-            if (frameTime < 1000/FPS)
-            SDL_Delay(1000/FPS - frameTime);
         }
 
-        switch (selectedItem)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, window->background, NULL, NULL);
+
+        for (int i = 0; i < 4; i++) 
         {
-            case 0: 
-                printf("Baby difficult\n"); 
-                checkers(window, NULL, 1, 0, 0);
-                break;
-            case 1: 
-                printf("Middle difficult\n"); 
-                checkers(window, NULL, 3, 0, 0);
-                break;
-            case 2: 
-                printf("GOD difficult\n"); 
-                checkers(window, NULL, 5, 0, 0);
-            break;
-            case 4: 
-                printf("Back selected\n"); 
-                return;
-                break;
-            default: 
-                break;
+            SDL_Color color = items[i].hovered ? red : black;
+            // Центрирование текста внутри увеличенных прямоугольников
+            int textWidth, textHeight;
+            TTF_SizeText(font, items[i].text, &textWidth, &textHeight);
+            int textX = items[i].rect.x + (items[i].rect.w - textWidth) / 2;
+            int textY = items[i].rect.y + (items[i].rect.h - textHeight) / 2;
+
+            renderText(renderer, font, items[i].text, textX, textY, color);
         }
+
+        SDL_RenderPresent(renderer);
+
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameTime < 1000/FPS)
+        SDL_Delay(1000/FPS - frameTime);
+    }
+
+    TTF_CloseFont(font);
+    switch (selectedItem)
+    {
+        case 0: 
+            printf("Baby difficult\n"); 
+            checkers(window, NULL, 1, 0, 0);
+            break;
+        case 1: 
+            printf("Middle difficult\n"); 
+            checkers(window, NULL, 3, 0, 0);
+            break;
+        case 2: 
+            printf("GOD difficult\n"); 
+            checkers(window, NULL, 7, 0, 0);
+            break;
+        case 3: 
+            printf("Back selected\n"); 
+            return;
+            break;
+        default: 
+            break;
     }
 }
 
@@ -253,8 +252,8 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
     // Пункты меню с увеличенными размерами и отступами
     MenuItem items[3] = 
     {
-        {{SCREEN_WIDTH/2 - 200, 200, 400, 80}, "Continue", false},
-        {{SCREEN_WIDTH/2 - 200, 300, 400, 80}, "Save", false},
+        {{SCREEN_WIDTH/2 - 220, 200, 400, 80}, "Continue", false},
+        {{SCREEN_WIDTH/2 - 220, 310, 400, 80}, "Save", false},
         {{SCREEN_WIDTH/2 - 200, 400, 400, 80}, "Main Menu", false}
     };
 
@@ -277,8 +276,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
                 switch (event.type) 
                 {
                 case SDL_QUIT:
-                    running = false;
-                    selectedItem = 3;
+                    Game_cleanup(window, EXIT_SUCCESS);
                     break;
                 case SDL_MOUSEMOTION:
                     int x = event.motion.x;
