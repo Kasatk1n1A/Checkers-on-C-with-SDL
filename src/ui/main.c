@@ -15,7 +15,7 @@ int main(void)
 
     showMainMenu(window);
 
-    Game_cleanup(window, EXIT_FAILURE);
+    Game_cleanup(window, EXIT_SUCCESS);
 
     return 0;
 }

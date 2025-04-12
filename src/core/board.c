@@ -151,7 +151,7 @@ void out_board_SDL(Window* window, Board* CheckersBoard)
 }
 
 void renderBoardFrame(Window* window, Board* CheckersBoard)
-{
+{    
     // Очистка экрана
     SDL_RenderClear(window->renderer);
         

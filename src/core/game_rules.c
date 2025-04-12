@@ -4,6 +4,7 @@
 int checkers(Window* window, CH_Type** board, int difficult, double Time, Player color)
 {
     Board* CheckersBoard = (Board*)malloc(sizeof(Board));
+    
     LoadBoardTextures(CheckersBoard, window);
 
     if (board == NULL)

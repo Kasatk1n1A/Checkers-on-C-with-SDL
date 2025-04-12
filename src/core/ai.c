@@ -5,7 +5,6 @@
 #include <stdbool.h>
 
 // Оценка текущей позиции на доске для указанного игрока
-// Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
     int score = 0;
     const int pawn_value = 10;   // Значение пешки
@@ -14,8 +13,6 @@ int evaluate_position(CH_Type** board, Player player) {
     // Коэффициенты для разных ситуаций     
     const int EAT_BONUS = 30;         // За съедение шашки
     const int EAT_KING_BONUS = 100;    // За съедение дамки
-    const int SAVE_BONUS = 50;         // За спасение своей шашки
-    const int BLOCK_BONUS = 4;         // За блокировку шашки противника
     const int KING_BONUS = 300;        // За превращение в дамку
     const int DIE_PENALTY = -40;       // За потерю шашки
     const int DIE_KING_PENALTY = -100; // За потерю дамки
@@ -53,7 +50,7 @@ int evaluate_position(CH_Type** board, Player player) {
             }
             // Обработка красных фигур
             else if (piece == RED_PAWN || piece == PICKED_RED_PAWN ||
-                piece == RED_KING || piece == PICKED_RED_KING) {
+                     piece == RED_KING || piece == PICKED_RED_KING) {
 
                 bool isKing = (piece == RED_KING || piece == PICKED_RED_KING);
                 int value = isKing ? king_value : pawn_value;
@@ -113,7 +110,7 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
 
     // Проверка типа фигуры
     bool isKing = (piece == WHITE_KING || piece == PICKED_WHITE_KING ||
-        piece == RED_KING || piece == PICKED_RED_KING);
+                   piece == RED_KING || piece == PICKED_RED_KING);
     bool isWhite = (player == WHITE);
 
     // Направления движения (для дамок - все 4 направления, для пешек - только вперёд)
@@ -217,7 +214,7 @@ Move* generate_all_moves(CH_Type** board, Player player) {
             CH_Type piece = board[y][x];
             // Проверка, что это наша фигура
             bool isOurPiece = (player == WHITE && (piece == WHITE_PAWN || piece == WHITE_KING)) ||
-                (player == RED && (piece == RED_PAWN || piece == RED_KING));
+                              (player == RED && (piece == RED_PAWN || piece == RED_KING));
 
             if (isOurPiece) {
                 // Если есть обязательные взятия, пропускаем фигуры без взятий
@@ -480,11 +477,13 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
 
     if (attack_board) 
     {
+        printf("Continue\n");
         // Если есть взятия - выполняем лучший ход со взятием
         Move* bestMove = find_best_move(tmp_board, player, maxDepth);
 
         if (bestMove) {
             // Выполняем взятие
+            printf("NIGEEEEEEEEEEEEEEEEERS!!!\n");
             performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
 
             printf("bestMove->toY: %d\n", bestMove->toY);
@@ -498,18 +497,8 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
             }
             // Проверяем, можно ли продолжить взятия
             if (CanContinue(board, bestMove->toX, bestMove->toY, player)) {
-                // Создаем временную копию доски
-                CH_Type** tempBoard = (CH_Type**)malloc(sizeof(CH_Type*) * 8);
-                for (int i = 0; i < 8; i++) {
-                    tempBoard[i] = (CH_Type*)malloc(sizeof(CH_Type) * 8);
-                    memcpy(tempBoard[i], board[i], sizeof(CH_Type) * 8);
-                }
-
                 // Рекурсивно продолжаем взятия
-                bot_make_move(tempBoard, difficult, player);
-
-                // Освобождаем временную доску
-                freeBoard((void**)tempBoard);
+                bot_make_move(board, difficult, player);
             }
 
             free_move(bestMove);
