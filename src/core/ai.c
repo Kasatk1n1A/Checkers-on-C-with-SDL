@@ -124,14 +124,42 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
             dy = isWhite ? -1 : 1;
         }
 
-        // Проверка простых ходов
-        int nx = x + dx;
-        int ny = y + dy;
-        if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] == EMPTY) {
-            Move* newMove = create_move(x, y, nx, ny, NULL);
-            if (!moves) moves = newMove;
-            else last->next = newMove;
-            last = newMove;
+        // Проверка ходов для дамки
+        if (isKing) {
+            // Проверяем все 4 диагональных направления
+            for (int dir = 0; dir < 4; dir++) {
+                int step = 1;
+                while (true) {
+                    int nx = x + dx * step;
+                    int ny = y + dy * step;
+                    
+                    // Проверяем, находится ли новая позиция в пределах доски
+                    if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) break;
+                    
+                    // Если клетка пустая - добавляем ход
+                    if (board[ny][nx] == EMPTY) {
+                        Move* newMove = create_move(x, y, nx, ny, NULL);
+                        if (!moves) moves = newMove;
+                        else last->next = newMove;
+                        last = newMove;
+                        step++;
+                    } else {
+                        // Если клетка занята - дальше по этому направлению ходить нельзя
+                        break;
+                    }
+                }
+            }
+        } 
+        else {
+            // Оригинальный код для простой шашки (один шаг)
+            int nx = x + dx;
+            int ny = y + dy;
+            if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] == EMPTY) {
+                Move* newMove = create_move(x, y, nx, ny, NULL);
+                if (!moves) moves = newMove;
+                else last->next = newMove;
+                last = newMove;
+            }
         }
 
         // Проверка взятий (для дамок - рекурсивно на всю длину доски)
