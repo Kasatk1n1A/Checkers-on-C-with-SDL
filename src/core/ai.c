@@ -102,94 +102,93 @@ int evaluate_position(CH_Type** board, Player player) {
 
     return score;
 }
-// Генерация всех возможных ходов для конкретной фигуры
+
 Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
-    Move* moves = NULL;  // Список возможных ходов
-    Move* last = NULL;   // Последний ход в списке
+    Move* moves = NULL;
+    Move* last = NULL;
     CH_Type piece = board[y][x];
 
-    // Проверка типа фигуры
     bool isKing = (piece == WHITE_KING || piece == PICKED_WHITE_KING ||
                    piece == RED_KING || piece == PICKED_RED_KING);
     bool isWhite = (player == WHITE);
 
-    // Направления движения (для дамок - все 4 направления, для пешек - только вперёд)
     int directions[4][2] = { {1,1}, {-1,1}, {1,-1}, {-1,-1} };
-    int dirCount = isKing ? 4 : 2;
 
-    // Проверка всех возможных направлений
-    for (int d = 0; d < dirCount; d++) {
+    // Проверка всех направлений
+    for (int d = 0; d < 4; d++) {
         int dx = directions[d][0];
         int dy = directions[d][1];
 
-        // Для обычных шашек корректируем направление (белые ходят вверх, красные - вниз)
+        // Для обычных шашек корректируем направление
         if (!isKing) {
             dy = isWhite ? -1 : 1;
         }
 
-        // Координаты соседней клетки
+        // Проверка простых ходов
         int nx = x + dx;
         int ny = y + dy;
-
-        // Проверка на обычный ход (клетка в пределах доски и пуста)
         if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] == EMPTY) {
-            // Создаём новый ход
-            Move* newMove = (Move*)malloc(sizeof(Move));
-            newMove->fromX = x;
-            newMove->fromY = y;
-            newMove->toX = nx;
-            newMove->toY = ny;
-            newMove->captures = NULL;
-            newMove->next = NULL;
-
-            // Добавляем ход в список
-            if (moves == NULL) {
-                moves = newMove;
-                last = newMove;
-            }
-            else {
-                last->next = newMove;
-                last = newMove;
-            }
+            Move* newMove = create_move(x, y, nx, ny, NULL);
+            if (!moves) moves = newMove;
+            else last->next = newMove;
+            last = newMove;
         }
 
-        // Проверка на взятие (прыжок через фигуру противника)
-        int jx = x + 2 * dx;  // Клетка после прыжка
-        int jy = y + 2 * dy;
-
-        // Проверка границ доски
-        if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 &&
-            jx >= 0 && jx < 8 && jy >= 0 && jy < 8) {
-
-            // Фигура между текущей и целевой клеткой
-            CH_Type between = board[ny][nx];
-            // Проверка, что это фигура противника
-            bool isEnemy = (isWhite && (between == RED_PAWN || between == RED_KING)) ||
-                (!isWhite && (between == WHITE_PAWN || between == WHITE_KING));
-
-            // Если между клетками фигура противника, а целевая клетка пуста
-            if (isEnemy && board[jy][jx] == EMPTY) {
-                // Создаём ход со взятием
-                Move* newMove = (Move*)malloc(sizeof(Move));
-                newMove->fromX = x;
-                newMove->fromY = y;
-                newMove->toX = jx;
-                newMove->toY = jy;
-
-                // Запоминаем съеденную фигуру
-                newMove->captures = (Move*)malloc(sizeof(Move));
-                newMove->captures->fromX = nx;
-                newMove->captures->fromY = ny;
-                newMove->captures->next = NULL;
-                newMove->next = NULL;
-
-                // Добавляем ход в список
-                if (moves == NULL) {
-                    moves = newMove;
-                    last = newMove;
+        // Проверка взятий (для дамок - рекурсивно на всю длину доски)
+        if (isKing) {
+            // Дамка может брать на любое расстояние
+            int jx = x, jy = y;
+            bool foundEnemy = false;
+            
+            // Идём по диагонали пока не выйдем за пределы доски
+            while (1) {
+                jx += dx;
+                jy += dy;
+                if (jx < 0 || jx >= 8 || jy < 0 || jy >= 8) break;
+                
+                CH_Type cell = board[jy][jx];
+                
+                if (cell == EMPTY) {
+                    if (foundEnemy) {
+                        // Нашли пустую клетку после вражеской фигуры - возможное взятие
+                        Move* newMove = create_move(x, y, jx, jy, NULL);
+                        newMove->captures = create_move(jx-dx, jy-dy, 0, 0, NULL);
+                        
+                        if (!moves) moves = newMove;
+                        else last->next = newMove;
+                        last = newMove;
+                    }
+                    continue;
                 }
-                else {
-                    last->next = newMove;
+                
+                // Проверяем, вражеская ли это фигура
+                bool isEnemy = (isWhite && (cell == RED_PAWN || cell == RED_KING)) ||
+                              (!isWhite && (cell == WHITE_PAWN || cell == WHITE_KING));
+                
+                if (isEnemy && !foundEnemy) {
+                    foundEnemy = true;
+                } else {
+                    // Встретили вторую фигуру (свою или вражескую) - дальше нельзя
+                    break;
+                }
+            }
+        } else {
+            // Для обычных шашек - только через одну клетку
+            dy = directions[d][1];
+            int jx = x + 2*dx;
+            int jy = y + 2*dy;
+            
+            if (jx >= 0 && jx < 8 && jy >= 0 && jy < 8) {
+                CH_Type between = board[y+dy][x+dx];
+                bool isEnemy = (isWhite && (between == RED_PAWN || between == RED_KING)) ||
+                              (!isWhite && (between == WHITE_PAWN || between == WHITE_KING));
+                
+                if (isEnemy && board[jy][jx] == EMPTY) {
+                    Move* newMove = create_move(x, y, jx, jy, NULL);
+                    newMove->captures = create_move(x+dx, y+dy, 0, 0, NULL);
+                    
+                    if (!moves) moves = newMove;
+                    else last->next = newMove;
                     last = newMove;
                 }
             }
@@ -197,6 +196,18 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
     }
 
     return moves;
+}
+
+// Вспомогательная функция для создания хода
+Move* create_move(int fromX, int fromY, int toX, int toY, Move* captures) {
+    Move* move = (Move*)malloc(sizeof(Move));
+    move->fromX = fromX;
+    move->fromY = fromY;
+    move->toX = toX;
+    move->toY = toY;
+    move->captures = captures;
+    move->next = NULL;
+    return move;
 }
 
 // Генерация всех возможных ходов для игрока
@@ -483,7 +494,6 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
 
         if (bestMove) {
             // Выполняем взятие
-            printf("NIGEEEEEEEEEEEEEEEEERS!!!\n");
             performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
 
             printf("bestMove->toY: %d\n", bestMove->toY);

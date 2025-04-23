@@ -11,7 +11,7 @@ void CopyBoard(CH_Type** board, CH_Type** new)
 CH_Type** add_board(void)
 {
     CH_Type** board = (CH_Type**)malloc(sizeof(CH_Type*) * 8);       
-
+    
     //{ 0, r, 0, r, 0, r, 0, r },
     //{ r, 0, r, 0, r, 0, r, 0 },
     //{ 0, r, 0, r, 0, r, 0, r },
