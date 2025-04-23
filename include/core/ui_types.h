@@ -14,7 +14,8 @@ typedef struct
     SDL_Texture* background;
 } Window;
 
-typedef struct {
+typedef struct 
+{
     SDL_Rect rect;
     const char* text;
     bool hovered;

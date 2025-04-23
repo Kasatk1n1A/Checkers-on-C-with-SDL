@@ -28,6 +28,7 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     info.Time = Time;
     info.difficult = difficult;
     info.player = color;
+    Player WhoWin = WHITE;
 
     while (true)
     {
@@ -59,18 +60,20 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
                 ((double)(end - start)) / CLOCKS_PER_SEC, info.Time);
         }
 
+        renderBoardFrame(window, CheckersBoard);
+        SDL_Delay(1000);
+        
         if (Win_Check(CheckersBoard->board, info.player))
         {
-            info.player == WHITE ? printf("White won!\n") : printf("Red won!\n");
+            info.player == WHITE ? WinMenu(window, info) : LoseMenu(window);
+            board_cleanup_SDL(CheckersBoard);
+            WhoWin = info.player;
             break;
         }
 
         info.player = info.player == WHITE ? RED : WHITE;
     }
 
-    printf("Total: %.3f sec\n", info.Time);
-
-    board_cleanup_SDL(CheckersBoard);
     showMainMenu(window);
     return 0;
 }
