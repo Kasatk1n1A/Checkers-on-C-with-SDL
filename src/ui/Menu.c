@@ -70,8 +70,8 @@ void LoseMenu(Window* window)
                     
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT)
-                            if (items[1].hovered) {
-                                selectedItem = 1;
+                            if (items[0].hovered) {
+                                selectedItem = 0;
                                 running = false;
                                 break;
                             }
@@ -100,10 +100,8 @@ void LoseMenu(Window* window)
         switch (selectedItem)
         {
             case 0:
-            case 1:
-                break;
-            case 2: 
                 showMainMenu(window);
+                break;
             default: 
                 break;
         }
@@ -456,7 +454,7 @@ void showMainMenu(Window* window)
 
                 checkers(window, board, difficult, Time, player);
                 break;
-            case 2: printf("Leaderboard selected\n"); break;
+            case 2: ShowLeaderBoard(window); break;
             case 3: printf("About selected\n"); break;
             case 4: 
                 printf("Quit selected\n"); 
@@ -570,6 +568,181 @@ void SetDifficult(Window* window)
             break;
         default: 
             break;
+    }
+}
+
+void ShowLeaderBoard(Window* window)
+{
+    SDL_Renderer* renderer = window->renderer;
+
+    SDL_Color Black = {0, 0, 0, 255};
+    SDL_Color Green = {0, 255, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+    SDL_Color Grey = {178, 178, 178, 255};
+
+    // Загрузка шрифта с увеличенным размером
+    TTF_Font* font_small = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font_for_leaders = TTF_OpenFont("assets/fonts/freesansbold.ttf", 30);
+    if (!font_small || !font_for_leaders) 
+    {
+        fprintf(stderr, "Failed to load font: %s", TTF_GetError());
+        return;
+    }
+
+    // Пункты меню с увеличенными размерами и отступами
+    MenuItem items[7];
+
+    items[1].rect.x = 100; items[1].rect.y = 100; items[1].rect.h = 630; items[1].rect.w = 250;
+    items[2].rect.x = 575; items[2].rect.y = 100; items[2].rect.h = 630; items[2].rect.w = 250;
+    items[3].rect.x = 1050; items[3].rect.y = 100; items[3].rect.h = 630; items[3].rect.w = 250;
+
+    items[4].rect.x = 95; items[4].rect.y = 95; items[4].rect.h = 640; items[4].rect.w = 260;
+    items[5].rect.x = 570; items[5].rect.y = 95; items[5].rect.h = 640; items[5].rect.w = 260;
+    items[6].rect.x = 1045; items[6].rect.y = 95; items[6].rect.h = 640; items[6].rect.w = 260;
+    
+    leader* easyLeaders = read_leaders(1);
+    leader* mediumLeaders = read_leaders(2);
+    leader* hardLeaders = read_leaders(3);
+
+    CreateTextButton(&items[0], font_small, "Main menu", SCREEN_WIDTH/2 - 200, 800, 400, 80);
+
+    bool running = true;
+    int selectedItem = -1;
+
+    while (running) 
+    {
+        Uint32 frameStart = SDL_GetTicks();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type) 
+            {
+            case SDL_QUIT:
+                Game_cleanup(window, EXIT_SUCCESS);
+                break;
+
+            case SDL_MOUSEMOTION:
+                int x = event.motion.x;
+                int y = event.motion.y;
+
+                items[0].hovered = (x >= items[0].rect.x && x <= items[0].rect.x + items[0].rect.w && 
+                                    y >= items[0].rect.y && y <= items[0].rect.y + items[0].rect.h);
+
+                break;
+                
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                    if (items[0].hovered) {
+                        selectedItem = 0;
+                        running = false;
+                        break;
+                    }
+                break;
+            }
+        }
+        
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, window->background, NULL, NULL);
+        
+        SDL_Color color = items[0].hovered ? red : Green;
+        renderText(renderer, font_small, items[0].text, items[0].rect.x, items[0].rect.y, color, &Black);
+        renderText(renderer, font_small, "EASY", items[1].rect.x, items[1].rect.y - 80, Green, &Black);
+        renderText(renderer, font_small, "MIDL", items[2].rect.x, items[2].rect.y - 80, Green, &Black);
+        renderText(renderer, font_small, "HARD", items[3].rect.x, items[3].rect.y - 130, Green, &Black);
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &items[4].rect);
+        SDL_RenderFillRect(renderer, &items[5].rect);
+        SDL_RenderFillRect(renderer, &items[6].rect);
+        
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &items[1].rect);
+        SDL_RenderFillRect(renderer, &items[2].rect);
+        SDL_RenderFillRect(renderer, &items[3].rect);
+
+
+        PrintLeaders(renderer, easyLeaders, font_for_leaders, items[1].rect.x, items[1].rect.y);
+        PrintLeaders(renderer, mediumLeaders, font_for_leaders, items[2].rect.x, items[2].rect.y);
+        PrintLeaders(renderer, hardLeaders, font_for_leaders, items[3].rect.x, items[3].rect.y);
+        
+        SDL_RenderPresent(renderer);
+
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameTime < 1000/FPS)
+        SDL_Delay(1000/FPS - frameTime);
+    }
+
+    free_leaders(easyLeaders);
+    free_leaders(mediumLeaders);
+    free_leaders(hardLeaders);
+
+    switch (selectedItem)
+    {
+        case 0:
+            return;
+        default: 
+            break;
+    }
+}
+
+void free_leaders(leader* leaders)
+{
+    for (int i = 0; i < 20; i++)
+    {
+        free(leaders[i].Name);
+        free(leaders[i].minutes);
+        free(leaders[i].seconds);
+    }
+    free(leaders);
+}
+
+leader* read_leaders(int type)
+{
+    FILE* file;
+    if (type == 1) file = fopen("saves/leaderboard/easy board.txt", "r");
+    else if (type == 2) file = fopen("saves/leaderboard/medium board.txt", "r");
+    else file = fopen("saves/leaderboard/hard board.txt", "r");
+
+    leader* leaders = (leader*)malloc(sizeof(leader) * 20);
+    for (int i = 0; i < 20; i++)
+    {
+        leaders[i].Name = (char*)malloc(sizeof(char) * 10);
+        leaders[i].minutes = (char*)malloc(sizeof(char) * 10);
+        leaders[i].seconds = (char*)malloc(sizeof(char) * 10);
+        memset(leaders[i].Name, '\0', sizeof(char) * 10);
+        memset(leaders[i].minutes, '\0', sizeof(char) * 10);
+        memset(leaders[i].seconds, '\0', sizeof(char) * 10);
+    }
+
+    double Time;
+    for (int i = 0; i < 20 && !feof(file); i++)
+    {
+        fscanf(file, "Name: %s Time: %lf\n", leaders[i].Name, &Time);
+        snprintf(leaders[i].minutes, sizeof(char) * 10, "%d", (int)Time / 60);
+        snprintf(leaders[i].seconds, sizeof(char) * 10, "%d", (int)Time % 60);
+        printf("%s\t %s\t %s\n", leaders[i].Name, leaders[i].minutes, leaders[i].seconds);
+    }
+
+    fclose(file);
+
+    return leaders;
+}
+
+void PrintLeaders(SDL_Renderer* renderer, leader* leaders, TTF_Font* font, int x, int y)
+{
+    SDL_Color Black = {0, 0, 0, 255};
+
+    renderText(renderer, font, "Name", x, y, Black, NULL);
+    renderText(renderer, font, "Min", x + 130, y, Black, NULL);
+    renderText(renderer, font, "sec", x + 200, y, Black, NULL);
+
+    y += 30;
+    for (int i = 0; i < 20 && strlen(leaders[i].Name) > 0; i++)
+    {
+        renderText(renderer, font, leaders[i].Name, x, y + 30 * i, Black, NULL);
+        renderText(renderer, font, leaders[i].minutes, x + 150, y + 30 * i, Black, NULL);
+        renderText(renderer, font, leaders[i].seconds, x + 200, y + 30 * i, Black, NULL);
     }
 }
 
