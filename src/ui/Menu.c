@@ -101,7 +101,6 @@ void LoseMenu(Window* window)
         {
             case 0:
             case 1:
-                if (InputText(window)) showMainMenu(window);
                 break;
             case 2: 
                 showMainMenu(window);
@@ -118,9 +117,11 @@ void WinMenu(Window* window, GameInfo info)
     SDL_Color Black = {0, 0, 0, 255};
     SDL_Color Green = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
+    SDL_Color Grey = {178, 178, 178, 255};
 
     // Загрузка шрифта с увеличенным размером
     TTF_Font* font_small = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font_in_button = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     TTF_Font* font_big = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font_small || !font_big) 
     {
@@ -132,12 +133,12 @@ void WinMenu(Window* window, GameInfo info)
     MenuItem items[3];
 
     SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
-    items[0].rect.x = SCREEN_WIDTH/2 - 200; items[0].rect.y = 400;
-    items[0].rect.w = 400;  items[0].rect.h = 80;
+    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
+    items[0].rect.w = 500;  items[0].rect.h = 80;
 
     SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 0, 0, 255);
-    items[1].rect.x = SCREEN_WIDTH/2 - 205; items[1].rect.y = 395;
-    items[1].rect.w = 410;  items[1].rect.h = 90;
+    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
+    items[1].rect.w = 510;  items[1].rect.h = 90;
 
     CreateTextButton(&items[2], font_small, "Main menu", SCREEN_WIDTH/2 - 200, 600, 400, 80);
 
@@ -192,8 +193,10 @@ void WinMenu(Window* window, GameInfo info)
             renderText(renderer, font_small, items[2].text, items[2].rect.x, items[2].rect.y, color, &Black);
             renderText(renderer, font_big, "YOU WIIIIIIIIN!!!", SCREEN_WIDTH/2 - 400, 200, red, &Black);
             
+            
             SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
             SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
+            renderText(renderer, font_in_button, "Your name", items[0].rect.x, items[0].rect.y, Grey, NULL);
 
             SDL_RenderPresent(renderer);
 
@@ -206,7 +209,7 @@ void WinMenu(Window* window, GameInfo info)
         {
             case 0:
             case 1:
-                if (InputText(window)) showMainMenu(window);
+                if (InputText(window, info)) showMainMenu(window);
                 break;
             case 2: 
                 showMainMenu(window);
@@ -216,7 +219,7 @@ void WinMenu(Window* window, GameInfo info)
     }
 }
 
-int InputText(Window* window)
+int InputText(Window* window, GameInfo info)
 {
     SDL_Renderer* renderer = window->renderer;
 
@@ -227,6 +230,7 @@ int InputText(Window* window)
 
     // Загрузка шрифта с увеличенным размером
     TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font_big = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     if (!font1 || !font2) 
     {
@@ -238,20 +242,20 @@ int InputText(Window* window)
     MenuItem items[3];
 
     SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
-    items[0].rect.x = SCREEN_WIDTH/2 - 200; items[0].rect.y = 200;
-    items[0].rect.w = 400;  items[0].rect.h = 80;
+    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
+    items[0].rect.w = 500;  items[0].rect.h = 80;
 
     SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 255, 0, 255);
-    items[1].rect.x = SCREEN_WIDTH/2 - 205; items[1].rect.y = 195;
-    items[1].rect.w = 410;  items[1].rect.h = 90;
+    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
+    items[1].rect.w = 510;  items[1].rect.h = 90;
 
-    CreateTextButton(&items[2], font1, "Main menu", SCREEN_WIDTH/2 - 200, 500, 400, 80);
+    CreateTextButton(&items[2], font1, "Main menu", SCREEN_WIDTH/2 - 200, 600, 400, 80);
 
     while (true)
     {
         bool running = true;
         int selectedItem = -1;
-        char input_text[7] = {'\0'};
+        char input_text[10] = {'\0'};
 
         while (running) 
         {
@@ -288,16 +292,20 @@ int InputText(Window* window)
                     break;
 
                 case SDL_TEXTINPUT:
-                    if (strlen(input_text) < 7)
+                    if (strlen(input_text) < 6)
+                    {
                         strncat(input_text, event.text.text, sizeof(input_text) - strlen(input_text) - 1);
+                        printf("%s\n", input_text);
+                    }
                     break;
 
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym)
                     {
                     case SDLK_RETURN:
-                        SDL_StopTextInput();
-                        return 0;
+                        SaveForLeaderBoard(input_text, info);
+                        SDL_StopTextInput();    //Нужно добавить сюда запись в список рекордов
+                        return 1;
 
                     case SDLK_BACKSPACE:
                         if (strlen(input_text) > 0)
@@ -317,10 +325,11 @@ int InputText(Window* window)
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, window->background, NULL, NULL);
-
+            
             SDL_Color color = items[2].hovered ? red : Green;
-
+            
             renderText(renderer, font1, items[2].text, items[2].rect.x, items[2].rect.y, color, &Black);
+            renderText(renderer, font_big, "YOU WIIIIIIIIN!!!", SCREEN_WIDTH/2 - 400, 200, red, &Black);
 
             SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
             SDL_RenderCopy(renderer, button, NULL, &items[0].rect);

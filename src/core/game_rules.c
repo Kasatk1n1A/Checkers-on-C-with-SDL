@@ -23,13 +23,16 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     //      1  2  3  4  5  6  7  8
     
     
-    clock_t start, end;
+    Uint32 start, end;
     GameInfo info;
     info.Time = Time;
     info.difficult = difficult;
     info.player = color;
     Player WhoWin = WHITE;
 
+    renderBoardFrame(window, CheckersBoard);
+    
+    // основной цикл игры
     while (true)
     {
         out_board(CheckersBoard->board);
@@ -41,10 +44,12 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         }
         else
         {
+            
             printf("White turn.\n");
-            start = clock();  // Начинаем замер времени только для белых
+            start = SDL_GetTicks();
+            printf("start time%lf\n", (double)start);
 
-            renderBoardFrame(window, CheckersBoard);
+
             //проверка на необходимость атаки
             bool** attack_board = canCapture(CheckersBoard->board, info.player == WHITE ? true : false);
             if (attack_board) {
@@ -54,14 +59,15 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
             else    //Обычный ход
                 executeRegularMove(window, CheckersBoard->board, info, CheckersBoard);
     
-            end = clock();
-            info.Time += ((double)(end - start)) / CLOCKS_PER_SEC;
+            end = SDL_GetTicks();
+            printf("end time%lf\n", (double)end);
+            info.Time += (end - start) / 1000.0;
             printf("White's move time: %.3f sec (Total: %.3f sec)\n", 
                 ((double)(end - start)) / CLOCKS_PER_SEC, info.Time);
         }
 
         renderBoardFrame(window, CheckersBoard);
-        SDL_Delay(1000);
+        SDL_Delay(500);
         
         if (Win_Check(CheckersBoard->board, info.player))
         {
