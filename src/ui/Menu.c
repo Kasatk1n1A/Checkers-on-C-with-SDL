@@ -433,7 +433,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
                 return;
                 break;
             case 1: 
-                SaveGame(CheckersBoard->board, info);
+                SaveGame(window, CheckersBoard->board, info);
                 break;
             case 2: 
                 board_cleanup_SDL(CheckersBoard);
@@ -442,6 +442,242 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)
             default: 
                 break;
         }
+    }
+}
+
+//----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
+
+void SaveGame(Window* window, CH_Type** board, GameInfo info)
+{
+    SDL_Renderer* renderer = window->renderer;
+
+    SDL_Color Black = {0, 0, 0, 255};
+    SDL_Color Green = {0, 255, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+    SDL_Color Grey = {178, 178, 178, 255};
+
+    // Загрузка шрифта с увеличенным размером
+    TTF_Font* font_small = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font_in_button = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
+    TTF_Font* font_big = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
+    if (!font_small || !font_big) 
+    {
+        fprintf(stderr, "Failed to load font: %s", TTF_GetError());
+        return;
+    }
+
+    // Пункты меню с увеличенными размерами и отступами
+    MenuItem items[3];
+
+    SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
+    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
+    items[0].rect.w = 500;  items[0].rect.h = 80;
+
+    SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 0, 0, 255);
+    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
+    items[1].rect.w = 510;  items[1].rect.h = 90;
+
+    CreateTextButton(&items[2], font_small, "Menu", SCREEN_WIDTH/2 - 200, 600, 400, 80);
+
+    bool running = true;
+    int selectedItem = -1;
+
+    while (running)
+    {
+        Uint32 frameStart = SDL_GetTicks();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type) 
+            {
+            case SDL_QUIT:
+                Game_cleanup(window, EXIT_SUCCESS);
+                break;
+
+            case SDL_MOUSEMOTION:
+                int x = event.motion.x;
+                int y = event.motion.y;
+
+                for (int i = 0; i < 3; i++) 
+                {
+                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
+                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                }
+                break;
+                
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    for (int i = 0; i < 3; i++) {
+                        if (items[i].hovered) {
+                            selectedItem = i;
+                            running = false;
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, window->background, NULL, NULL);
+
+        SDL_Color color = items[2].hovered ? red : Green;
+        renderText(renderer, font_small, items[2].text, items[2].rect.x, items[2].rect.y, color, &Black);
+        renderText(renderer, font_big, "Input your save name", SCREEN_WIDTH/2 - 700, 200, red, &Black);
+        
+        
+        SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
+        SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
+        renderText(renderer, font_in_button, "Your name", items[0].rect.x, items[0].rect.y, Grey, NULL);
+
+        SDL_RenderPresent(renderer);
+
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameTime < 1000/FPS)
+        SDL_Delay(1000/FPS - frameTime);
+    }
+
+    switch (selectedItem)
+    {
+        case 0:
+        case 1: SaveGame_InputText(window, board, info); break;
+        case 2: return;
+        default: break;
+    }
+}
+
+void SaveGame_InputText(Window* window, CH_Type** board, GameInfo info)
+{
+    SDL_Renderer* renderer = window->renderer;
+
+    SDL_Color Black = {0, 0, 0, 255};
+    SDL_Color Green = {0, 255, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+
+    // Загрузка шрифта с увеличенным размером
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font_big = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
+    TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
+    if (!font1 || !font2) 
+    {
+        fprintf(stderr, "Failed to load font: %s", TTF_GetError());
+        return;
+    }
+
+    // Пункты меню с увеличенными размерами и отступами
+    MenuItem items[3];
+
+    SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
+    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
+    items[0].rect.w = 500;  items[0].rect.h = 80;
+
+    SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 255, 0, 255);
+    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
+    items[1].rect.w = 510;  items[1].rect.h = 90;
+
+    CreateTextButton(&items[2], font1, "Menu", SCREEN_WIDTH/2 - 200, 600, 400, 80);
+
+    bool running = true;
+    int selectedItem = -1;
+    char input_text[10] = {'\0'};
+
+    while (running) 
+    {
+        Uint32 frameStart = SDL_GetTicks();
+
+        SDL_StartTextInput();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type) 
+            {
+            case SDL_QUIT:
+                SDL_StopTextInput();
+                Game_cleanup(window, EXIT_SUCCESS);
+                break;
+
+            case SDL_MOUSEMOTION:
+                int x = event.motion.x;
+                int y = event.motion.y;
+
+                items[2].hovered = (x >= items[2].rect.x && x <= items[2].rect.x + items[2].rect.w && 
+                                    y >= items[2].rect.y && y <= items[2].rect.y + items[2].rect.h);
+                break;
+                
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                    if (items[2].hovered)
+                    {
+                        selectedItem = 2;
+                        running = false;
+                        break;
+                    }
+                break;
+
+            case SDL_TEXTINPUT:
+                if (strlen(input_text) < 6)
+                {
+                    strncat(input_text, event.text.text, sizeof(input_text) - strlen(input_text) - 1);
+                    printf("%s\n", input_text);
+                }
+                break;
+
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym)
+                {
+                case SDLK_RETURN:
+                    SDL_StopTextInput();    //Нужно добавить сюда запись в список рекордов
+                    SaveGame_file(input_text, board, info);
+                    return;
+
+                case SDLK_BACKSPACE:
+                    if (strlen(input_text) > 0)
+                        input_text[strlen(input_text) - 1] = '\0';
+                    break;
+                default:
+                    break;
+                }
+                
+            default:
+                break;
+            }
+        }
+
+        SDL_StopTextInput();
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, window->background, NULL, NULL);
+        
+        SDL_Color color = items[2].hovered ? red : Green;
+        
+        renderText(renderer, font1, items[2].text, items[2].rect.x, items[2].rect.y, color, &Black);
+        renderText(renderer, font_big, "Input your save name", SCREEN_WIDTH/2 - 700, 200, red, &Black);
+
+        SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
+        SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
+
+        if (strlen(input_text) > 0)
+            renderText(renderer, font2, input_text, items[0].rect.x, items[0].rect.y, Black, NULL);
+
+        SDL_RenderPresent(renderer);
+
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameTime < 1000/FPS)
+        SDL_Delay(1000/FPS - frameTime);
+    }
+
+    switch (selectedItem)
+    {
+        case 2: 
+            SDL_StopTextInput();
+            return;
+        default: 
+            break;
     }
 }
 

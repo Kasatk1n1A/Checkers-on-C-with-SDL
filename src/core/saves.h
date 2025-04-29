@@ -16,9 +16,9 @@ typedef enum
     HARD_POINTS = 1
 } HardPoints;
 
-void SaveGame(CH_Type** board, GameInfo info);
 void load_from_save(Window* window, char* str);
 int SaveForLeaderBoard(char* name, GameInfo info);
 bool is_worse_than(const char* entry, double new_time);
+void SaveGame_file(char* str, CH_Type** board, GameInfo info);
 
 #endif

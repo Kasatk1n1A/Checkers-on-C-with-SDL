@@ -1,11 +1,9 @@
 #include "saves.h"
 
-void SaveGame(CH_Type** board, GameInfo info)
+void SaveGame_file(char* str, CH_Type** board, GameInfo info)
 {
     char save_name[100] = "saves/";
-    fgets(save_name + 6, 94, stdin);
-    char* ent = strchr(save_name, '\n');
-    *ent = '\0';
+    strcat(save_name, str);
 
     FILE* save_file = fopen(save_name, "w");
     if (!save_file)

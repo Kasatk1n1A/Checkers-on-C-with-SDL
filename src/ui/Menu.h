@@ -28,6 +28,9 @@ int WinMenu_InputText(Window* window, GameInfo info);
 void LoadGame(Window* window);
 void LoadGame_InputText(Window* window);
 
+void SaveGame(Window* window, CH_Type** board, GameInfo info);
+void SaveGame_InputText(Window* window, CH_Type** board, GameInfo info);
+
 void SetDifficult(Window* window);
 void showMainMenu(Window* window);
 
