@@ -30,7 +30,7 @@ void SaveGame(CH_Type** board, GameInfo info)
     fclose(save_file);
 }
 
-void SaveForLeaderBoard(char* name, GameInfo info)
+int SaveForLeaderBoard(char* name, GameInfo info)
 {
     const char* filename;
     if (info.difficult == 1) filename = "saves/leaderboard/easy board.txt";
@@ -115,26 +115,24 @@ bool is_worse_than(const char* entry, double new_time)
     return true; // Если запись некорректна, считаем её "худшей"
 }
 
-CH_Type** load_from_save(double* Total, Player* player, int* difficult)
+void load_from_save(Window* window, char* str)
 {
     char save_name[100] = "saves/";
-    fgets(save_name + 6, 94, stdin);
-    char* ent = strchr(save_name, '\n');
-    *ent = '\0';
+    strcat(save_name, str);
 
     FILE* save_file = fopen(save_name, "r");
     if (!save_file)
     {
         fprintf(stderr, "Error with open file \"%s\": No such file", save_name);
-        return NULL;
+        return;
     }
 
-    int tmp;
-    fscanf(save_file, "Time: %lf sec\n", Total);
-    fscanf(save_file, "Player: %d\n", &tmp);
-    *player = tmp;
-    fscanf(save_file, "Difficult: %d\n", &tmp);
-    *difficult = tmp;
+    double Total;
+    Player player;
+    int difficult;
+    fscanf(save_file, "Time: %lf sec\n", &Total);
+    fscanf(save_file, "Player: %d\n", &player);
+    fscanf(save_file, "Difficult: %d\n", &difficult);
 
     fseek(save_file, 7 * sizeof(char), SEEK_CUR);
 
@@ -146,7 +144,8 @@ CH_Type** load_from_save(double* Total, Player* player, int* difficult)
 
         // fseek(save_file, sizeof(char), SEEK_CUR);
     }
+
     fclose(save_file);
 
-    return board;
+    checkers(window, board, difficult, Total, player);
 }

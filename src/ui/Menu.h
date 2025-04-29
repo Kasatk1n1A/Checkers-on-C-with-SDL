@@ -23,7 +23,10 @@ typedef struct
 
 void LoseMenu(Window* window);
 void WinMenu(Window* window, GameInfo info);
-int SaveForLeaders(Window* window, GameInfo info);
+int WinMenu_InputText(Window* window, GameInfo info);
+
+void LoadGame(Window* window);
+void LoadGame_InputText(Window* window);
 
 void SetDifficult(Window* window);
 void showMainMenu(Window* window);

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "game_rules.h"
 #include "../../include/core/Checkers_types.h"
 #include "board.h"
 
@@ -16,8 +17,8 @@ typedef enum
 } HardPoints;
 
 void SaveGame(CH_Type** board, GameInfo info);
-void SaveForLeaderBoard(char* name, GameInfo info);
+void load_from_save(Window* window, char* str);
+int SaveForLeaderBoard(char* name, GameInfo info);
 bool is_worse_than(const char* entry, double new_time);
-CH_Type** load_from_save(double* Total, Player* player, int* difficult);
 
 #endif
