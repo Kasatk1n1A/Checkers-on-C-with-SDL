@@ -39,6 +39,7 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         if (info.player == RED)
         {
             // Ход бота
+            SDL_Delay(500);
             printf("Red turn.\n");
             bot_make_move(CheckersBoard->board, info.difficult, RED);
         }
@@ -67,7 +68,6 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         }
 
         renderBoardFrame(window, CheckersBoard);
-        SDL_Delay(500);
         
         if (Win_Check(CheckersBoard->board, info.player))
         {

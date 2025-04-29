@@ -578,7 +578,6 @@ void ShowLeaderBoard(Window* window)
     SDL_Color Black = {0, 0, 0, 255};
     SDL_Color Green = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
-    SDL_Color Grey = {178, 178, 178, 255};
 
     // Загрузка шрифта с увеличенным размером
     TTF_Font* font_small = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
@@ -599,10 +598,10 @@ void ShowLeaderBoard(Window* window)
     items[4].rect.x = 95; items[4].rect.y = 95; items[4].rect.h = 640; items[4].rect.w = 260;
     items[5].rect.x = 570; items[5].rect.y = 95; items[5].rect.h = 640; items[5].rect.w = 260;
     items[6].rect.x = 1045; items[6].rect.y = 95; items[6].rect.h = 640; items[6].rect.w = 260;
-    
-    leader* easyLeaders = read_leaders(1);
-    leader* mediumLeaders = read_leaders(2);
-    leader* hardLeaders = read_leaders(3);
+
+    leader* easyLeaders = read_leaders(renderer, 1, items[1].rect.x, items[1].rect.y);
+    leader* mediumLeaders = read_leaders(renderer, 2, items[2].rect.x, items[2].rect.y);
+    leader* hardLeaders = read_leaders(renderer, 3, items[3].rect.x, items[3].rect.y);
 
     CreateTextButton(&items[0], font_small, "Main menu", SCREEN_WIDTH/2 - 200, 800, 400, 80);
 
@@ -661,10 +660,9 @@ void ShowLeaderBoard(Window* window)
         SDL_RenderFillRect(renderer, &items[2].rect);
         SDL_RenderFillRect(renderer, &items[3].rect);
 
-
-        PrintLeaders(renderer, easyLeaders, font_for_leaders, items[1].rect.x, items[1].rect.y);
-        PrintLeaders(renderer, mediumLeaders, font_for_leaders, items[2].rect.x, items[2].rect.y);
-        PrintLeaders(renderer, hardLeaders, font_for_leaders, items[3].rect.x, items[3].rect.y);
+        PrintLeaders(renderer, easyLeaders);
+        PrintLeaders(renderer, mediumLeaders);
+        PrintLeaders(renderer, hardLeaders);
         
         SDL_RenderPresent(renderer);
 
@@ -690,59 +688,93 @@ void free_leaders(leader* leaders)
 {
     for (int i = 0; i < 20; i++)
     {
-        free(leaders[i].Name);
-        free(leaders[i].minutes);
-        free(leaders[i].seconds);
+        SDL_DestroyTexture(leaders[i].Name);
+        SDL_DestroyTexture(leaders[i].minutes);
+        SDL_DestroyTexture(leaders[i].seconds);
     }
     free(leaders);
 }
 
-leader* read_leaders(int type)
+leader* read_leaders(SDL_Renderer* renderer, int type, int x, int y)
 {
     FILE* file;
     if (type == 1) file = fopen("saves/leaderboard/easy board.txt", "r");
     else if (type == 2) file = fopen("saves/leaderboard/medium board.txt", "r");
     else file = fopen("saves/leaderboard/hard board.txt", "r");
 
-    leader* leaders = (leader*)malloc(sizeof(leader) * 20);
-    for (int i = 0; i < 20; i++)
+    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", 30);
+    SDL_Color Black = {0, 0, 0, 255};
+
+    char Name[10] = {'\0'}, minutes[10] = {'\0'}, seconds[10] = {'\0'};
+
+    leader* leaders = (leader*)malloc(sizeof(leader) * 21);
+
+    // Добавляем надписи Name Min Sec
     {
-        leaders[i].Name = (char*)malloc(sizeof(char) * 10);
-        leaders[i].minutes = (char*)malloc(sizeof(char) * 10);
-        leaders[i].seconds = (char*)malloc(sizeof(char) * 10);
-        memset(leaders[i].Name, '\0', sizeof(char) * 10);
-        memset(leaders[i].minutes, '\0', sizeof(char) * 10);
-        memset(leaders[i].seconds, '\0', sizeof(char) * 10);
+    SDL_Surface* Name_surface = TTF_RenderText_Blended(font, "Name", Black);
+    SDL_Surface* minutes_surface = TTF_RenderText_Blended(font, "Min", Black);
+    SDL_Surface* seconds_surface = TTF_RenderText_Blended(font, "Sec", Black);
+
+    leaders[0].Name = SDL_CreateTextureFromSurface(renderer, Name_surface);
+    leaders[0].minutes = SDL_CreateTextureFromSurface(renderer, minutes_surface);
+    leaders[0].seconds = SDL_CreateTextureFromSurface(renderer, seconds_surface);
+
+    leaders[0].Name_rect.x = x;             leaders[0].Name_rect.y = y;     leaders[0].Name_rect.w = Name_surface->w;        leaders[0].Name_rect.h = Name_surface->h;
+    leaders[0].minutes_rect.x = x + 130;    leaders[0].minutes_rect.y = y;  leaders[0].minutes_rect.w = minutes_surface->w;  leaders[0].minutes_rect.h = minutes_surface->h;
+    leaders[0].seconds_rect.x = x + 200;    leaders[0].seconds_rect.y = y;  leaders[0].seconds_rect.w = seconds_surface->w;  leaders[0].seconds_rect.h = seconds_surface->h;
+
+    SDL_FreeSurface(Name_surface);
+    SDL_FreeSurface(minutes_surface);
+    SDL_FreeSurface(seconds_surface);
     }
 
     double Time;
-    for (int i = 0; i < 20 && !feof(file); i++)
+    int i = 1;
+    for (; i < 21 && !feof(file); i++)
     {
-        fscanf(file, "Name: %s Time: %lf\n", leaders[i].Name, &Time);
-        snprintf(leaders[i].minutes, sizeof(char) * 10, "%d", (int)Time / 60);
-        snprintf(leaders[i].seconds, sizeof(char) * 10, "%d", (int)Time % 60);
-        printf("%s\t %s\t %s\n", leaders[i].Name, leaders[i].minutes, leaders[i].seconds);
+        fscanf(file, "Name: %s Time: %lf\n", Name, &Time);
+        snprintf(minutes, sizeof(char) * 10, "%d", (int)Time / 60);
+        snprintf(seconds, sizeof(char) * 10, "%d", (int)Time % 60);
+        printf("%s\t %s\t %s\n", Name, minutes, seconds);
+
+        SDL_Surface* Name_surface = TTF_RenderText_Blended(font, Name, Black);
+        SDL_Surface* minutes_surface = TTF_RenderText_Blended(font, minutes, Black);
+        SDL_Surface* seconds_surface = TTF_RenderText_Blended(font, seconds, Black);
+
+        leaders[i].Name = SDL_CreateTextureFromSurface(renderer, Name_surface);
+        leaders[i].minutes = SDL_CreateTextureFromSurface(renderer, minutes_surface);
+        leaders[i].seconds = SDL_CreateTextureFromSurface(renderer, seconds_surface);
+
+        leaders[i].Name_rect.x = x;             leaders[i].Name_rect.y = y + i * 30;     leaders[i].Name_rect.w = Name_surface->w;        leaders[i].Name_rect.h = Name_surface->h;
+        leaders[i].minutes_rect.x = x + 130;    leaders[i].minutes_rect.y = y + i * 30;  leaders[i].minutes_rect.w = minutes_surface->w;  leaders[i].minutes_rect.h = minutes_surface->h;
+        leaders[i].seconds_rect.x = x + 200;    leaders[i].seconds_rect.y = y + i * 30;  leaders[i].seconds_rect.w = seconds_surface->w;  leaders[i].seconds_rect.h = seconds_surface->h;
+
+        SDL_FreeSurface(Name_surface);
+        SDL_FreeSurface(minutes_surface);
+        SDL_FreeSurface(seconds_surface);
     }
 
+    for (; i < 21; i++)
+    {
+        leaders[i].Name = NULL;
+        leaders[i].minutes = NULL;
+        leaders[i].seconds = NULL;
+    }
+
+    TTF_CloseFont(font);
     fclose(file);
 
     return leaders;
 }
 
-void PrintLeaders(SDL_Renderer* renderer, leader* leaders, TTF_Font* font, int x, int y)
+void PrintLeaders(SDL_Renderer* renderer, leader* leaders)
 {
-    SDL_Color Black = {0, 0, 0, 255};
-
-    renderText(renderer, font, "Name", x, y, Black, NULL);
-    renderText(renderer, font, "Min", x + 130, y, Black, NULL);
-    renderText(renderer, font, "sec", x + 200, y, Black, NULL);
-
-    y += 30;
-    for (int i = 0; i < 20 && strlen(leaders[i].Name) > 0; i++)
+    for (int i = 0; i < 21 && leaders[i].Name; i++)
     {
-        renderText(renderer, font, leaders[i].Name, x, y + 30 * i, Black, NULL);
-        renderText(renderer, font, leaders[i].minutes, x + 150, y + 30 * i, Black, NULL);
-        renderText(renderer, font, leaders[i].seconds, x + 200, y + 30 * i, Black, NULL);
+        SDL_RenderCopy(renderer, leaders[i].Name, NULL, &leaders[i].Name_rect);
+        SDL_RenderCopy(renderer, leaders[i].minutes, NULL, &leaders[i].minutes_rect);
+        SDL_RenderCopy(renderer, leaders[i].seconds, NULL, &leaders[i].seconds_rect);
+        printf("NIGGERS!!!\n");
     }
 }
 
