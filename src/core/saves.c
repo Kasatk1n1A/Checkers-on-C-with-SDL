@@ -44,11 +44,11 @@ int SaveForLeaderBoard(char* name, GameInfo info)
         file = fopen(filename, "w");
         if (!file) {
             perror("Failed to create leaderboard file");
-            return;
+            return 1;
         }
         fprintf(file, "Name: %s Time: %f\n", name, info.Time);
         fclose(file);
-        return;
+        return 1;
     }
 
     // Читаем существующие записи
@@ -98,10 +98,11 @@ int SaveForLeaderBoard(char* name, GameInfo info)
     fclose(file);
 
 cleanup:
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 20; i++)
         free(entries[i]);
-    }
+
     free(entries);
+    return 1;
 }
 
 // Вспомогательная функция для сравнения записей
@@ -146,6 +147,7 @@ void load_from_save(Window* window, char* str)
     }
 
     fclose(save_file);
+    remove(save_name);
 
     checkers(window, board, difficult, Total, player);
 }
