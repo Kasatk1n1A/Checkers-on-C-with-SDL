@@ -22,16 +22,20 @@ typedef struct
 } leader;
 
 void LoseMenu(Window* window);
+void WinMenu(Window* window, GameInfo info);
+int SaveForLeaders(Window* window, GameInfo info);
+
 void SetDifficult(Window* window);
 void showMainMenu(Window* window);
-void WinMenu(Window* window, GameInfo info);
-int InputText(Window* window, GameInfo info);
+
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);
-void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color text_color, SDL_Color *outline_color);
 
 void free_leaders(leader* leaders);
 void ShowLeaderBoard(Window* window);
 void PrintLeaders(SDL_Renderer* renderer, leader* leaders);
 leader* read_leaders(SDL_Renderer* renderer, int type, int x, int y);
+
+void CreateTextButton(MenuItem* item, TTF_Font* font, const char* text, int x, int y, int w, int h);
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, SDL_Color text_color, SDL_Color *outline_color);
 
 #endif
