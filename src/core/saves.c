@@ -12,6 +12,7 @@ void SaveGame_file(char* str, CH_Type** board, GameInfo info)
         return;
     }
 
+    fprintf(save_file, "Save name: %s\n", str);
     fprintf(save_file, "Time: %.3f sec\n", info.Time);
     fprintf(save_file, "Player: %d\n", info.player);
     fprintf(save_file, "Difficult: %d\n", info.difficult);
@@ -26,6 +27,11 @@ void SaveGame_file(char* str, CH_Type** board, GameInfo info)
         fprintf(save_file, "\n");
     }
     fclose(save_file);
+
+    FILE* kakmenyaetozaebalo = fopen("saves/saves_name.txt", "a");
+    str[strlen(str)] = '\n';
+    fputs(str, kakmenyaetozaebalo);
+    fclose(kakmenyaetozaebalo);
 }
 
 int SaveForLeaderBoard(char* name, GameInfo info)
@@ -126,9 +132,11 @@ void load_from_save(Window* window, char* str)
         return;
     }
 
+    char tmp[20];
     double Total;
     Player player;
     int difficult;
+    fscanf(save_file, "Save name: %s\n", tmp);
     fscanf(save_file, "Time: %lf sec\n", &Total);
     fscanf(save_file, "Player: %d\n", &player);
     fscanf(save_file, "Difficult: %d\n", &difficult);
@@ -137,12 +145,8 @@ void load_from_save(Window* window, char* str)
 
     CH_Type** board = add_board();
     for (int i = 0; i < 8; i++)
-    {
         for (int j = 0; j < 8; j++)
             fscanf(save_file, "%d ", &board[i][j]);
-
-        // fseek(save_file, sizeof(char), SEEK_CUR);
-    }
 
     fclose(save_file);
     remove(save_name);

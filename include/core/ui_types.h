@@ -17,7 +17,7 @@ typedef struct
 typedef struct 
 {
     SDL_Rect rect;
-    const char* text;
+    char* text;
     bool hovered;
 } MenuItem;
 

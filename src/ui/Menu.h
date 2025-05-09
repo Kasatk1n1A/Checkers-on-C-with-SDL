@@ -21,12 +21,26 @@ typedef struct
     SDL_Rect seconds_rect;
 } leader;
 
+typedef struct 
+{
+    SDL_Texture* Name;
+    SDL_Rect rect;
+    bool hovered;
+} save;
+
+
 void LoseMenu(Window* window);
 void WinMenu(Window* window, GameInfo info);
 int WinMenu_InputText(Window* window, GameInfo info);
 
+int count_paragraphs(void);
+void free_saves(save* saves);
 void LoadGame(Window* window);
+char* read_save(int name_count);
 void LoadGame_InputText(Window* window);
+save* read_saves(SDL_Renderer* renderer, int page);
+void print_saves(SDL_Renderer* renderer, save* saves);
+int delete_line_from_file(const char *filename, int line_to_delete);
 
 void SaveGame(Window* window, CH_Type** board, GameInfo info);
 void SaveGame_InputText(Window* window, CH_Type** board, GameInfo info);
