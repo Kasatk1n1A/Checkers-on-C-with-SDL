@@ -17,10 +17,10 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     info.Time = Time;
     info.difficult = difficult;
     info.player = color;
-    Player WhoWin = WHITE;
 
     renderBoardFrame(window, CheckersBoard);
     
+
     // основной цикл игры
     while (true)
     {
@@ -62,7 +62,6 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         {
             info.player == WHITE ? WinMenu(window, info) : LoseMenu(window);
             board_cleanup_SDL(CheckersBoard);
-            WhoWin = info.player;
             break;
         }
 

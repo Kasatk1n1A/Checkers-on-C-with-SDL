@@ -150,6 +150,7 @@ void load_from_save(Window* window, char* str)
 
     fclose(save_file);
     remove(save_name);
+    
 
     checkers(window, board, difficult, Total, player);
 }

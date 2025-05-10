@@ -524,6 +524,7 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
             // Выполняем взятие
             performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
 
+            
             printf("bestMove->toY: %d\n", bestMove->toY);
             if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
                 // Белая пешка достигла последней линии (нижний край доски)

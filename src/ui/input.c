@@ -27,6 +27,7 @@ void playerAction(Window* window)
     }
 }
 
+
 Choice get_mouse_click(int* x, int* y, Window* window, Board* CheckersBoard, GameInfo info)
 {
     SDL_Event event;
