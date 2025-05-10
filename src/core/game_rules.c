@@ -10,18 +10,7 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     if (board == NULL)
         CheckersBoard->board = add_board();
     else
-        CheckersBoard->board = board;
-    
-    //  a { 0, r, 0, r, 0, r, 0, r } n
-    //  b { r, 0, r, 0, r, 0, r, 0 } i
-    //  c { 0, r, 0, r, 0, r, 0, r } g
-    //  d { 0, 0, 0, 0, 0, 0, 0, 0 } g
-    //  e { 0, 0, 0, 0, 0, 0, 0, 0 } e
-    //  f { w, 0, w, 0, w, 0, w, 0 } r
-    //  g { 0, w, 0, w, 0, w, 0, w } s
-    //  h { w, 0, w, 0, w, 0, w, 0 } !
-    //      1  2  3  4  5  6  7  8
-    
+        CheckersBoard->board = board;    
     
     Uint32 start, end;
     GameInfo info;

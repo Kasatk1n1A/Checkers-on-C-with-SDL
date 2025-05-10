@@ -28,6 +28,13 @@ typedef struct
     bool hovered;
 } save;
 
+typedef struct 
+{
+    SDL_Texture** text_arr;
+    SDL_Rect* rect_arr;
+} about;
+
+
 
 void LoseMenu(Window* window);
 void WinMenu(Window* window, GameInfo info);
@@ -42,13 +49,17 @@ save* read_saves(SDL_Renderer* renderer, int page);
 void print_saves(SDL_Renderer* renderer, save* saves);
 int delete_line_from_file(const char *filename, int line_to_delete);
 
-void SaveGame(Window* window, CH_Type** board, GameInfo info);
-void SaveGame_InputText(Window* window, CH_Type** board, GameInfo info);
+void SaveGame(Window* window, Board* CheckersBoard, GameInfo info);
+void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info);
 
 void SetDifficult(Window* window);
 void showMainMenu(Window* window);
 
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);
+
+void free_about(about* About);
+void ShowAbout(Window* window);
+about* CreateAboutText(SDL_Renderer* renderer);
 
 void free_leaders(leader* leaders);
 void ShowLeaderBoard(Window* window);
