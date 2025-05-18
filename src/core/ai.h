@@ -18,11 +18,11 @@ typedef struct Move {
 void bot_make_move(CH_Type** board, int difficult, Player player);
 
 // Вспомогательные функции
+void free_move(Move* move);
 int evaluate_position(CH_Type** board, Player player);
+Move* generate_all_moves(CH_Type** board, Player player);
+Move* find_best_move(CH_Type** board, Player player, int maxDepth);
 Move* create_move(int fromX, int fromY, int toX, int toY, Move* captures);
 int minimax(CH_Type** board, int depth, int alpha, int beta, bool isMaximizing, Player player, int maxDepth);
-Move* find_best_move(CH_Type** board, Player player, int maxDepth);
-Move* generate_all_moves(CH_Type** board, Player player);
-void free_move(Move* move);
 
 #endif

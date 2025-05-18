@@ -20,7 +20,6 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
 
     renderBoardFrame(window, CheckersBoard);
     
-
     // основной цикл игры
     while (true)
     {
@@ -34,11 +33,9 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         }
         else
         {
-            
             printf("White turn.\n");
             start = SDL_GetTicks();
             printf("start time%lf\n", (double)start);
-
 
             //проверка на необходимость атаки
             bool** attack_board = canCapture(CheckersBoard->board, info.player == WHITE ? true : false);

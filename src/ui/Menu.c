@@ -1400,6 +1400,9 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
     items[5].rect.x = 570; items[5].rect.y = 95; items[5].rect.h = 640; items[5].rect.w = 260;
     items[6].rect.x = 1045; items[6].rect.y = 95; items[6].rect.h = 640; items[6].rect.w = 260;
 
+    SDL_Rect inner_rect[3] = {items[1].rect, items[2].rect, items[3].rect};
+    SDL_Rect outer_rect[3] = {items[4].rect, items[5].rect, items[6].rect};
+
     leader* easyLeaders = read_leaders(renderer, 1, items[1].rect.x, items[1].rect.y);
     leader* mediumLeaders = read_leaders(renderer, 2, items[2].rect.x, items[2].rect.y);
     leader* hardLeaders = read_leaders(renderer, 3, items[3].rect.x, items[3].rect.y);
@@ -1453,14 +1456,10 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
         renderText(renderer, font, "HARD", items[3].rect.x, items[3].rect.y - 130, Green, &Black);
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &items[4].rect);
-        SDL_RenderFillRect(renderer, &items[5].rect);
-        SDL_RenderFillRect(renderer, &items[6].rect);
+        SDL_RenderFillRects(renderer, outer_rect, 3);
         
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &items[1].rect);
-        SDL_RenderFillRect(renderer, &items[2].rect);
-        SDL_RenderFillRect(renderer, &items[3].rect);
+        SDL_RenderFillRects(renderer, inner_rect, 3);
 
         PrintLeaders(renderer, easyLeaders);
         PrintLeaders(renderer, mediumLeaders);
@@ -1575,7 +1574,6 @@ void PrintLeaders(SDL_Renderer* renderer, leader* leaders)
         SDL_RenderCopy(renderer, leaders[i].Name, NULL, &leaders[i].Name_rect);
         SDL_RenderCopy(renderer, leaders[i].minutes, NULL, &leaders[i].minutes_rect);
         SDL_RenderCopy(renderer, leaders[i].seconds, NULL, &leaders[i].seconds_rect);
-        printf("NIGGERS!!!\n");
     }
 }
 

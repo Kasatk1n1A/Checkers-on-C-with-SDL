@@ -24,7 +24,6 @@ typedef struct
 
 typedef struct
 {
-
     CH_Type** board;
     SDL_Rect rect;
     SDL_Texture *image;
