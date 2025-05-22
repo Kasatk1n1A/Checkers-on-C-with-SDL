@@ -34,7 +34,19 @@ typedef struct
     SDL_Rect* rect_arr;
 } about;
 
+typedef struct 
+{
+    SDL_Texture* out_texture;
+    SDL_Texture* inner_texture_disable;
+    SDL_Texture* inner_texture_enable;
+    SDL_Rect out_rect;
+    SDL_Rect inner_rect;
+    bool hovered;
+} Button;
 
+void FreeButtons(Button* buttons, int count);
+void renderButton(SDL_Renderer* renderer, Button* buttons);
+void CreateTextButton1(SDL_Renderer* renderer, Button* buttons, TTF_Font* font, const char* text, int x, int y);
 
 void LoseMenu(Window* window);
 void WinMenu(Window* window, GameInfo info);

@@ -15,7 +15,7 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     TTF_Font* font3 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font1 || !font2 || !font3) 
@@ -149,7 +149,7 @@ void showMainMenu(Window* window)   //исправлены утечки
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -157,17 +157,17 @@ void showMainMenu(Window* window)   //исправлены утечки
     }
 
     // Пункты меню с увеличенными размерами и отступами
-    MenuItem items[5];
-    CreateTextButton(&items[0], font, "New game",   SCREEN_WIDTH/2 - 270, 200, 450, 80);
-    CreateTextButton(&items[1], font, "Load game",  SCREEN_WIDTH/2 - 190, 300, 375, 80);
-    CreateTextButton(&items[2], font, "Leaderboard",SCREEN_WIDTH/2 - 210, 400, 425, 80);
-    CreateTextButton(&items[3], font, "About",      SCREEN_WIDTH/2 - 200, 500, 400, 80);
-    CreateTextButton(&items[4], font, "Quit",       SCREEN_WIDTH/2 - 75, 600, 150, 80);
-
     SDL_Color Black = {0, 0, 0, 255};
     SDL_Color Green = {0, 255, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
-
+    
+    Button* buttons = (Button*)malloc(sizeof(Button) * 5);
+    CreateTextButton1(renderer, &buttons[0], font, "New game",   SCREEN_WIDTH/2, 200);
+    CreateTextButton1(renderer, &buttons[1], font, "Load game",  SCREEN_WIDTH/2, 300);
+    CreateTextButton1(renderer, &buttons[2], font, "Leaderboard",SCREEN_WIDTH/2, 400);
+    CreateTextButton1(renderer, &buttons[3], font, "About",      SCREEN_WIDTH/2, 500);
+    CreateTextButton1(renderer, &buttons[4], font, "Quit",       SCREEN_WIDTH/2, 600);
+    
     bool running = true;
     int selectedItem = -1;
 
@@ -182,6 +182,7 @@ void showMainMenu(Window* window)   //исправлены утечки
             {
             case SDL_QUIT:
                 TTF_CloseFont(font);
+                FreeButtons(buttons, 5);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
 
@@ -191,15 +192,15 @@ void showMainMenu(Window* window)   //исправлены утечки
 
                 for (int i = 0; i < 5; i++) 
                 {
-                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    buttons[i].hovered = (x >= buttons[i].out_rect.x && x <= buttons[i].out_rect.x + buttons[i].out_rect.w && 
+                                          y >= buttons[i].out_rect.y && y <= buttons[i].out_rect.y + buttons[i].out_rect.h);
                 }
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     for (int i = 0; i < 5; i++) {
-                        if (items[i].hovered) {
+                        if (buttons[i].hovered) {
                             selectedItem = i;
                             running = false;
                             break;
@@ -215,19 +216,17 @@ void showMainMenu(Window* window)   //исправлены утечки
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
         for (int i = 0; i < 5; i++) 
-        {
-            SDL_Color color = items[i].hovered ? red : Green;
-            renderText(renderer, font, items[i].text, items[i].rect.x, items[i].rect.y, color, &Black);
-        }
+            renderButton(renderer, &buttons[i]);
 
         SDL_RenderPresent(renderer);
 
         Uint32 frameTime = SDL_GetTicks() - frameStart;
         if (frameTime < 1000/FPS)
-        SDL_Delay(1000/FPS - frameTime);
+            SDL_Delay(1000/FPS - frameTime);
     }
 
     TTF_CloseFont(font);
+    FreeButtons(buttons, 5);
 
     switch (selectedItem)
     {
@@ -245,7 +244,7 @@ void SetDifficult(Window* window)   //исправлены утечки
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -349,7 +348,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -460,7 +459,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
     SDL_Color Grey = {178, 178, 178, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     TTF_Font* font3 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font1 || !font2 || !font3) 
@@ -572,7 +571,7 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     TTF_Font* font3 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font1 || !font2 || !font3) 
@@ -715,7 +714,7 @@ void LoadGame(Window* window)   //утечки исправлены
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font1) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1033,7 +1032,7 @@ void LoseMenu(Window* window)   //исправлены утечки
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font1 || !font2) 
     {
@@ -1121,7 +1120,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
     SDL_Color Grey = {178, 178, 178, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
     TTF_Font* font3 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
     if (!font1 || !font3) 
@@ -1234,7 +1233,7 @@ void ShowAbout(Window* window)  //исправлены утечки
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1382,7 +1381,7 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", FONT_SIZE);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1597,6 +1596,7 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x,
     if (outline_color != NULL)
     {
         TTF_SetFontOutline(font, 2);
+        
         SDL_Surface* outline_surface = TTF_RenderText_Blended(font, text, *outline_color);
         SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
         SDL_Rect outline_rect = {x, y, outline_surface->w, outline_surface->h};
@@ -1606,6 +1606,7 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x,
         SDL_DestroyTexture(outline_texture);
     }
     
+    
     TTF_SetFontOutline(font, 0);
     SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, text_color);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
@@ -1614,4 +1615,60 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x,
     
     SDL_FreeSurface(text_surface);
     SDL_DestroyTexture(text_texture);
+}
+
+void CreateTextButton1(SDL_Renderer* renderer, Button* buttons, TTF_Font* font, const char* text, int x, int y)
+{
+    SDL_Color Green = {0, 255, 0, 255};
+    SDL_Color Black = {0, 0, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+
+    TTF_SetFontOutline(font, 2);
+    SDL_Surface* out_surface = TTF_RenderText_Blended(font, text, Black);
+
+    TTF_SetFontOutline(font, 0);
+    SDL_Surface* inner_surface_disable = TTF_RenderText_Blended(font, text, Green);
+    SDL_Surface* inner_surface_enable = TTF_RenderText_Blended(font, text, red);
+
+    buttons->out_texture = SDL_CreateTextureFromSurface(renderer, out_surface);
+    buttons->inner_texture_disable = SDL_CreateTextureFromSurface(renderer, inner_surface_disable);
+    buttons->inner_texture_enable = SDL_CreateTextureFromSurface(renderer, inner_surface_enable);
+
+    // получение координат rect для обводки
+    buttons->out_rect.w = out_surface->w;
+    buttons->out_rect.h = out_surface->h;
+    buttons->out_rect.x = x - (buttons->out_rect.w) / 2;
+    buttons->out_rect.y = y;
+
+    buttons->inner_rect.w = inner_surface_disable->w;
+    buttons->inner_rect.h = inner_surface_disable->h;
+    buttons->inner_rect.x = x - (buttons->inner_rect.w) / 2;
+    buttons->inner_rect.y = y;
+
+    buttons->hovered = false;
+
+    SDL_FreeSurface(out_surface);
+    SDL_FreeSurface(inner_surface_disable);
+    SDL_FreeSurface(inner_surface_enable);
+}
+
+void FreeButtons(Button* buttons, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        SDL_DestroyTexture(buttons->out_texture);
+        SDL_DestroyTexture(buttons->inner_texture_disable);
+        SDL_DestroyTexture(buttons->inner_texture_enable);
+    }
+    free(buttons);
+}
+
+void renderButton(SDL_Renderer* renderer, Button* buttons)
+{
+    SDL_RenderCopy(renderer, buttons->out_texture, NULL, &buttons->out_rect);
+    
+    if (buttons->hovered)
+        SDL_RenderCopy(renderer, buttons->inner_texture_enable, NULL, &buttons->inner_rect);
+    else
+        SDL_RenderCopy(renderer, buttons->inner_texture_disable, NULL, &buttons->inner_rect);
 }
