@@ -355,18 +355,19 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        return;
+        Game_cleanup(window, EXIT_FAILURE);
     }
 
-    // Пункты меню с увеличенными размерами и отступами
-    MenuItem items[3];
-    CreateTextButton(&items[0], font, "Continue",   SCREEN_WIDTH/2 - 220, 200, 400, 80);
-    CreateTextButton(&items[1], font, "Save",       SCREEN_WIDTH/2 - 220, 310, 400, 80);
-    CreateTextButton(&items[2], font, "Main Menu",  SCREEN_WIDTH/2 - 200, 400, 400, 80);
-
-    SDL_Color Black = {0, 0, 0, 255};
-    SDL_Color Green = {0, 255, 0, 255};
-    SDL_Color red = {255, 0, 0, 255};
+    Button* buttons = (Button*)malloc(sizeof(Button) * 3);
+    if (!buttons)
+    {
+        fprintf(stderr, "Fail with memory!");
+        TTF_CloseFont(font);
+        Game_cleanup(window, EXIT_FAILURE);
+    }
+    CreateTextButton1(renderer, &buttons[0], font, "Continue",  SCREEN_WIDTH/2, 200);
+    CreateTextButton1(renderer, &buttons[1], font, "Save",      SCREEN_WIDTH/2, 300);
+    CreateTextButton1(renderer, &buttons[2], font, "Main Menu", SCREEN_WIDTH/2, 400);
 
     bool running = true;
     int selectedItem = -1;
@@ -382,6 +383,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
             {
             case SDL_QUIT:
                 TTF_CloseFont(font);
+                FreeButtons(buttons, 3);
                 board_cleanup_SDL(CheckersBoard);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
@@ -391,15 +393,15 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
 
                 for (int i = 0; i < 3; i++) 
                 {
-                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    buttons[i].hovered = (x >= buttons[i].out_rect.x && x <= buttons[i].out_rect.x + buttons[i].out_rect.w && 
+                                          y >= buttons[i].out_rect.y && y <= buttons[i].out_rect.y + buttons[i].out_rect.h);
                 }
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     for (int i = 0; i < 3; i++) {
-                        if (items[i].hovered) {
+                        if (buttons[i].hovered) {
                             selectedItem = i;
                             running = false;
                             break;
@@ -415,10 +417,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
         for (int i = 0; i < 3; i++) 
-        {
-            SDL_Color color = items[i].hovered ? red : Green;
-            renderText(renderer, font, items[i].text, items[i].rect.x, items[i].rect.y, color, &Black);
-        }
+            renderButton(renderer, &buttons[i]);
 
         SDL_RenderPresent(renderer);
 
@@ -428,6 +427,7 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
     }
 
     TTF_CloseFont(font);
+    FreeButtons(buttons, 3);
     
     switch (selectedItem)
     {
