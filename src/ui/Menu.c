@@ -153,15 +153,17 @@ void showMainMenu(Window* window)   //исправлены утечки
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        return;
+        Game_cleanup(window, EXIT_FAILURE);
     }
 
-    // Пункты меню с увеличенными размерами и отступами
-    SDL_Color Black = {0, 0, 0, 255};
-    SDL_Color Green = {0, 255, 0, 255};
-    SDL_Color red = {255, 0, 0, 255};
-    
+    //Создание кнопок меню    
     Button* buttons = (Button*)malloc(sizeof(Button) * 5);
+    if (!buttons)
+    {
+        fprintf(stderr, "Fail with memory!");
+        TTF_CloseFont(font);
+        Game_cleanup(window, EXIT_FAILURE);
+    }
     CreateTextButton1(renderer, &buttons[0], font, "New game",   SCREEN_WIDTH/2, 200);
     CreateTextButton1(renderer, &buttons[1], font, "Load game",  SCREEN_WIDTH/2, 300);
     CreateTextButton1(renderer, &buttons[2], font, "Leaderboard",SCREEN_WIDTH/2, 400);
@@ -248,19 +250,21 @@ void SetDifficult(Window* window)   //исправлены утечки
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        return;
+        Game_cleanup(window, EXIT_FAILURE);
     }
 
-    // Пункты меню с увеличенными размерами и отступами
-    MenuItem items[4];
-    CreateTextButton(&items[0], font, "Baby",           SCREEN_WIDTH/2 - 150, 200, 210, 80);
-    CreateTextButton(&items[1], font, "Grandfather",    SCREEN_WIDTH/2 - 200, 300, 400, 80);
-    CreateTextButton(&items[2], font, "GOD",            SCREEN_WIDTH/2 - 90, 410, 150, 80);
-    CreateTextButton(&items[3], font, "Back",           SCREEN_WIDTH/2 - 140, 500, 210, 80);
-
-    SDL_Color Black = {0, 0, 0, 255};
-    SDL_Color Green = {0, 255, 0, 255};
-    SDL_Color red = {255, 0, 0, 255};
+    //Создание кнопок меню
+    Button* buttons = (Button*)malloc(sizeof(Button) * 4);
+        if (!buttons)
+    {
+        fprintf(stderr, "Fail with memory!");
+        TTF_CloseFont(font);
+        Game_cleanup(window, EXIT_FAILURE);
+    }
+    CreateTextButton1(renderer, &buttons[0], font, "Baby",          SCREEN_WIDTH/2, 200);
+    CreateTextButton1(renderer, &buttons[1], font, "Grandfather",   SCREEN_WIDTH/2, 300);
+    CreateTextButton1(renderer, &buttons[2], font, "GOD",           SCREEN_WIDTH/2, 400);
+    CreateTextButton1(renderer, &buttons[3], font, "Back",          SCREEN_WIDTH/2, 500);
 
     bool running = true;
     int selectedItem = -1;
@@ -276,6 +280,7 @@ void SetDifficult(Window* window)   //исправлены утечки
             {
             case SDL_QUIT:
                 TTF_CloseFont(font);
+                FreeButtons(buttons, 4);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
 
@@ -285,15 +290,15 @@ void SetDifficult(Window* window)   //исправлены утечки
 
                 for (int i = 0; i < 4; i++) 
                 {
-                    items[i].hovered = (x >= items[i].rect.x && x <= items[i].rect.x + items[i].rect.w && 
-                                        y >= items[i].rect.y && y <= items[i].rect.y + items[i].rect.h);
+                    buttons[i].hovered = (x >= buttons[i].out_rect.x && x <= buttons[i].out_rect.x + buttons[i].out_rect.w && 
+                                          y >= buttons[i].out_rect.y && y <= buttons[i].out_rect.y + buttons[i].out_rect.h);
                 }
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                    for (int i = 0; i < 5; i++) {
-                        if (items[i].hovered) {
+                    for (int i = 0; i < 4; i++) {
+                        if (buttons[i].hovered) {
                             selectedItem = i;
                             running = false;
                             break;
@@ -309,10 +314,7 @@ void SetDifficult(Window* window)   //исправлены утечки
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
         for (int i = 0; i < 4; i++) 
-        {
-            SDL_Color color = items[i].hovered ? red : Green;
-            renderText(renderer, font, items[i].text, items[i].rect.x, items[i].rect.y, color, &Black);
-        }
+            renderButton(renderer, &buttons[i]);
 
         SDL_RenderPresent(renderer);
 
@@ -322,6 +324,7 @@ void SetDifficult(Window* window)   //исправлены утечки
     }
 
     TTF_CloseFont(font);
+    FreeButtons(buttons, 5);
 
     switch (selectedItem)
     {
