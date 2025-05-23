@@ -20,6 +20,7 @@ SDL_Texture* Create_colored_rect(SDL_Renderer* renderer, int w, int h, int r, in
     if (!texture)
     {
         fprintf(stderr, "Failed to create texture from surface:%s", SDL_GetError());
+        SDL_FreeSurface(surface);
         return NULL;
     }
 
