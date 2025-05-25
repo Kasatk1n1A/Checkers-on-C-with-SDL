@@ -96,7 +96,7 @@ void showMainMenu(Window* window)   //исправлены утечки
 
     switch (selectedItem)
     {
-        case 0: WinMenu(window, info); break;//SetDifficult(window); break;
+        case 0: SetDifficult(window); break;
         case 1: LoadGame(window); break;
         case 2: ShowLeaderBoard(window); break;
         case 3: ShowAbout(window); break;
@@ -1019,7 +1019,6 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
 
@@ -1076,7 +1075,7 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     // Загрузка шрифта с увеличенным размером
     TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
-    TTF_Font* font3 = TTF_OpenFont("assets/fonts/bleedingcowboysrus.ttf", 120);
+    TTF_Font* font3 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
     if (!font1 || !font2 || !font3) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1084,7 +1083,7 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     }
 
     // Пункты меню с увеличенными размерами и отступами
-    MenuItem items[3];
+    MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
 
     SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
     items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
@@ -1094,7 +1093,26 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
     items[1].rect.w = 510;  items[1].rect.h = 90;
 
-    CreateTextButton(&items[2], font1, "Main menu", SCREEN_WIDTH/2 - 200, 600, 400, 80);
+
+    Button* buttons = (Button*)malloc(sizeof(Button));
+    CreateTextButton1(renderer, buttons, font1, "Main menu", SCREEN_WIDTH/2, 600);
+
+//-----------
+    //Создание надписи о победе
+    TTF_SetFontOutline(font3, 2);
+    SDL_Surface* outline_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", Black);
+    TTF_SetFontOutline(font3, 0);
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", red);
+
+    SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
+    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+
+    SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
+    SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
+
+    SDL_FreeSurface(outline_surface);
+    SDL_FreeSurface(text_surface);
+//-----------
 
     bool running = true;
     int selectedItem = -1;
@@ -1113,9 +1131,15 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
             {
             case SDL_QUIT:
                 SDL_StopTextInput();
+                free(items);
                 TTF_CloseFont(font1);
                 TTF_CloseFont(font2);
                 TTF_CloseFont(font3);
+                FreeButtons(buttons, 1);
+                SDL_DestroyTexture(button);
+                SDL_DestroyTexture(button_outline);
+                SDL_DestroyTexture(outline_texture);
+                SDL_DestroyTexture(text_texture);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
 
@@ -1123,15 +1147,15 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
                 int x = event.motion.x;
                 int y = event.motion.y;
 
-                items[2].hovered = (x >= items[2].rect.x && x <= items[2].rect.x + items[2].rect.w && 
-                                    y >= items[2].rect.y && y <= items[2].rect.y + items[2].rect.h);
+                buttons->hovered = (x >= buttons->out_rect.x && x <= buttons->out_rect.x + buttons->out_rect.w && 
+                                    y >= buttons->out_rect.y && y <= buttons->out_rect.y + buttons->out_rect.h);
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT)
-                    if (items[2].hovered)
+                    if (buttons->hovered)
                     {
-                        selectedItem = 2;
+                        selectedItem = 1;
                         running = false;
                         break;
                     }
@@ -1149,9 +1173,11 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
                 switch (event.key.keysym.sym)
                 {
                 case SDLK_RETURN:
+                    selectedItem = 1;
+                    running = false;
                     SaveForLeaderBoard(input_text, info);
                     SDL_StopTextInput();    //Нужно добавить сюда запись в список рекордов
-                    return 1;
+                    break;
 
                 case SDLK_BACKSPACE:
                     if (strlen(input_text) > 0)
@@ -1172,10 +1198,9 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
         
-        SDL_Color color = items[2].hovered ? red : Green;
-        
-        renderText(renderer, font1, items[2].text, items[2].rect.x, items[2].rect.y, color, &Black);
-        renderText(renderer, font3, "YOU WIIIIIIIIN!!!", SCREEN_WIDTH/2 - 400, 200, red, &Black);
+        renderButton(renderer, buttons);
+        SDL_RenderCopy(renderer, outline_texture, NULL, &outline_rect);
+        SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 
         SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
         SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
@@ -1190,13 +1215,19 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
         SDL_Delay(1000/FPS - frameTime);
     }
 
+    free(items);
     TTF_CloseFont(font1);
     TTF_CloseFont(font2);
     TTF_CloseFont(font3);
+    FreeButtons(buttons, 1);
+    SDL_DestroyTexture(button);
+    SDL_DestroyTexture(button_outline);
+    SDL_DestroyTexture(outline_texture);
+    SDL_DestroyTexture(text_texture);
 
     switch (selectedItem)
     {
-        case 2: SDL_StopTextInput(); break;
+        case 1: showMainMenu(window); break;
         default: Game_cleanup(window, EXIT_FAILURE); break;
     }
 
