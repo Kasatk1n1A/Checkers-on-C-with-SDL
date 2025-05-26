@@ -1401,24 +1401,25 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
     }
 
     // Пункты меню с увеличенными размерами и отступами
-    MenuItem items[7];
+    MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 6);
 
-    items[1].rect.x = 100; items[1].rect.y = 100; items[1].rect.h = 630; items[1].rect.w = 250;
-    items[2].rect.x = 575; items[2].rect.y = 100; items[2].rect.h = 630; items[2].rect.w = 250;
-    items[3].rect.x = 1050; items[3].rect.y = 100; items[3].rect.h = 630; items[3].rect.w = 250;
+    items[0].rect.x = 100;  items[0].rect.y = 100;  items[0].rect.h = 630; items[0].rect.w = 250;
+    items[1].rect.x = 575;  items[1].rect.y = 100;  items[1].rect.h = 630; items[1].rect.w = 250;
+    items[2].rect.x = 1050; items[2].rect.y = 100;  items[2].rect.h = 630; items[2].rect.w = 250;
 
-    items[4].rect.x = 95; items[4].rect.y = 95; items[4].rect.h = 640; items[4].rect.w = 260;
-    items[5].rect.x = 570; items[5].rect.y = 95; items[5].rect.h = 640; items[5].rect.w = 260;
-    items[6].rect.x = 1045; items[6].rect.y = 95; items[6].rect.h = 640; items[6].rect.w = 260;
+    items[3].rect.x = 95;   items[3].rect.y = 95;   items[3].rect.h = 640; items[3].rect.w = 260;
+    items[4].rect.x = 570;  items[4].rect.y = 95;   items[4].rect.h = 640; items[4].rect.w = 260;
+    items[5].rect.x = 1045; items[5].rect.y = 95;   items[5].rect.h = 640; items[5].rect.w = 260;
 
-    SDL_Rect inner_rect[3] = {items[1].rect, items[2].rect, items[3].rect};
-    SDL_Rect outer_rect[3] = {items[4].rect, items[5].rect, items[6].rect};
+    SDL_Rect inner_rect[3] = {items[0].rect, items[1].rect, items[2].rect};
+    SDL_Rect outer_rect[3] = {items[3].rect, items[4].rect, items[5].rect};
 
     leader* easyLeaders = read_leaders(renderer, 1, items[1].rect.x, items[1].rect.y);
     leader* mediumLeaders = read_leaders(renderer, 2, items[2].rect.x, items[2].rect.y);
     leader* hardLeaders = read_leaders(renderer, 3, items[3].rect.x, items[3].rect.y);
 
-    CreateTextButton(&items[0], font, "Main menu", SCREEN_WIDTH/2 - 200, 800, 350, 100);
+    Button* buttons = (Button*)malloc(sizeof(Button));
+    CreateTextButton1(renderer, buttons, font, "Main menu", SCREEN_WIDTH/2, 800);
 
     bool running = true;
     int selectedItem = -1;
@@ -1433,7 +1434,12 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
+                free(items);
                 TTF_CloseFont(font);
+                FreeButtons(buttons, 1);
+                free_leaders(easyLeaders);
+                free_leaders(mediumLeaders);
+                free_leaders(hardLeaders);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
 
@@ -1441,14 +1447,14 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
                 int x = event.motion.x;
                 int y = event.motion.y;
 
-                items[0].hovered = (x >= items[0].rect.x && x <= items[0].rect.x + items[0].rect.w && 
-                                    y >= items[0].rect.y && y <= items[0].rect.y + items[0].rect.h);
+                buttons->hovered = (x >= buttons->out_rect.x && x <= buttons->out_rect.x + buttons->out_rect.w && 
+                                    y >= buttons->out_rect.y && y <= buttons->out_rect.y + buttons->out_rect.h);
 
                 break;
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT)
-                    if (items[0].hovered) {
+                    if (buttons->hovered) {
                         selectedItem = 0;
                         running = false;
                         break;
@@ -1459,12 +1465,11 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
         
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
-        
-        SDL_Color color = items[0].hovered ? red : Green;
-        renderText(renderer, font, items[0].text, items[0].rect.x, items[0].rect.y, color, &Black);
-        renderText(renderer, font, "EASY", items[1].rect.x, items[1].rect.y - 80, Green, &Black);
-        renderText(renderer, font, "MIDL", items[2].rect.x, items[2].rect.y - 80, Green, &Black);
-        renderText(renderer, font, "HARD", items[3].rect.x, items[3].rect.y - 130, Green, &Black);
+
+        renderButton(renderer, buttons);
+        renderText(renderer, font, "EASY", items[0].rect.x, items[0].rect.y - 80, Green, &Black);
+        renderText(renderer, font, "MIDL", items[1].rect.x, items[1].rect.y - 80, Green, &Black);
+        renderText(renderer, font, "HARD", items[2].rect.x, items[2].rect.y - 80, Green, &Black);
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRects(renderer, outer_rect, 3);
@@ -1483,7 +1488,9 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
         SDL_Delay(1000/FPS - frameTime);
     }
 
+    free(items);
     TTF_CloseFont(font);
+    FreeButtons(buttons, 1);
     free_leaders(easyLeaders);
     free_leaders(mediumLeaders);
     free_leaders(hardLeaders);
