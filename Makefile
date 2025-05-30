@@ -1,6 +1,6 @@
 # Компилятор и флаги
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -Iinclude
+CFLAGS = -Wall -Wextra -std=c11 -Iinclude -g
 LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 # Директории

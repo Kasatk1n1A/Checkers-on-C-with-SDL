@@ -333,13 +333,10 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
     // Пункты меню с увеличенными размерами и отступами
     MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
 
-    SDL_Texture* button = Create_colored_rect(renderer, 500, 80, 255, 255, 255, 255);
-    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
-    items[0].rect.w = 500;  items[0].rect.h = 80;
-
-    SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 0, 0, 255);
-    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
-    items[1].rect.w = 510;  items[1].rect.h = 90;
+    SDL_Rect inner_button_rect = {SCREEN_WIDTH/2 - 250, 400, 500, 80};
+    SDL_Rect outer_button_rect = {SCREEN_WIDTH/2 - 255, 395, 510, 90};
+    items[0].rect = inner_button_rect;
+    items[1].rect = outer_button_rect;
 
     Button* buttons = (Button*)malloc(sizeof(Button));
     if (!buttons)
@@ -435,8 +432,12 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
         SDL_RenderCopy(renderer, outline_texture, NULL, &outline_rect);
         SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
         
-        SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
-        SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &items[1].rect);
+        
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &items[0].rect);
+
         renderText(renderer, font2, "Your name", items[0].rect.x, items[0].rect.y, Black, NULL);
 
         SDL_RenderPresent(renderer);
@@ -494,22 +495,10 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
         Game_cleanup(window, EXIT_FAILURE);
     }
 
-    SDL_Texture* button = Create_colored_rect(renderer, 400, 80, 255, 255, 255, 255);
-    items[0].rect.x = SCREEN_WIDTH/2 - 250; items[0].rect.y = 400;
-    items[0].rect.w = 500;  items[0].rect.h = 80;
-
-    SDL_Texture* button_outline = Create_colored_rect(renderer, 410, 90, 0, 255, 0, 255);
-    items[1].rect.x = SCREEN_WIDTH/2 - 255; items[1].rect.y = 395;
-    items[1].rect.w = 510;  items[1].rect.h = 90;
-
-    if (!button || !button_outline)
-    {
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
-        TTF_CloseFont(font1);
-        TTF_CloseFont(font2);
-        TTF_CloseFont(font3);
-        Game_cleanup(window, EXIT_FAILURE);
-    }
+    SDL_Rect inner_button_rect = {SCREEN_WIDTH/2 - 250, 400, 500, 80};
+    SDL_Rect outer_button_rect = {SCREEN_WIDTH/2 - 255, 395, 510, 90};
+    items[0].rect = inner_button_rect;
+    items[1].rect = outer_button_rect;
 
     Button* buttons = (Button*)malloc(sizeof(Button));
     if (!buttons)
@@ -581,8 +570,6 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
                         running = false;
                         break;
                     }
-
-
                 break;
 
             case SDL_TEXTINPUT:
@@ -625,8 +612,11 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
         SDL_RenderCopy(renderer, outline_texture, NULL, &outline_rect);
         SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 
-        SDL_RenderCopy(renderer, button_outline, NULL, &items[1].rect);
-        SDL_RenderCopy(renderer, button, NULL, &items[0].rect);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &items[1].rect);
+        
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &items[0].rect);
 
         if (strlen(input_text) > 0)
             renderText(renderer, font2, input_text, items[0].rect.x, items[0].rect.y, Black, NULL);

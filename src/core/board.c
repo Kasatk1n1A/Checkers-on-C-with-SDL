@@ -34,6 +34,8 @@ CH_Type** add_board(void)
         for (int i = 1 - j % 2; i < 8; i += 2)
             board[j][i] = WHITE_PAWN;
 
+    board[5][0] = 0;
+
     return board;
 }
 
