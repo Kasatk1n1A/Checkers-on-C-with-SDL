@@ -26,8 +26,6 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         if (info.player == RED)
         {
             // Ход бота
-            if (info.difficult != 7)
-                SDL_Delay(500);
             printf("Red turn.\n");
             bot_make_move(CheckersBoard->board, info.difficult, RED);
         }

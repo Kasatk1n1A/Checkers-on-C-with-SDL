@@ -194,10 +194,10 @@ void SetDifficult(Window* window)   //исправлены утечки
             checkers(window, NULL, 1, 0, 0);
             break;
         case 1: 
-            checkers(window, NULL, 3, 0, 0);
+            checkers(window, NULL, 7, 0, 0);
             break;
         case 2: 
-            checkers(window, NULL, 7, 0, 0);
+            checkers(window, NULL, 12, 0, 0);
             break;
         case 3: 
             showMainMenu(window);
@@ -354,15 +354,18 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
     SDL_Surface* outline_surface = TTF_RenderText_Blended(font3, "Input save's name", Black);
     TTF_SetFontOutline(font3, 0);
     SDL_Surface* text_surface = TTF_RenderText_Blended(font3, "Input save's name", red);
+    SDL_Surface* Your_name_surface = TTF_RenderText_Blended(font2, "Your name", Black);
     
     SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    SDL_Texture* Your_name_texture = SDL_CreateTextureFromSurface(renderer, Your_name_surface);
 
     SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
     SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
 
     SDL_FreeSurface(outline_surface);
     SDL_FreeSurface(text_surface);
+    SDL_FreeSurface(Your_name_surface);
 
     bool running = true;
     int selectedItem = -1;
@@ -384,6 +387,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
                 FreeButtons(buttons, 1);
                 SDL_DestroyTexture(text_texture);
                 SDL_DestroyTexture(outline_texture);
+                SDL_DestroyTexture(Your_name_texture);
                 board_cleanup_SDL(CheckersBoard);
                 Game_cleanup(window, EXIT_SUCCESS);
                 break;
@@ -438,7 +442,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &items[0].rect);
 
-        renderText(renderer, font2, "Your name", items[0].rect.x, items[0].rect.y, Black, NULL);
+        SDL_RenderCopy(renderer, Your_name_texture, NULL, &items[0].rect);
 
         SDL_RenderPresent(renderer);
 
@@ -454,6 +458,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
     FreeButtons(buttons, 1);
     SDL_DestroyTexture(text_texture);
     SDL_DestroyTexture(outline_texture);
+    SDL_DestroyTexture(Your_name_texture);
 
     switch (selectedItem)
     {
@@ -890,7 +895,6 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
 
     SDL_Color Black = {0, 0, 0, 255};
     SDL_Color red = {255, 0, 0, 255};
-    SDL_Color Grey = {178, 178, 178, 255};
 
     // Загрузка шрифта с увеличенным размером
     TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
@@ -918,7 +922,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
     SDL_Surface* outline_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", Black);
     TTF_SetFontOutline(font3, 0);
     SDL_Surface* text_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", red);
-    SDL_Surface* Your_name_surface = TTF_RenderText_Blended(font2, "Your name", Grey);
+    SDL_Surface* Your_name_surface = TTF_RenderText_Blended(font2, "Your name", Black);
 
     SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
