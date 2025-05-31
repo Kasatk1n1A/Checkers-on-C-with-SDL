@@ -389,6 +389,12 @@ int trans_count = 0;
 // Алгоритм минимакса с альфа-бета отсечением
 int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta, bool isMaximizing, Player player, int maxDepth) 
 {
+    // Генерируем все возможные ходы
+    Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
+    // Если нет доступных ходов - поражение или ничья
+    if (!moves)
+        return isMaximizing ? -9999 : 9999;
+
     Player curr_player = player == WHITE ? (isMaximizing == true ? WHITE : RED) : (isMaximizing == true ? RED : WHITE);
     int curr_eval = evaluate_position(tmp_board, player);
     // Если достигнута максимальная глубина, возвращаем оценку позиции
@@ -412,13 +418,6 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
 
             return eval;
         }
-
-    // Генерируем все возможные ходы
-    Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
-
-    // Если нет доступных ходов - поражение или ничья
-    if (!moves)
-        return isMaximizing ? -9999 : 9999;
 
     // Максимизация (ход игрока)
     if (isMaximizing) {

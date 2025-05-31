@@ -29,12 +29,17 @@ typedef struct
 
 typedef struct 
 {
-    SDL_Texture* out_texture;
-    SDL_Texture* inner_texture_disable;
-    SDL_Texture* inner_texture_enable;
     SDL_Rect out_rect;
     SDL_Rect inner_rect;
     bool hovered;
+    union {
+        struct {
+            SDL_Texture* inner_texture_disable;
+            SDL_Texture* inner_texture_enable;
+        };
+        SDL_Texture* inner_textures[2]; // Альтернативный доступ к тем же текстурам
+    };
+    SDL_Texture* out_texture;
 } Button;
 
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);

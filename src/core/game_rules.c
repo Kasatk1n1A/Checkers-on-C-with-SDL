@@ -67,6 +67,8 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     return 0;
 }
 
+// int bot_vs_bot()
+
 bool Win_Check(CH_Type** board, Player player)
 {
     CH_Type enemy_pawn = (player == WHITE) ? RED_PAWN : WHITE_PAWN;

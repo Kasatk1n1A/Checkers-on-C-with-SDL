@@ -8,14 +8,6 @@
 #include "../../include/core/Checkers_types.h"
 #include "board.h"
 
-typedef enum
-{
-    START_POINTS = 10000,
-    EASY_POINTS = 3,
-    MIDDLE_POINTS = 2,
-    HARD_POINTS = 1
-} HardPoints;
-
 typedef struct 
 {
     SDL_Texture* Name;
