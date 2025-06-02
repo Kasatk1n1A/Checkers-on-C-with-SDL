@@ -34,8 +34,6 @@ CH_Type** add_board(void)
         for (int i = 1 - j % 2; i < 8; i += 2)
             board[j][i] = WHITE_PAWN;
 
-    board[5][0] = 0;
-
     return board;
 }
 
@@ -72,6 +70,7 @@ void freeBoard(void** board)
             free(board[i]);
 
     free(board);
+    board = NULL;
 }
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
@@ -175,7 +174,13 @@ void renderBoardFrame(Window* window, Board* CheckersBoard)
 void board_cleanup_SDL(Board* CheckersBoard)
 {
     if (CheckersBoard->board)
-        freeBoard((void**)CheckersBoard->board);
+    {
+        for (int i = 0; i < 8; i++)
+            free(CheckersBoard->board[i]);
+        free(CheckersBoard->board);
+        // freeBoard((void**)CheckersBoard->board);
+        CheckersBoard->board = NULL;
+    }
 
     // Удаление текстуры доски
     if (CheckersBoard->image)

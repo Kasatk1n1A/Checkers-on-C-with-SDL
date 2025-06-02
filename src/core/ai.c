@@ -123,7 +123,8 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
             // Проверяем все 4 диагональных направления
             for (int dir = 0; dir < 4; dir++) {
                 int step = 1;
-                while (true) {
+                while (true) 
+                {
                     int nx = x + dx * step;
                     int ny = y + dy * step;
                     
@@ -145,7 +146,7 @@ Move* generate_moves_for_piece(CH_Type** board, int x, int y, Player player) {
             }
         } 
         else {
-            // Оригинальный код для простой шашки (один шаг)
+            // Оригинальный ход для простой шашки (один шаг)
             int nx = x + dx;
             int ny = y + dy;
             if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && board[ny][nx] == EMPTY) {
@@ -234,15 +235,13 @@ Move* create_move(int fromX, int fromY, int toX, int toY, Move* captures) {
 
 Move* Move_Copy(const Move* src) 
 {
-    if (src == NULL) {
+    if (src == NULL)
         return NULL;
-    }
 
     // Создаем новую структуру Move
     Move* dest = (Move*)malloc(sizeof(Move));
-    if (dest == NULL) {
+    if (dest == NULL)
         return NULL; // Обработка ошибки выделения памяти
-    }
 
     // Копируем простые поля
     dest->fromX = src->fromX;
@@ -258,7 +257,8 @@ Move* Move_Copy(const Move* src)
 }
 
 // Генерация всех возможных ходов для игрока
-Move* generate_all_moves(CH_Type** board, Player player) {
+Move* generate_all_moves(CH_Type** board, Player player) 
+{
     Move* allMoves = NULL;  // Список всех ходов
     Move* last = NULL;      // Последний ход в списке
 
@@ -267,8 +267,10 @@ Move* generate_all_moves(CH_Type** board, Player player) {
     bool hasCaptures = (attack_board != NULL);
 
     // Проход по всем клеткам доски
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
+    for (int y = 0; y < 8; y++) 
+    {
+        for (int x = 0; x < 8; x++) 
+        {
             CH_Type piece = board[y][x];
             // Проверка, что это наша фигура
             bool isOurPiece = (player == WHITE && (piece == WHITE_PAWN || piece == WHITE_KING)) ||
@@ -300,7 +302,8 @@ Move* generate_all_moves(CH_Type** board, Player player) {
                                 pieceMoves = current->next;
                                 current = pieceMoves;
                             }
-                            free(toDelete);
+                            toDelete->next = NULL;
+                            free_move(toDelete);
                         }
                         else {
                             prev = current;
@@ -315,9 +318,8 @@ Move* generate_all_moves(CH_Type** board, Player player) {
                         allMoves = pieceMoves;
                         last = pieceMoves;
                     }
-                    else {
+                    else
                         last->next = pieceMoves;
-                    }
 
                     // Переходим в конец списка
                     while (last->next) {
@@ -331,6 +333,7 @@ Move* generate_all_moves(CH_Type** board, Player player) {
     // Освобождаем память
     if (attack_board) {
         freeBoard((void**)attack_board);
+        attack_board = NULL;
     }
 
     return allMoves;
@@ -389,12 +392,6 @@ int trans_count = 0;
 // Алгоритм минимакса с альфа-бета отсечением
 int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta, bool isMaximizing, Player player, int maxDepth) 
 {
-    // Генерируем все возможные ходы
-    Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
-    // Если нет доступных ходов - поражение или ничья
-    if (!moves)
-        return isMaximizing ? -9999 : 9999;
-
     Player curr_player = player == WHITE ? (isMaximizing == true ? WHITE : RED) : (isMaximizing == true ? RED : WHITE);
     int curr_eval = evaluate_position(tmp_board, player);
     // Если достигнута максимальная глубина, возвращаем оценку позиции
@@ -418,6 +415,13 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
 
             return eval;
         }
+    Transposition_Delete(&trans);
+
+            // Генерируем все возможные ходы
+    Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
+    // Если нет доступных ходов - поражение или ничья
+    if (!moves)
+        return isMaximizing ? -9999 : 9999;
 
     // Максимизация (ход игрока)
     if (isMaximizing) {
@@ -448,6 +452,7 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
 
             current = current->next;
         }
+
         Transposition* trans = Transposition_Create(tmp_board, curr_player, maxEval, depth, BestMove);
         Transpositions_Add(&Cash, &trans_count, trans);
         free_move(moves);
@@ -505,12 +510,12 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth) {
     }
     
     CH_Type** tmp_board = add_board();
+    CopyBoard(board, tmp_board);
     // Перебираем все возможные ходы
     Move* current = moves;
     while (current) 
     {
         // Пробуем ход
-        CopyBoard(board, tmp_board);
         make_temp_move(tmp_board, current);
         // Оцениваем его
         int moveValue = minimax(board, tmp_board, 0, INT_MIN, INT_MAX, false, player, maxDepth);
@@ -522,10 +527,9 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth) {
         {
             bestValue = moveValue;
             // Освобождаем память предыдущего лучшего хода
-            if (bestMove) 
-                free_move(bestMove);
-
+            
             // Копируем текущий ход как новый лучший
+            free_move(bestMove);
             bestMove = Move_Copy(current);
         }
 
@@ -535,24 +539,9 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth) {
     Transpositions_Delete(&Cash, &trans_count);
     freeBoard((void**)tmp_board);
     free_move(moves);
+    tmp_board = NULL;
     moves = NULL;
     return bestMove;
-}
-
-// Освобождение памяти, занятой списком ходов
-void free_move(Move* move) 
-{
-    if (!move) return;
-
-    Move* current = move;
-    while (current) {
-        Move* next = current->next;
-        if (current->captures) {
-            free(current->captures);
-        }
-        free(current);
-        current = next;
-    }
 }
 
 // Основная функция для выполнения хода ботом
@@ -591,10 +580,11 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
                 bot_make_move(board, difficult, player);
             }
 
-            free_move(bestMove);
         }
-
+        
+        free_move(bestMove);
         freeBoard((void**)attack_board);
+        attack_board = NULL;
     }
     else
     {
@@ -615,8 +605,9 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
                 board[bestMove->toY][bestMove->toX] = RED_KING;
             }
 
-            free_move(bestMove);
         }
+        free_move(bestMove);
     }
     freeBoard((void**)tmp_board);
+    tmp_board = NULL;
 }

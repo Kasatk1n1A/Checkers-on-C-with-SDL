@@ -67,7 +67,98 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     return 0;
 }
 
-// int bot_vs_bot()
+int bot_vs_bot(Window* window, int bot1_difficulty, int bot2_difficulty)
+{
+    Board* CheckersBoard = (Board*)malloc(sizeof(Board));
+    
+    LoadBoardTextures(CheckersBoard, window);
+
+    CheckersBoard->board = add_board();
+    
+    Uint32 start, end;
+    double White_Time = 0, Red_Time = 0;
+    Player player = WHITE;
+    FILE* file = fopen("Bot vs bot statistic.txt", "a");
+
+    CH_Type** tmp_board = add_board();
+    CopyBoard(CheckersBoard->board, tmp_board);
+    int moves_without_captures = 0;
+
+    renderBoardFrame(window, CheckersBoard);
+    // основной цикл игры
+    while (true)
+    {
+        if (player == RED)
+        {
+            // Ход бота
+            start = SDL_GetTicks();
+            bot_make_move(CheckersBoard->board, bot1_difficulty, RED);
+            end = SDL_GetTicks();
+            Red_Time += (end - start) / 1000.0;
+        }
+        else
+        {
+            start = SDL_GetTicks();
+            bot_make_move(CheckersBoard->board, bot2_difficulty, WHITE);
+            end = SDL_GetTicks();
+            White_Time += (end - start) / 1000.0;
+        }
+
+        renderBoardFrame(window, CheckersBoard);
+        
+        if (was_capture(CheckersBoard->board, tmp_board))
+            moves_without_captures = 0;
+        else
+            moves_without_captures++;
+
+        if (moves_without_captures == 50)
+        {
+            fprintf(file, "RED Diff: %d; White diff: %d\n", bot1_difficulty, bot2_difficulty);
+            fprintf(file, "Nobody\n");
+            fprintf(file, "Red time: %.3f sec; White Time: %.3f sec\n\n", Red_Time, White_Time);
+            break;
+        }
+
+        if (Win_Check(CheckersBoard->board, player))
+        {
+            fprintf(file, "RED Diff: %d; White diff: %d\n", bot1_difficulty, bot2_difficulty);
+            fprintf(file, player == WHITE ? "WHITE\n" : "RED\n");
+            fprintf(file, "Red time: %.3f sec; White Time: %.3f sec\n\n", Red_Time, White_Time);
+            break;
+        }
+        
+        CopyBoard(CheckersBoard->board, tmp_board);
+        player = player == WHITE ? RED : WHITE;
+    }
+
+    board_cleanup_SDL(CheckersBoard);
+    freeBoard((void**)tmp_board);
+    fclose(file);
+    // board_cleanup_SDL(CheckersBoard);
+
+    return 0;
+}
+
+bool was_capture(CH_Type** current_board, CH_Type** previous_board) 
+{
+    int current_count = 0;
+    int previous_count = 0;
+
+    // Подсчитываем количество фигур на текущей доске
+    for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+            if (current_board[y][x] != EMPTY)
+                current_count++;
+
+    // Подсчитываем количество фигур на предыдущей доске
+    for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+            if (previous_board[y][x] != EMPTY)
+                previous_count++;
+
+    // Если количество фигур уменьшилось - было съедение
+    return current_count < previous_count;
+}
 
 bool Win_Check(CH_Type** board, Player player)
 {

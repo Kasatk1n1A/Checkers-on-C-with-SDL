@@ -12,11 +12,12 @@
 #include "game_rules.h"
 #include "Transpositions.h"
 
+#define CASH_MAX_SIZE 100
+
 // Основная функция для хода бота
 void bot_make_move(CH_Type** board, int difficult, Player player);
 
 // Вспомогательные функции
-void free_move(Move* move);
 Move* Move_Copy(const Move* src);
 int evaluate_position(CH_Type** board, Player player);
 Move* generate_all_moves(CH_Type** board, Player player);

@@ -15,5 +15,7 @@
 
 bool Win_Check(CH_Type** board, Player player);
 int checkers(Window* window, CH_Type** board, int difficult, double Time, Player player);
+int bot_vs_bot(Window* window, int bot1_difficulty, int bot2_difficulty);
+bool was_capture(CH_Type** current_board, CH_Type** previous_board);
 
 #endif

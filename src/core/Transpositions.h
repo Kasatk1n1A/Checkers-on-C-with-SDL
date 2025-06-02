@@ -24,6 +24,7 @@ typedef struct
 } Transposition;
 
 //Функции для транспозиций(одинаковых результатов ходов)
+void free_move(Move* move);
 Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluation, int depth, Move* BestMove);
 void Transposition_Delete(Transposition** trans);
 bool Transposition_Compare(Transposition* trans1, Transposition* trans2);

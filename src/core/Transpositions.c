@@ -1,5 +1,23 @@
 #include "Transpositions.h"
 
+// Освобождение памяти, занятой списком ходов
+void free_move(Move* move) 
+{
+    if (!move) return;
+
+    Move* current = move;
+    while (current) 
+    {
+        Move* next = current->next;
+        if (current->captures) {
+            free_move(current->captures);
+            current->captures = NULL;
+        }
+        free(current);
+        current = next;
+    }
+}
+
 Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluation, int depth, Move* BestMove)
 {
     printf("Trans creating -> ");
@@ -27,7 +45,7 @@ void Transposition_Delete(Transposition** trans)
 
     printf("%d\n", (*trans)->depth);
     freeBoard((void**)(*trans)->board_positions);
-    free((*trans)->BestMove);
+    free_move((*trans)->BestMove);
     free(*trans);
     *trans = NULL;
 
@@ -83,7 +101,6 @@ void Transpositions_Add(Transposition*** Cash, int* n, Transposition* trans)
             printf("New transposition add success\n");
             return;
         }
-            
     }
 
     Transposition** tmp = (Transposition**)malloc(sizeof(Transposition*) * (*n + 1));
