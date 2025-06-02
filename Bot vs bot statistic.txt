@@ -1790,3 +1790,7 @@ RED Diff: 1; White diff: 4
 WHITE
 Red time: 0.012 sec; White Time: 0.469 sec
 
+RED Diff: 0; White diff: 1
+RED
+Red time: 0.007 sec; White Time: 0.036 sec
+
