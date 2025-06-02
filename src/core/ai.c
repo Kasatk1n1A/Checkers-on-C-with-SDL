@@ -11,6 +11,8 @@ int evaluate_position(CH_Type** board, Player player) {
     const int EAT_BONUS = 30;         // За съедение шашки
     const int EAT_KING_BONUS = 100;    // За съедение дамки
     const int KING_BONUS = 300;        // За превращение в дамку
+    const int DIE_PENALTY = -40;       // За потерю шашки
+    const int DIE_KING_PENALTY = -100; // За потерю дамки
     const int MOBILITY_BONUS = 2;      // За возможность хода
 
     // Проход по всем клеткам доски
@@ -549,6 +551,7 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     int maxDepth = difficult;
 
     // Проверяем, есть ли обязательные взятия
+    bool** attack_board = canCapture(board, player == WHITE);
     CH_Type** tmp_board = add_board();
     CopyBoard(board, tmp_board);
 
@@ -570,12 +573,15 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
             board[bestMove->toY][bestMove->toX] = RED_KING;
         }
         // Проверяем, можно ли продолжить взятия
-        if (CanContinue(board, bestMove->toX, bestMove->toY, player)) {
-            // Рекурсивно продолжаем взятия
+        if (attack_board && CanContinue(board, bestMove->toX, bestMove->toY, player)) 
             bot_make_move(board, difficult, player);
-        }
     }
-
+    if (attack_board) 
+    {
+        freeBoard((void**)attack_board);
+        attack_board = NULL;
+    }
+    
     free_move(bestMove);
     freeBoard((void**)tmp_board);
     tmp_board = NULL;

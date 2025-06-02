@@ -247,7 +247,7 @@ bool LoadBoardTextures(Board* CheckersBoard, Window* window)
     }
     free(path);
 
-    path = GetExecutableRelativePath("assets/images/Checkers/white_pawn.png");
+    path = GetExecutableRelativePath("assets/images/Checkers/picked_white_pawn.png");
     CheckersBoard->checkers->picked_white_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->picked_white_image)
     {

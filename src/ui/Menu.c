@@ -96,14 +96,7 @@ void showMainMenu(Window* window)   //исправлены утечки
 
     switch (selectedItem)
     {
-        case 0:
-            for (int i = 0; i <= 12; i++)
-                for (int j = 1; j <= 12; j++)
-                {
-                    bot_vs_bot(window, i, j);/*SetDifficult(window);*/ 
-                }
-            showMainMenu(window);
-            break;
+        case 0: SetDifficult(window); break;
         case 1: LoadGame(window); break;
         case 2: ShowLeaderBoard(window); break;
         case 3: ShowAbout(window); break;
