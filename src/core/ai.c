@@ -552,11 +552,9 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
 
     // Проверяем, есть ли обязательные взятия
     bool** attack_board = canCapture(board, player == WHITE);
-    CH_Type** tmp_board = add_board();
-    CopyBoard(board, tmp_board);
 
     // Если есть взятия - выполняем лучший ход со взятием
-    Move* bestMove = find_best_move(tmp_board, player, maxDepth);
+    Move* bestMove = find_best_move(board, player, maxDepth);
 
     if (bestMove) 
     {
@@ -583,6 +581,4 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     }
     
     free_move(bestMove);
-    freeBoard((void**)tmp_board);
-    tmp_board = NULL;
 }
