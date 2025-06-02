@@ -555,59 +555,36 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     CH_Type** tmp_board = add_board();
     CopyBoard(board, tmp_board);
 
+    // Если есть взятия - выполняем лучший ход со взятием
+    Move* bestMove = find_best_move(tmp_board, player, maxDepth);
+
+    if (bestMove) 
+    {
+        // Выполняем взятие
+        performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
+        
+        printf("bestMove toY: %d, toX: %d\n", bestMove->toY, bestMove->toX);
+        if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
+            // Белая пешка достигла последней линии (нижний край доски)
+            board[bestMove->toY][bestMove->toX] = WHITE_KING;
+        }
+        else if (board[bestMove->toY][bestMove->toX] == RED_PAWN && bestMove->toY == 7) {
+            // Красная пешка достигла последней линии (верхний край доски)
+            board[bestMove->toY][bestMove->toX] = RED_KING;
+        }
+        // Проверяем, можно ли продолжить взятия
+        if (CanContinue(board, bestMove->toX, bestMove->toY, player)) {
+            // Рекурсивно продолжаем взятия
+            bot_make_move(board, difficult, player);
+        }
+    }
     if (attack_board) 
     {
-        printf("Continue\n");
-        // Если есть взятия - выполняем лучший ход со взятием
-        Move* bestMove = find_best_move(tmp_board, player, maxDepth);
-
-        if (bestMove) {
-            // Выполняем взятие
-            performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
-            
-            printf("bestMove toY: %d, toX: %d\n", bestMove->toY, bestMove->toX);
-            if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
-                // Белая пешка достигла последней линии (нижний край доски)
-                board[bestMove->toY][bestMove->toX] = WHITE_KING;
-            }
-            else if (board[bestMove->toY][bestMove->toX] == RED_PAWN && bestMove->toY == 7) {
-                // Красная пешка достигла последней линии (верхний край доски)
-                board[bestMove->toY][bestMove->toX] = RED_KING;
-            }
-            // Проверяем, можно ли продолжить взятия
-            if (CanContinue(board, bestMove->toX, bestMove->toY, player)) {
-                // Рекурсивно продолжаем взятия
-                bot_make_move(board, difficult, player);
-            }
-
-        }
-        
-        free_move(bestMove);
         freeBoard((void**)attack_board);
         attack_board = NULL;
     }
-    else
-    {
-        // Если нет обязательных взятий - выполняем обычный ход
-        Move* bestMove = find_best_move(tmp_board, player, maxDepth);
-
-        if (bestMove) {
-            // Перемещаем фигуру
-            performCapture(board, bestMove->fromX, bestMove->fromY, bestMove->toX, bestMove->toY);
-
-            printf("bestMove->toY: %d\n", bestMove->toY);
-            if (board[bestMove->toY][bestMove->toX] == WHITE_PAWN && bestMove->toY == 0) {
-                // Белая пешка достигла последней линии (нижний край доски)
-                board[bestMove->toY][bestMove->toX] = WHITE_KING;
-            }
-            else if (board[bestMove->toY][bestMove->toX] == RED_PAWN && bestMove->toY == 7) {
-                // Красная пешка достигла последней линии (верхний край доски)
-                board[bestMove->toY][bestMove->toX] = RED_KING;
-            }
-
-        }
-        free_move(bestMove);
-    }
+    
+    free_move(bestMove);
     freeBoard((void**)tmp_board);
     tmp_board = NULL;
 }

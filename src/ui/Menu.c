@@ -11,12 +11,14 @@ void showMainMenu(Window* window)   //исправлены утечки
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
         Game_cleanup(window, EXIT_FAILURE);
     }
+    free(path);
 
     //Создание кнопок меню    
     Button* buttons = (Button*)malloc(sizeof(Button) * 5);
@@ -115,12 +117,14 @@ void SetDifficult(Window* window)   //исправлены утечки
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
         Game_cleanup(window, EXIT_FAILURE);
     }
+    free(path);
 
     //Создание кнопок меню
     Button* buttons = (Button*)malloc(sizeof(Button) * 4);
@@ -220,12 +224,14 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
         Game_cleanup(window, EXIT_FAILURE);
     }
+    free(path);
 
     Button* buttons = (Button*)malloc(sizeof(Button) * 3);
     if (!buttons)
@@ -328,9 +334,14 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
     SDL_Color Black = {0, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
-    TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
-    TTF_Font* font3 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
+    char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    TTF_Font* font2 = TTF_OpenFont(path2, 80);
+    free(path1);
+    free(path2);
+
     if (!font1 || !font2 || !font3) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -487,9 +498,14 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
-    TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
-    TTF_Font* font3 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
+    char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    TTF_Font* font2 = TTF_OpenFont(path2, 80);
+    TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    free(path1);
+    free(path2);
+    
     if (!font1 || !font2 || !font3) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -665,7 +681,10 @@ void LoadGame(Window* window)   //утечки исправлены
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    free(path1);
+
     if (!font1) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -799,8 +818,10 @@ void LoseMenu(Window* window)   //исправлены утечки
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
-    TTF_Font* font2 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path, FONT_SIZE);
+    TTF_Font* font2 = TTF_OpenFont(path, 100);
+    free(path);
     if (!font1 || !font2) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -904,9 +925,13 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
-    TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
-    TTF_Font* font3 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
+    char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    TTF_Font* font2 = TTF_OpenFont(path2, 80);
+    TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    free(path1);
+    free(path2);
     if (!font1 || !font2 || !font3) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1055,9 +1080,13 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     SDL_Color red = {255, 0, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font1 = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
-    TTF_Font* font2 = TTF_OpenFont("assets/fonts/freesansbold.ttf", 80);
-    TTF_Font* font3 = TTF_OpenFont("assets/fonts/minecraft.ttf", 100);
+    char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    TTF_Font* font2 = TTF_OpenFont(path2, 80);
+    TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    free(path1);
+    free(path2);
     if (!font1 || !font2 || !font3) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1217,7 +1246,9 @@ void ShowAbout(Window* window)  //исправлены утечки
     SDL_Renderer* renderer = window->renderer;
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
+    free(path);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1226,8 +1257,8 @@ void ShowAbout(Window* window)  //исправлены утечки
 
     // Пункты меню с увеличенными размерами и отступами
     MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
-    items[1].rect.x = 195; items[1].rect.y = 195; items[1].rect.h = 610; items[1].rect.w = 1010;
-    items[2].rect.x = 200; items[2].rect.y = 200; items[2].rect.h = 600; items[2].rect.w = 1000;
+    items[0].rect.x = 195; items[0].rect.y = 195; items[0].rect.h = 610; items[0].rect.w = 1010;
+    items[1].rect.x = 200; items[1].rect.y = 200; items[1].rect.h = 600; items[1].rect.w = 1000;
 
     Button* button = (Button*)malloc(sizeof(Button));
     CreateTextButton(renderer, button, font, "Main menu", SCREEN_WIDTH/2, 820);
@@ -1280,10 +1311,10 @@ void ShowAbout(Window* window)  //исправлены утечки
         renderButton(renderer, button);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &items[1].rect);
+        SDL_RenderFillRect(renderer, &items[0].rect);
         
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &items[2].rect);
+        SDL_RenderFillRect(renderer, &items[1].rect);
 
         for (int i = 0; i < 20; i++)
             if (About->text_arr[i] != NULL)
@@ -1320,7 +1351,9 @@ void free_about(about* About)
 about* CreateAboutText(SDL_Renderer* renderer)
 {
     SDL_Color Black = {0, 0, 0, 255};
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", 30);
+    char* path = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font = TTF_OpenFont(path, 30);
+    free(path);
 
     about* About = (about*)malloc(sizeof(about));
 
@@ -1367,7 +1400,9 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
     SDL_Color Green = {0, 255, 0, 255};
 
     // Загрузка шрифта с увеличенным размером
-    TTF_Font* font = TTF_OpenFont("assets/fonts/minecraft.ttf", FONT_SIZE);
+    char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
+    TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
+    free(path);
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
@@ -1490,11 +1525,18 @@ void free_leaders(leader* leaders)
 leader* read_leaders(SDL_Renderer* renderer, int type, int x, int y)
 {
     FILE* file;
-    if (type == 1) file = fopen("saves/leaderboard/easy board.txt", "r");
-    else if (type == 2) file = fopen("saves/leaderboard/medium board.txt", "r");
-    else file = fopen("saves/leaderboard/hard board.txt", "r");
+    char* path1 = NULL;
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    TTF_Font* font = TTF_OpenFont(path2, 30);
 
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", 30);
+    if (type == 1) path1 = GetExecutableRelativePath("saves/leaderboard/easy board.txt");
+    else if (type == 2) path1 = GetExecutableRelativePath("saves/leaderboard/medium board.txt");
+    else path1 = GetExecutableRelativePath("saves/leaderboard/hard board.txt");
+    file = fopen(path1, "r");
+    
+    free(path1);
+    free(path2);
+    
     SDL_Color Black = {0, 0, 0, 255};
 
     char Name[10] = {'\0'}, minutes[10] = {'\0'}, seconds[10] = {'\0'};

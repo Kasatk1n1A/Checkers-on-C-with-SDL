@@ -219,7 +219,9 @@ void board_cleanup_SDL(Board* CheckersBoard)
 
 bool LoadBoardTextures(Board* CheckersBoard, Window* window)
 {    
-    CheckersBoard->image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/chessboard.png");     
+    // Формируем полный путь к текстуре
+    char* path = GetExecutableRelativePath("assets/images/Checkers/chessboard.png");
+    CheckersBoard->image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
@@ -232,59 +234,81 @@ bool LoadBoardTextures(Board* CheckersBoard, Window* window)
         fprintf(stderr, "Error quering Texture: %s\n", SDL_GetError());
         return true;
     }
-    
+    free(path);
     // Получение реальных размеров текстуры
     CheckersBoard->checkers = (Checker*)malloc(sizeof(Checker));
 
-    CheckersBoard->checkers->white_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/white_pawn.png");
+    path = GetExecutableRelativePath("assets/images/Checkers/white_pawn.png");
+    CheckersBoard->checkers->white_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->white_image )
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->picked_white_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/picked_white_pawn.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/white_pawn.png");
+    CheckersBoard->checkers->picked_white_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->picked_white_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->white_King_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/white_king.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/white_king.png");
+    CheckersBoard->checkers->white_King_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->white_King_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->picked_white_king_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/picked_white_king.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/picked_white_king.png");
+    CheckersBoard->checkers->picked_white_king_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->picked_white_king_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
+    free(path);
 
-    CheckersBoard->checkers->red_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/red_pawn.png");
+    path = GetExecutableRelativePath("assets/images/Checkers/red_pawn.png");
+    CheckersBoard->checkers->red_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->red_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->picked_red_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/picked_red_pawn.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/picked_red_pawn.png");
+    CheckersBoard->checkers->picked_red_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->picked_red_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->red_King_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/red_king.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/red_king.png");
+    CheckersBoard->checkers->red_King_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->red_King_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
-    CheckersBoard->checkers->picked_red_king_image = IMG_LoadTexture(window->renderer, "assets/images/Checkers/picked_red_king.png");
+    free(path);
+
+    path = GetExecutableRelativePath("assets/images/Checkers/picked_red_king.png");
+    CheckersBoard->checkers->picked_red_king_image = IMG_LoadTexture(window->renderer, path);
     if (!CheckersBoard->checkers->picked_red_king_image)
     {
         fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
         return true;
     }
+    free(path);
 
     return false;
 }

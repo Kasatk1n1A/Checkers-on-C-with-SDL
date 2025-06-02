@@ -18,7 +18,7 @@ SRCS = $(wildcard $(SRC_DIR)/*.c) \
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
 # Имя исполняемого файла
-TARGET = $(BIN_DIR)/checkers
+TARGET = ./checkers
 
 # Правило по умолчанию
 all: create_dirs $(TARGET)

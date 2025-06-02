@@ -10,6 +10,7 @@
 #include "../../include/core/ui_types.h"
 #include "../../include/core/Board_types.h"
 #include "../../include/core/Checkers_types.h"
+#include "../utils/sdl_utils.h"
 
 CH_Type** add_board(void);
 void freeBoard(void** board);

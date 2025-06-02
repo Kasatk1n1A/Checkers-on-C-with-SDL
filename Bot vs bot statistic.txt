@@ -1422,3 +1422,371 @@ RED Diff: 7; White diff: 5
 RED
 Red time: 0.567 sec; White Time: 0.609 sec
 
+RED Diff: 7; White diff: 6
+RED
+Red time: 0.762 sec; White Time: 0.829 sec
+
+RED Diff: 7; White diff: 7
+RED
+Red time: 1.519 sec; White Time: 1.280 sec
+
+RED Diff: 7; White diff: 8
+WHITE
+Red time: 1.113 sec; White Time: 1.040 sec
+
+RED Diff: 7; White diff: 9
+RED
+Red time: 1.169 sec; White Time: 1.062 sec
+
+RED Diff: 7; White diff: 10
+WHITE
+Red time: 1.034 sec; White Time: 1.633 sec
+
+RED Diff: 7; White diff: 11
+RED
+Red time: 1.363 sec; White Time: 1.636 sec
+
+RED Diff: 7; White diff: 12
+RED
+Red time: 1.339 sec; White Time: 1.813 sec
+
+RED Diff: 8; White diff: 1
+WHITE
+Red time: 2.112 sec; White Time: 0.221 sec
+
+RED Diff: 8; White diff: 2
+RED
+Red time: 0.814 sec; White Time: 0.435 sec
+
+RED Diff: 8; White diff: 3
+RED
+Red time: 0.679 sec; White Time: 0.437 sec
+
+RED Diff: 8; White diff: 4
+RED
+Red time: 1.022 sec; White Time: 0.886 sec
+
+RED Diff: 8; White diff: 5
+RED
+Red time: 0.898 sec; White Time: 0.768 sec
+
+RED Diff: 8; White diff: 6
+RED
+Red time: 0.575 sec; White Time: 0.873 sec
+
+RED Diff: 8; White diff: 7
+RED
+Red time: 2.056 sec; White Time: 1.358 sec
+
+RED Diff: 8; White diff: 8
+RED
+Red time: 1.344 sec; White Time: 1.006 sec
+
+RED Diff: 8; White diff: 9
+WHITE
+Red time: 0.949 sec; White Time: 1.383 sec
+
+RED Diff: 8; White diff: 10
+WHITE
+Red time: 1.706 sec; White Time: 1.302 sec
+
+RED Diff: 8; White diff: 11
+WHITE
+Red time: 1.464 sec; White Time: 1.883 sec
+
+RED Diff: 8; White diff: 12
+RED
+Red time: 1.210 sec; White Time: 1.612 sec
+
+RED Diff: 9; White diff: 1
+WHITE
+Red time: 1.298 sec; White Time: 0.118 sec
+
+RED Diff: 9; White diff: 2
+RED
+Red time: 0.884 sec; White Time: 0.273 sec
+
+RED Diff: 9; White diff: 3
+RED
+Red time: 1.164 sec; White Time: 0.550 sec
+
+RED Diff: 9; White diff: 4
+RED
+Red time: 1.128 sec; White Time: 1.444 sec
+
+RED Diff: 9; White diff: 5
+RED
+Red time: 1.196 sec; White Time: 1.146 sec
+
+RED Diff: 9; White diff: 6
+RED
+Red time: 1.661 sec; White Time: 1.454 sec
+
+RED Diff: 9; White diff: 7
+RED
+Red time: 2.456 sec; White Time: 2.181 sec
+
+RED Diff: 9; White diff: 8
+WHITE
+Red time: 2.851 sec; White Time: 1.834 sec
+
+RED Diff: 9; White diff: 9
+RED
+Red time: 1.389 sec; White Time: 1.222 sec
+
+RED Diff: 9; White diff: 10
+RED
+Red time: 1.254 sec; White Time: 1.853 sec
+
+RED Diff: 9; White diff: 11
+RED
+Red time: 1.426 sec; White Time: 1.583 sec
+
+RED Diff: 9; White diff: 12
+RED
+Red time: 2.070 sec; White Time: 1.929 sec
+
+RED Diff: 10; White diff: 1
+Nobody
+Red time: 7.012 sec; White Time: 0.422 sec
+
+RED Diff: 10; White diff: 2
+RED
+Red time: 1.293 sec; White Time: 0.109 sec
+
+RED Diff: 10; White diff: 3
+RED
+Red time: 1.997 sec; White Time: 0.256 sec
+
+RED Diff: 10; White diff: 4
+RED
+Red time: 3.537 sec; White Time: 1.099 sec
+
+RED Diff: 10; White diff: 5
+RED
+Red time: 0.908 sec; White Time: 0.908 sec
+
+RED Diff: 10; White diff: 6
+RED
+Red time: 0.965 sec; White Time: 0.904 sec
+
+RED Diff: 10; White diff: 7
+RED
+Red time: 1.512 sec; White Time: 1.227 sec
+
+RED Diff: 10; White diff: 8
+RED
+Red time: 1.755 sec; White Time: 1.001 sec
+
+RED Diff: 10; White diff: 9
+RED
+Red time: 2.416 sec; White Time: 1.323 sec
+
+RED Diff: 10; White diff: 10
+WHITE
+Red time: 1.227 sec; White Time: 0.782 sec
+
+RED Diff: 10; White diff: 11
+RED
+Red time: 1.360 sec; White Time: 1.286 sec
+
+RED Diff: 10; White diff: 12
+RED
+Red time: 2.183 sec; White Time: 2.072 sec
+
+RED Diff: 11; White diff: 1
+WHITE
+Red time: 1.881 sec; White Time: 0.219 sec
+
+RED Diff: 11; White diff: 2
+WHITE
+Red time: 1.503 sec; White Time: 0.779 sec
+
+RED Diff: 11; White diff: 3
+RED
+Red time: 1.645 sec; White Time: 0.616 sec
+
+RED Diff: 11; White diff: 4
+WHITE
+Red time: 1.592 sec; White Time: 1.086 sec
+
+RED Diff: 11; White diff: 5
+RED
+Red time: 1.248 sec; White Time: 0.917 sec
+
+RED Diff: 11; White diff: 6
+RED
+Red time: 1.226 sec; White Time: 0.919 sec
+
+RED Diff: 11; White diff: 7
+RED
+Red time: 1.864 sec; White Time: 1.515 sec
+
+RED Diff: 11; White diff: 8
+WHITE
+Red time: 3.312 sec; White Time: 2.073 sec
+
+RED Diff: 11; White diff: 9
+RED
+Red time: 1.669 sec; White Time: 0.994 sec
+
+RED Diff: 11; White diff: 10
+WHITE
+Red time: 1.865 sec; White Time: 1.100 sec
+
+RED Diff: 11; White diff: 11
+RED
+Red time: 1.486 sec; White Time: 1.241 sec
+
+RED Diff: 11; White diff: 12
+RED
+Red time: 1.996 sec; White Time: 2.065 sec
+
+RED Diff: 12; White diff: 1
+RED
+Red time: 2.699 sec; White Time: 0.079 sec
+
+RED Diff: 12; White diff: 2
+Nobody
+Red time: 3.331 sec; White Time: 0.695 sec
+
+RED Diff: 12; White diff: 3
+RED
+Red time: 3.020 sec; White Time: 0.315 sec
+
+RED Diff: 12; White diff: 4
+RED
+Red time: 1.430 sec; White Time: 1.095 sec
+
+RED Diff: 12; White diff: 5
+RED
+Red time: 2.114 sec; White Time: 0.688 sec
+
+RED Diff: 12; White diff: 6
+RED
+Red time: 1.683 sec; White Time: 0.898 sec
+
+RED Diff: 12; White diff: 7
+RED
+Red time: 2.033 sec; White Time: 1.310 sec
+
+RED Diff: 12; White diff: 8
+RED
+Red time: 1.023 sec; White Time: 0.921 sec
+
+RED Diff: 12; White diff: 9
+RED
+Red time: 3.290 sec; White Time: 1.218 sec
+
+RED Diff: 12; White diff: 10
+WHITE
+Red time: 1.158 sec; White Time: 0.928 sec
+
+RED Diff: 12; White diff: 11
+RED
+Red time: 1.721 sec; White Time: 1.271 sec
+
+RED Diff: 12; White diff: 12
+RED
+Red time: 2.463 sec; White Time: 2.144 sec
+
+RED Diff: 0; White diff: 1
+WHITE
+Red time: 0.003 sec; White Time: 0.034 sec
+
+RED Diff: 0; White diff: 2
+WHITE
+Red time: 0.006 sec; White Time: 0.149 sec
+
+RED Diff: 0; White diff: 1
+WHITE
+Red time: 0.002 sec; White Time: 0.029 sec
+
+RED Diff: 0; White diff: 2
+WHITE
+Red time: 0.000 sec; White Time: 0.117 sec
+
+RED Diff: 0; White diff: 1
+WHITE
+Red time: 0.007 sec; White Time: 0.121 sec
+
+RED Diff: 0; White diff: 2
+WHITE
+Red time: 0.008 sec; White Time: 0.655 sec
+
+RED Diff: 0; White diff: 1
+WHITE
+Red time: 0.012 sec; White Time: 0.082 sec
+
+RED Diff: 0; White diff: 2
+WHITE
+Red time: 0.004 sec; White Time: 0.460 sec
+
+RED Diff: 0; White diff: 3
+WHITE
+Red time: 0.002 sec; White Time: 1.226 sec
+
+RED Diff: 0; White diff: 1
+RED
+Red time: 0.006 sec; White Time: 0.034 sec
+
+RED Diff: 0; White diff: 2
+RED
+Red time: 0.005 sec; White Time: 0.142 sec
+
+RED Diff: 0; White diff: 3
+RED
+Red time: 0.002 sec; White Time: 0.300 sec
+
+RED Diff: 0; White diff: 4
+WHITE
+Red time: 0.002 sec; White Time: 0.328 sec
+
+RED Diff: 0; White diff: 5
+WHITE
+Red time: 0.004 sec; White Time: 0.343 sec
+
+RED Diff: 0; White diff: 6
+WHITE
+Red time: 0.002 sec; White Time: 0.314 sec
+
+RED Diff: 0; White diff: 7
+RED
+Red time: 0.003 sec; White Time: 0.832 sec
+
+RED Diff: 0; White diff: 8
+WHITE
+Red time: 0.003 sec; White Time: 0.293 sec
+
+RED Diff: 0; White diff: 9
+RED
+Red time: 0.003 sec; White Time: 1.138 sec
+
+RED Diff: 0; White diff: 10
+WHITE
+Red time: 0.004 sec; White Time: 0.413 sec
+
+RED Diff: 0; White diff: 11
+WHITE
+Red time: 0.005 sec; White Time: 1.274 sec
+
+RED Diff: 0; White diff: 12
+RED
+Red time: 0.001 sec; White Time: 1.770 sec
+
+RED Diff: 1; White diff: 1
+Nobody
+Red time: 0.105 sec; White Time: 0.069 sec
+
+RED Diff: 1; White diff: 2
+WHITE
+Red time: 0.398 sec; White Time: 0.186 sec
+
+RED Diff: 1; White diff: 3
+WHITE
+Red time: 0.023 sec; White Time: 0.224 sec
+
+RED Diff: 1; White diff: 4
+WHITE
+Red time: 0.012 sec; White Time: 0.469 sec
+

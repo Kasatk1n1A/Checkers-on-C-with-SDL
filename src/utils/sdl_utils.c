@@ -12,6 +12,33 @@ void SDL_cleanup()
     SDL_Quit();  // Основная SDL библиотека
 }
 
+char* GetExecutableRelativePath(const char* relativePath) 
+{
+    // 1. Получаем базовый путь к директории исполняемого файла
+    char* basePath = SDL_GetBasePath();
+    if (!basePath) {
+        fprintf(stderr, "Error getting base path: %s\n", SDL_GetError());
+        return NULL;
+    }
+
+    // 2. Вычисляем необходимый размер буфера
+    size_t pathLength = strlen(basePath) + strlen(relativePath) + 1;
+    char* fullPath = (char*)malloc(pathLength);
+    if (!fullPath) {
+        fprintf(stderr, "Memory allocation failed\n");
+        SDL_free(basePath);
+        return NULL;
+    }
+
+    // 3. Формируем полный путь
+    snprintf(fullPath, pathLength, "%s%s", basePath, relativePath);
+
+    // 4. Освобождаем временный буфер
+    SDL_free(basePath);
+
+    return fullPath;
+}
+
 bool sdl_initialize()
 {
     // Инициализация основных компонентов SDL
@@ -42,26 +69,32 @@ bool CreateWindow(Window* window)
 {
     // Создание окна приложения
     window->window = SDL_CreateWindow("Checkers", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    if (!window->window){
+    if (!window->window) {
         fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
         return true;  
     }
     
     // Создание рендерера для отрисовки
     window->renderer = SDL_CreateRenderer(window->window, -1, 0);
-    if (!window->renderer){
+    if (!window->renderer) {
         fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
         return true;  
     }
 
-    window->background = IMG_LoadTexture(window->renderer, "assets/images/Main/background.png");
-    if (!window->background){
-        fprintf(stderr, "Error creating Texture: %s\n", IMG_GetError());
+    // Формируем полный путь к текстуре
+    char* path = GetExecutableRelativePath("assets/images/Main/background.png");
+
+    // Загружаем текстуру
+    window->background = IMG_LoadTexture(window->renderer, path);
+    if (!window->background) {
+        fprintf(stderr, "Error loading texture '%s': %s\n", path, IMG_GetError());
         return true;
     }
+    free(path);
 
     return false;
 }
+
 
 void Window_cleanup(Window* window)
 {

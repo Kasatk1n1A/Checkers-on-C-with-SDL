@@ -8,7 +8,6 @@
 #include "../utils/sdl_utils.h"
 #include "../../include/core/ui_types.h"
 #include "../../include/core/Board_types.h"
-#include "texture_manager.h"
 #include "../core/saves.h"
 
 typedef struct

@@ -15,5 +15,6 @@ void SDL_cleanup();
 bool sdl_initialize();
 bool CreateWindow(Window* window);
 void Game_cleanup(Window* window, int exit_status);
+char* GetExecutableRelativePath(const char* relativePath);
 
 #endif

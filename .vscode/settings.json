@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "stdbool.h": "c",
-        "CHECKERS.C": "cpp"
+        "CHECKERS.C": "cpp",
+        "sdl_ttf.h": "c",
+        "texture_manager.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
