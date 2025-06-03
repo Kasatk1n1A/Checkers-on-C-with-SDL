@@ -499,7 +499,11 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
 }
 
 // Поиск лучшего хода
-Move* find_best_move(CH_Type** board, Player player, int maxDepth) {
+Move* find_best_move(CH_Type** board, Player player, int maxDepth)
+{
+    CH_Type** tmp_board = add_board();
+    CopyBoard(board, tmp_board);
+
     Move* bestMove = NULL;   // Лучший ход
     int bestValue = INT_MIN; // Его оценка
     Move* moves = generate_all_moves(board, player);
@@ -509,8 +513,6 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth) {
         return NULL;
     }
     
-    CH_Type** tmp_board = add_board();
-    CopyBoard(board, tmp_board);
     // Перебираем все возможные ходы
     Move* current = moves;
     while (current) 

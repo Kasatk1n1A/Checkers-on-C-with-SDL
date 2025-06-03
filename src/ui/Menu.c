@@ -47,9 +47,8 @@ void showMainMenu(Window* window)   //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                TTF_CloseFont(font);
-                FreeButtons(buttons, 5);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -96,6 +95,7 @@ void showMainMenu(Window* window)   //исправлены утечки
 
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0: SetDifficult(window); break;
         case 1: LoadGame(window); break;
         case 2: ShowLeaderBoard(window); break;
@@ -145,9 +145,8 @@ void SetDifficult(Window* window)   //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                TTF_CloseFont(font);
-                FreeButtons(buttons, 4);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -194,6 +193,9 @@ void SetDifficult(Window* window)   //исправлены утечки
 
     switch (selectedItem)
     {
+        case -1:
+            Game_cleanup(window, EXIT_SUCCESS);
+            break;
         case 0: 
             checkers(window, NULL, 1, 0, 0);
             break;
@@ -250,10 +252,8 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
             switch (event.type) 
             {
             case SDL_QUIT:
-                TTF_CloseFont(font);
-                FreeButtons(buttons, 3);
-                board_cleanup_SDL(CheckersBoard);
-                Game_cleanup(window, EXIT_SUCCESS);
+                selectedItem = -1;
+                running = false;
                 break;
             case SDL_MOUSEMOTION:
                 int x = event.motion.x;
@@ -298,6 +298,10 @@ void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info)  //исп
     
     switch (selectedItem)
     {
+        case -1:
+            board_cleanup_SDL(CheckersBoard);
+            Game_cleanup(window, EXIT_SUCCESS);
+            break;
         case 0: 
             CH_Type** board = CheckersBoard->board;
             CheckersBoard->board = NULL;
@@ -391,16 +395,8 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
             switch (event.type) 
             {
             case SDL_QUIT:
-                free(items);
-                TTF_CloseFont(font1);
-                TTF_CloseFont(font2);
-                TTF_CloseFont(font3);
-                FreeButtons(buttons, 1);
-                SDL_DestroyTexture(text_texture);
-                SDL_DestroyTexture(outline_texture);
-                SDL_DestroyTexture(Your_name_texture);
-                board_cleanup_SDL(CheckersBoard);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -473,6 +469,10 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
 
     switch (selectedItem)
     {
+        case -1:
+            board_cleanup_SDL(CheckersBoard);
+            Game_cleanup(window, EXIT_SUCCESS);
+            break;
         case 0: 
         case 1: SaveGame_InputText(window, CheckersBoard, info); break;
         case 2: ShowMiniMenu(window, CheckersBoard, info); break;
@@ -496,10 +496,11 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
     TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    TTF_Font* font4 = TTF_OpenFont(path1, 40);
     free(path1);
     free(path2);
     
-    if (!font1 || !font2 || !font3) 
+    if (!font1 || !font2 || !font3 || !font4) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
         return;
@@ -534,18 +535,28 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
 
     //Создание надписи о просьбе ввода
     TTF_SetFontOutline(font3, 2);
+    TTF_SetFontOutline(font4, 2);
     SDL_Surface* outline_surface = TTF_RenderText_Blended(font3, "Input save's name", Black);
+    SDL_Surface* SaveGame_outline_surface = TTF_RenderText_Blended(font4, "Press Enter to save", Black);
     TTF_SetFontOutline(font3, 0);
+    TTF_SetFontOutline(font4, 0);
     SDL_Surface* text_surface = TTF_RenderText_Blended(font3, "Input save's name", red);
+    SDL_Surface* SaveGame_inner_surface = TTF_RenderText_Blended(font4, "Press Enter to save", red);
     
     SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    SDL_Texture* SaveGame_outer_texture = SDL_CreateTextureFromSurface(renderer, SaveGame_outline_surface);
+    SDL_Texture* SaveGame_inner_texture = SDL_CreateTextureFromSurface(renderer, SaveGame_inner_surface);
 
     SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
     SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
+    SDL_Rect SaveGame_outer_rect = {SCREEN_WIDTH/2 - SaveGame_outline_surface->w / 2, 350, SaveGame_outline_surface->w, SaveGame_outline_surface->h};
+    SDL_Rect SaveGame_inner_rect = {SCREEN_WIDTH/2 - SaveGame_inner_surface->w / 2, 350, SaveGame_inner_surface->w, SaveGame_inner_surface->h};
 
     SDL_FreeSurface(outline_surface);
     SDL_FreeSurface(text_surface);
+    SDL_FreeSurface(SaveGame_outline_surface);
+    SDL_FreeSurface(SaveGame_inner_surface);
 
     bool running = true;
     int selectedItem = -1;
@@ -563,16 +574,8 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
             switch (event.type) 
             {
             case SDL_QUIT:
-                SDL_StopTextInput();
-                free(items);
-                TTF_CloseFont(font1);
-                TTF_CloseFont(font2);
-                TTF_CloseFont(font3);
-                FreeButtons(buttons, 1);
-                SDL_DestroyTexture(text_texture);
-                SDL_DestroyTexture(outline_texture);
-                board_cleanup_SDL(CheckersBoard);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -633,6 +636,9 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
         SDL_RenderCopy(renderer, outline_texture, NULL, &outline_rect);
         SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 
+        SDL_RenderCopy(renderer, SaveGame_outer_texture, NULL, &SaveGame_outer_rect);
+        SDL_RenderCopy(renderer, SaveGame_inner_texture, NULL, &SaveGame_inner_rect);
+
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &items[1].rect);
         
@@ -653,12 +659,19 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
     TTF_CloseFont(font1);
     TTF_CloseFont(font2);
     TTF_CloseFont(font3);
+    TTF_CloseFont(font4);
     FreeButtons(buttons, 1);
     SDL_DestroyTexture(text_texture);
     SDL_DestroyTexture(outline_texture);
+    SDL_DestroyTexture(SaveGame_outer_texture);
+    SDL_DestroyTexture(SaveGame_inner_texture);
 
     switch (selectedItem)
     {
+        case -1:
+            board_cleanup_SDL(CheckersBoard);
+            Game_cleanup(window, EXIT_SUCCESS);
+            break;
         case 2: 
             SDL_StopTextInput();
             ShowMiniMenu(window, CheckersBoard, info);
@@ -673,9 +686,13 @@ void LoadGame(Window* window)   //утечки исправлены
 {
     SDL_Renderer* renderer = window->renderer;
 
+    SDL_Color Black = {0, 0, 0, 255};
+    SDL_Color red = {255, 0, 0, 255};
+
     // Загрузка шрифта с увеличенным размером
     char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
+    TTF_Font* font2 = TTF_OpenFont(path1, 40);
     free(path1);
 
     if (!font1) 
@@ -689,6 +706,24 @@ void LoadGame(Window* window)   //утечки исправлены
     CreateTextButton(renderer, &buttons[0], font1, "Main menu", SCREEN_WIDTH/2,       800);
     CreateTextButton(renderer, &buttons[1], font1, "Prev",      SCREEN_WIDTH/2 - 290, 400);
     CreateTextButton(renderer, &buttons[2], font1, "Next",      SCREEN_WIDTH/2 + 280, 400);
+
+//--------------
+    //Создание текста "Click on save to select"
+    TTF_SetFontOutline(font2, 2);
+    SDL_Surface* Select_outline_surface = TTF_RenderText_Blended(font2, "Click on save to select", Black);
+    TTF_SetFontOutline(font2, 0);
+    SDL_Surface* Select_inner_surface = TTF_RenderText_Blended(font2, "Click on save to select", red);
+    
+    SDL_Texture* Select_outer_texture = SDL_CreateTextureFromSurface(renderer, Select_outline_surface);
+    SDL_Texture* Select_inner_texture = SDL_CreateTextureFromSurface(renderer, Select_inner_surface);
+
+    SDL_Rect Select_outer_rect = {SCREEN_WIDTH/2 - Select_outline_surface->w / 2, 55, Select_outline_surface->w, Select_outline_surface->h};
+    SDL_Rect Select_inner_rect = {SCREEN_WIDTH/2 - Select_inner_surface->w / 2, 55, Select_inner_surface->w, Select_inner_surface->h};
+
+    SDL_FreeSurface(Select_outline_surface);
+    SDL_FreeSurface(Select_inner_surface);
+
+//---------------
 
     //Создание фона для столбца сохранений
     SDL_Rect inner_square_rect = {575, 100, 250, 630};
@@ -712,10 +747,8 @@ void LoadGame(Window* window)   //утечки исправлены
             switch (event.type) 
             {
             case SDL_QUIT:
-                TTF_CloseFont(font1);
-                free_saves(Saves_name);
-                FreeButtons(buttons, 3);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -767,6 +800,9 @@ void LoadGame(Window* window)   //утечки исправлены
         
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, window->background, NULL, NULL);
+
+        SDL_RenderCopy(renderer, Select_outer_texture, NULL, &Select_outer_rect);
+        SDL_RenderCopy(renderer, Select_inner_texture, NULL, &Select_inner_rect);
         
         for (int i = 0; i < 3; i++)
             renderButton(renderer, &buttons[i]);
@@ -787,11 +823,15 @@ void LoadGame(Window* window)   //утечки исправлены
     }
 
     TTF_CloseFont(font1);
+    TTF_CloseFont(font2);
     free_saves(Saves_name);
     FreeButtons(buttons, 3);
+    SDL_DestroyTexture(Select_outer_texture);
+    SDL_DestroyTexture(Select_inner_texture);
     
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0: showMainMenu(window); break;
         case 1: //выбор сохранения
             char* Save_name = read_save((page - 1) * 20 + save_choice);
@@ -853,12 +893,8 @@ void LoseMenu(Window* window)   //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                TTF_CloseFont(font1);
-                TTF_CloseFont(font2);
-                FreeButtons(buttons, 1);
-                SDL_DestroyTexture(text_texture);
-                SDL_DestroyTexture(outline_texture);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -905,6 +941,7 @@ void LoseMenu(Window* window)   //исправлены утечки
 
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0: showMainMenu(window); break;
         default: Game_cleanup(window, EXIT_FAILURE); break;
     }
@@ -973,15 +1010,8 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                free(items);
-                TTF_CloseFont(font1);
-                TTF_CloseFont(font2);
-                TTF_CloseFont(font3);
-                FreeButtons(buttons, 1);
-                SDL_DestroyTexture(text_texture);
-                SDL_DestroyTexture(outline_texture);
-                SDL_DestroyTexture(Your_name_texture);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -1053,6 +1083,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
 
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0:
         case 1:
             if (WinMenu_InputText(window, info)) 
@@ -1078,9 +1109,11 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
     TTF_Font* font3 = TTF_OpenFont(path1, 100);
+    TTF_Font* font4 = TTF_OpenFont(path1, 40);
+    
     free(path1);
     free(path2);
-    if (!font1 || !font2 || !font3) 
+    if (!font1 || !font2 || !font3 || !font4) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
         return 0;
@@ -1100,18 +1133,28 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
 //-----------
     //Создание надписи о победе
     TTF_SetFontOutline(font3, 2);
+    TTF_SetFontOutline(font4, 2);
     SDL_Surface* outline_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", Black);
+    SDL_Surface* SaveGame_outline_surface = TTF_RenderText_Blended(font4, "Press Enter to save", Black);
     TTF_SetFontOutline(font3, 0);
+    TTF_SetFontOutline(font4, 0);
     SDL_Surface* text_surface = TTF_RenderText_Blended(font3, "YOU WIIIIIIIIN!!!", red);
+    SDL_Surface* SaveGame_inner_surface = TTF_RenderText_Blended(font4, "Press Enter to save", red);
 
     SDL_Texture* outline_texture = SDL_CreateTextureFromSurface(renderer, outline_surface);
     SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+    SDL_Texture* SaveGame_outer_texture = SDL_CreateTextureFromSurface(renderer, SaveGame_outline_surface);
+    SDL_Texture* SaveGame_inner_texture = SDL_CreateTextureFromSurface(renderer, SaveGame_inner_surface);
 
     SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
     SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
+    SDL_Rect SaveGame_outer_rect = {SCREEN_WIDTH/2 - SaveGame_outline_surface->w / 2, 350, SaveGame_outline_surface->w, SaveGame_outline_surface->h};
+    SDL_Rect SaveGame_inner_rect = {SCREEN_WIDTH/2 - SaveGame_inner_surface->w / 2, 350, SaveGame_inner_surface->w, SaveGame_inner_surface->h};
 
     SDL_FreeSurface(outline_surface);
     SDL_FreeSurface(text_surface);
+    SDL_FreeSurface(SaveGame_outline_surface);
+    SDL_FreeSurface(SaveGame_inner_surface);
 //-----------
 
     bool running = true;
@@ -1130,15 +1173,8 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
             switch (event.type) 
             {
             case SDL_QUIT:
-                SDL_StopTextInput();
-                free(items);
-                TTF_CloseFont(font1);
-                TTF_CloseFont(font2);
-                TTF_CloseFont(font3);
-                FreeButtons(buttons, 1);
-                SDL_DestroyTexture(outline_texture);
-                SDL_DestroyTexture(text_texture);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -1199,6 +1235,9 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
         SDL_RenderCopy(renderer, outline_texture, NULL, &outline_rect);
         SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 
+        SDL_RenderCopy(renderer, SaveGame_outer_texture, NULL, &SaveGame_outer_rect);
+        SDL_RenderCopy(renderer, SaveGame_inner_texture, NULL, &SaveGame_inner_rect);
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(renderer, &items[1].rect);
         
@@ -1219,12 +1258,16 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
     TTF_CloseFont(font1);
     TTF_CloseFont(font2);
     TTF_CloseFont(font3);
+    TTF_CloseFont(font4);
     FreeButtons(buttons, 1);
     SDL_DestroyTexture(outline_texture);
     SDL_DestroyTexture(text_texture);
+    SDL_DestroyTexture(SaveGame_outer_texture);
+    SDL_DestroyTexture(SaveGame_inner_texture);
 
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 1: showMainMenu(window); break;
         default: Game_cleanup(window, EXIT_FAILURE); break;
     }
@@ -1271,11 +1314,8 @@ void ShowAbout(Window* window)  //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                free(items);
-                FreeButtons(button, 1);
-                free_about(About);
-                TTF_CloseFont(font);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -1327,6 +1367,7 @@ void ShowAbout(Window* window)  //исправлены утечки
 
     switch (selectedItem)
     {
+        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0: showMainMenu(window); break;
         default: Game_cleanup(window, EXIT_FAILURE); break;
     }
@@ -1436,13 +1477,8 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
             switch (event.type) 
             {
             case SDL_QUIT:
-                free(items);
-                TTF_CloseFont(font);
-                FreeButtons(buttons, 1);
-                free_leaders(easyLeaders);
-                free_leaders(mediumLeaders);
-                free_leaders(hardLeaders);
-                Game_cleanup(window, EXIT_SUCCESS);
+                running = false;
+                selectedItem = -1;
                 break;
 
             case SDL_MOUSEMOTION:
@@ -1499,6 +1535,7 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
 
     switch (selectedItem)
     {
+        case 1: Game_cleanup(window, EXIT_SUCCESS); break;
         case 0: showMainMenu(window); return;
         default: Game_cleanup(window, EXIT_FAILURE); break;
     }
