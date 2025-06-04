@@ -9,6 +9,7 @@
 #include "../../include/core/ui_types.h"
 #include "../../include/core/Board_types.h"
 #include "../core/saves.h"
+#include <pthread.h>
 
 typedef struct
 {

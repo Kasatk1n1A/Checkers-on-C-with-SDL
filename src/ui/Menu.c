@@ -332,10 +332,10 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
 
     // Загрузка шрифта с увеличенным размером
     char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
-    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
-    TTF_Font* font3 = TTF_OpenFont(path1, 100);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
+    TTF_Font* font3 = TTF_OpenFont(path1, 100);
     free(path1);
     free(path2);
 
@@ -377,6 +377,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
 
     SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
     SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
+    SDL_Rect Your_name_rect = {SCREEN_WIDTH/2 - Your_name_surface->w / 2, 400, Your_name_surface->w, Your_name_surface->h};
 
     SDL_FreeSurface(outline_surface);
     SDL_FreeSurface(text_surface);
@@ -449,7 +450,7 @@ void SaveGame(Window* window, Board* CheckersBoard, GameInfo info)  //испра
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &items[0].rect);
 
-        SDL_RenderCopy(renderer, Your_name_texture, NULL, &items[0].rect);
+        SDL_RenderCopy(renderer, Your_name_texture, NULL, &Your_name_rect);
 
         SDL_RenderPresent(renderer);
 
@@ -492,7 +493,7 @@ void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info)    
 
     // Загрузка шрифта с увеличенным размером
     char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
-    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
     TTF_Font* font3 = TTF_OpenFont(path1, 100);
@@ -956,7 +957,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
 
     // Загрузка шрифта с увеличенным размером
     char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
-    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
     TTF_Font* font3 = TTF_OpenFont(path1, 100);
@@ -992,6 +993,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
 
     SDL_Rect outline_rect = {SCREEN_WIDTH/2 - outline_surface->w / 2, 200, outline_surface->w, outline_surface->h};
     SDL_Rect text_rect = {SCREEN_WIDTH/2 - text_surface->w / 2, 200, text_surface->w, text_surface->h};
+    SDL_Rect Your_name_rect = {SCREEN_WIDTH/2 - Your_name_surface->w / 2, 400, Your_name_surface->w, Your_name_surface->h};
 
     SDL_FreeSurface(outline_surface);
     SDL_FreeSurface(text_surface);
@@ -1063,7 +1065,7 @@ void WinMenu(Window* window, GameInfo info) //исправлены утечки
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &items[0].rect);
 
-        SDL_RenderCopy(renderer, Your_name_texture, NULL, &items[0].rect);
+        SDL_RenderCopy(renderer, Your_name_texture, NULL, &Your_name_rect);
 
         SDL_RenderPresent(renderer);
 
@@ -1105,7 +1107,7 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
 
     // Загрузка шрифта с увеличенным размером
     char* path1 = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
-    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font1 = TTF_OpenFont(path1, FONT_SIZE);
     TTF_Font* font2 = TTF_OpenFont(path2, 80);
     TTF_Font* font3 = TTF_OpenFont(path1, 100);
@@ -1293,8 +1295,8 @@ void ShowAbout(Window* window)  //исправлены утечки
 
     // Пункты меню с увеличенными размерами и отступами
     MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
-    items[0].rect.x = 195; items[0].rect.y = 195; items[0].rect.h = 610; items[0].rect.w = 1010;
-    items[1].rect.x = 200; items[1].rect.y = 200; items[1].rect.h = 600; items[1].rect.w = 1000;
+    items[0].rect.x = 185; items[0].rect.y = 195; items[0].rect.h = 280; items[0].rect.w = 1030;
+    items[1].rect.x = 190; items[1].rect.y = 200; items[1].rect.h = 270; items[1].rect.w = 1020;
 
     Button* button = (Button*)malloc(sizeof(Button));
     CreateTextButton(renderer, button, font, "Main menu", SCREEN_WIDTH/2, 820);
@@ -1385,7 +1387,7 @@ void free_about(about* About)
 about* CreateAboutText(SDL_Renderer* renderer)
 {
     SDL_Color Black = {0, 0, 0, 255};
-    char* path = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font = TTF_OpenFont(path, 30);
     free(path);
 
@@ -1396,28 +1398,41 @@ about* CreateAboutText(SDL_Renderer* renderer)
     for (int i = 0; i < 20; i++)
     {
         About->text_arr[i] = NULL;
-        About->rect_arr[i].x = 200; About->rect_arr[i].y = 200 + i * 30;
+        About->rect_arr[i].x = 190; About->rect_arr[i].y = 200 + i * 30;
     }
 
-    SDL_Surface* text = TTF_RenderText_Blended(font, "The work was performed by 1st year students of Peter the Great", Black);
+    SDL_Surface* text = TTF_RenderText_Blended(font, "Developers: Kasatkin I.A & Shevchenko A.A.", Black);
     About->rect_arr[0].w = text->w; About->rect_arr[0].h = text->h;
     About->text_arr[0] = SDL_CreateTextureFromSurface(renderer, text);
     SDL_FreeSurface(text);
 
-    text = TTF_RenderText_Blended(font, "St. Petersburg University, Institute of Computer Science and", Black);
+    text = TTF_RenderText_Blended(font, "Educational Institution:", Black);
     About->rect_arr[1].w = text->w; About->rect_arr[1].h = text->h;
     About->text_arr[1] = SDL_CreateTextureFromSurface(renderer, text);
     SDL_FreeSurface(text);
 
-    text = TTF_RenderText_Blended(font, "Cybersecurity, Department of Information Security, Lena Golovach", Black);
+    text = TTF_RenderText_Blended(font, "Peter the Great St. Petersburg Polytechnic University (SPbPU)", Black);
     About->rect_arr[2].w = text->w; About->rect_arr[2].h = text->h;
     About->text_arr[2] = SDL_CreateTextureFromSurface(renderer, text);
     SDL_FreeSurface(text);
 
-    text = TTF_RenderText_Blended(font, "and Panki HOY!", Black);
+    text = TTF_RenderText_Blended(font, "Institute: ICSK (Institute of Computer Science and Cybersecurity)", Black);
     About->rect_arr[3].w = text->w; About->rect_arr[3].h = text->h;
     About->text_arr[3] = SDL_CreateTextureFromSurface(renderer, text);
     SDL_FreeSurface(text);
+
+    text = TTF_RenderText_Blended(font, "Group: 5131001/40001", Black);
+    About->rect_arr[4].w = text->w; About->rect_arr[4].h = text->h;
+    About->text_arr[4] = SDL_CreateTextureFromSurface(renderer, text);
+    SDL_FreeSurface(text);
+
+    text = TTF_RenderText_Blended(font, "Reference:", Black);
+    About->rect_arr[7].w = text->w; About->rect_arr[7].h = text->h;
+    About->text_arr[7] = SDL_CreateTextureFromSurface(renderer, text);
+
+    text = TTF_RenderText_Blended(font, "To stop taking and end the turn, press the Enter.", Black);
+    About->rect_arr[8].w = text->w; About->rect_arr[8].h = text->h;
+    About->text_arr[8] = SDL_CreateTextureFromSurface(renderer, text);
 
     TTF_CloseFont(font);
 
@@ -1446,20 +1461,20 @@ void ShowLeaderBoard(Window* window)    //исправлены утечки
     // Пункты меню с увеличенными размерами и отступами
     MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 6);
 
-    items[0].rect.x = 100;  items[0].rect.y = 100;  items[0].rect.h = 630; items[0].rect.w = 250;
-    items[1].rect.x = 575;  items[1].rect.y = 100;  items[1].rect.h = 630; items[1].rect.w = 250;
-    items[2].rect.x = 1050; items[2].rect.y = 100;  items[2].rect.h = 630; items[2].rect.w = 250;
+    items[0].rect.x = 100;  items[0].rect.y = 100;  items[0].rect.h = 630; items[0].rect.w = 255;
+    items[1].rect.x = 575;  items[1].rect.y = 100;  items[1].rect.h = 630; items[1].rect.w = 255;
+    items[2].rect.x = 1050; items[2].rect.y = 100;  items[2].rect.h = 630; items[2].rect.w = 255;
 
-    items[3].rect.x = 95;   items[3].rect.y = 95;   items[3].rect.h = 640; items[3].rect.w = 260;
-    items[4].rect.x = 570;  items[4].rect.y = 95;   items[4].rect.h = 640; items[4].rect.w = 260;
-    items[5].rect.x = 1045; items[5].rect.y = 95;   items[5].rect.h = 640; items[5].rect.w = 260;
+    items[3].rect.x = 95;   items[3].rect.y = 95;   items[3].rect.h = 640; items[3].rect.w = 265;
+    items[4].rect.x = 570;  items[4].rect.y = 95;   items[4].rect.h = 640; items[4].rect.w = 265;
+    items[5].rect.x = 1045; items[5].rect.y = 95;   items[5].rect.h = 640; items[5].rect.w = 265;
 
     SDL_Rect inner_rect[3] = {items[0].rect, items[1].rect, items[2].rect};
     SDL_Rect outer_rect[3] = {items[3].rect, items[4].rect, items[5].rect};
 
-    leader* easyLeaders = read_leaders(renderer, 1, items[1].rect.x, items[1].rect.y);
-    leader* mediumLeaders = read_leaders(renderer, 2, items[2].rect.x, items[2].rect.y);
-    leader* hardLeaders = read_leaders(renderer, 3, items[3].rect.x, items[3].rect.y);
+    leader* easyLeaders = read_leaders(renderer,    1, items[0].rect.x, items[0].rect.y);
+    leader* mediumLeaders = read_leaders(renderer,  2, items[1].rect.x, items[1].rect.y);
+    leader* hardLeaders = read_leaders(renderer,    3, items[2].rect.x, items[2].rect.y);
 
     Button* buttons = (Button*)malloc(sizeof(Button));
     CreateTextButton(renderer, buttons, font, "Main menu", SCREEN_WIDTH/2, 800);
@@ -1556,7 +1571,7 @@ leader* read_leaders(SDL_Renderer* renderer, int type, int x, int y)
 {
     FILE* file;
     char* path1 = NULL;
-    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    char* path2 = GetExecutableRelativePath("assets/fonts/courier-normal.ttf");
     TTF_Font* font = TTF_OpenFont(path2, 30);
 
     if (type == 1) path1 = GetExecutableRelativePath("saves/leaderboard/easy board.txt");

@@ -4,13 +4,15 @@ void SaveGame_file(char* str, CH_Type** board, GameInfo info)
 {
     char save_name[100] = "saves/";
     strcat(save_name, str);
+    char* path = GetExecutableRelativePath(save_name);
 
-    FILE* save_file = fopen(save_name, "w");
+    FILE* save_file = fopen(path, "w");
     if (!save_file)
     {
         fprintf(stderr, "Error with open file \"%s\"", save_name);
         return;
     }
+    free(path);
 
     fprintf(save_file, "Save name: %s\n", str);
     fprintf(save_file, "Time: %.3f sec\n", info.Time);
@@ -28,18 +30,20 @@ void SaveGame_file(char* str, CH_Type** board, GameInfo info)
     }
     fclose(save_file);
 
-    FILE* kakmenyaetozaebalo = fopen("saves/saves_name.txt", "a");
+    path = GetExecutableRelativePath("saves/saves_name.txt");
+    FILE* sigma = fopen(path, "a");
     str[strlen(str)] = '\n';
-    fputs(str, kakmenyaetozaebalo);
-    fclose(kakmenyaetozaebalo);
+    fputs(str, sigma);
+    fclose(sigma);
+    free(path);
 }
 
 int SaveForLeaderBoard(char* name, GameInfo info)
 {
-    const char* filename;
-    if (info.difficult == 1) filename = "saves/leaderboard/easy board.txt";
-    else if (info.difficult == 3) filename = "saves/leaderboard/medium board.txt";
-    else filename = "saves/leaderboard/hard board.txt";
+    char* filename;
+    if (info.difficult == 1) filename = GetExecutableRelativePath("saves/leaderboard/easy board.txt");
+    else if (info.difficult == 3) filename = GetExecutableRelativePath("saves/leaderboard/medium board.txt");
+    else filename = GetExecutableRelativePath("saves/leaderboard/hard board.txt");
     
     // Открываем файл для чтения (если он существует)
     FILE* file = fopen(filename, "r");
@@ -77,7 +81,7 @@ int SaveForLeaderBoard(char* name, GameInfo info)
     bool inserted = false;
     file = fopen(filename, "w");
     if (!file) {
-        perror("Failed to open leaderboard for writing");
+        fprintf(stderr, "Failed to open leaderboard for writing");
         goto cleanup;
     }
 
@@ -94,11 +98,7 @@ int SaveForLeaderBoard(char* name, GameInfo info)
         }
     }
 
-    // Если не вставили (все записи лучше), добавляем в конец
-    if (!inserted && entry_count < 20) {
-        fprintf(file, "%s\n", new_entry);
-    }
-
+    free(filename);
     fclose(file);
 
 cleanup:
@@ -125,7 +125,8 @@ void load_from_save(Window* window, char* str)
     char save_name[100] = "saves/";
     strcat(save_name, str);
 
-    FILE* save_file = fopen(save_name, "r");
+    char* path = GetExecutableRelativePath(save_name);
+    FILE* save_file = fopen(path, "r");
     if (!save_file)
     {
         fprintf(stderr, "Error with open file \"%s\": No such file", save_name);
@@ -150,6 +151,7 @@ void load_from_save(Window* window, char* str)
 
     fclose(save_file);
     remove(save_name);
+    free(path);
     free(str);   
 
     checkers(window, board, difficult, Total, player);
@@ -157,13 +159,16 @@ void load_from_save(Window* window, char* str)
 
 int delete_line_from_file(const char *filename, int line_to_delete) 
 {
+    char* path1 = GetExecutableRelativePath(filename);
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("Failed to open file for reading");
         return -1;
     }
+    free(path1);
 
     // Создаем временный файл
+    // char* path2 = GetExecutableRelativePath()
     FILE *temp_file = fopen("temp.txt", "w");
     if (temp_file == NULL) {
         perror("Failed to create temporary file");
@@ -197,12 +202,12 @@ int delete_line_from_file(const char *filename, int line_to_delete)
 
     // Заменяем оригинальный файл временным
     if (remove(filename) != 0) {
-        perror("Failed to remove original file");
+        fprintf(stderr, "Failed to remove original file");
         return -1;
     }
 
     if (rename("temp.txt", filename) != 0) {
-        perror("Failed to rename temporary file");
+        fprintf(stderr, "Failed to rename temporary file");
         return -1;
     }
 
@@ -211,8 +216,10 @@ int delete_line_from_file(const char *filename, int line_to_delete)
 
 save* read_saves(SDL_Renderer* renderer, int page)
 {
-    FILE* file = fopen("saves/saves_name.txt", "r");
-    TTF_Font* font = TTF_OpenFont("assets/fonts/freesansbold.ttf", 30);
+    char* path1 = GetExecutableRelativePath("saves/saves_name.txt");
+    char* path2 = GetExecutableRelativePath("assets/fonts/freesansbold.ttf");
+    FILE* file = fopen(path1, "r");
+    TTF_Font* font = TTF_OpenFont(path2, 30);
     SDL_Color Black = {0, 0, 0, 255};
 
     save* saves_names = (save*)malloc(sizeof(save) * 21);
@@ -254,6 +261,8 @@ save* read_saves(SDL_Renderer* renderer, int page)
         SDL_FreeSurface(Name_surface);
     }
     
+    free(path1);
+    free(path2);
     TTF_CloseFont(font);
     fclose(file);
     free(Name);
@@ -263,7 +272,8 @@ save* read_saves(SDL_Renderer* renderer, int page)
 
 int count_paragraphs(void)
 {
-    FILE *file = fopen("saves/saves_name.txt", "r");
+    char* path = GetExecutableRelativePath("saves/saves_name.txt");
+    FILE *file = fopen(path, "r");
     if (file == NULL) {
         perror("Failed to open file");
         return -1;
@@ -299,6 +309,7 @@ int count_paragraphs(void)
         paragraph_count++;
     }
 
+    free(path);
     fclose(file);
     printf("%d\n", paragraph_count);
     return paragraph_count; // Минимум 1 абзац
@@ -307,13 +318,15 @@ int count_paragraphs(void)
 char* read_save(int name_count)
 {
     char* Name = (char*)malloc(sizeof(char) * 20);
-    FILE* file = fopen("saves/saves_name.txt", "r");
+    char* path = GetExecutableRelativePath("saves/saves_name.txt");
+    FILE* file = fopen(path, "r");
 
     for (int i = 0; i < name_count; i++)
         fgets(Name, 20, file);
     Name[strlen(Name) - 1] = '\0';
         
     fclose(file);
+    free(path);
     
     delete_line_from_file("saves/saves_name.txt", name_count);
 
