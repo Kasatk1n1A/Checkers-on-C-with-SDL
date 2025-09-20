@@ -44,13 +44,13 @@ typedef struct
 
 void selectMenu(Window* window);
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);
-void SetDifficult(Window* window);
-void showMainMenu(Window* window);
+void SetDifficult(void);
+void showMainMenu(void);
 
 void SaveGame(Window* window, Board* CheckersBoard, GameInfo info);
 void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info);
 
-void LoadGame(Window* window);
+void LoadGame(void);
 void LoadGame_InputText(Window* window);
 
 void LoseMenu(Window* window);
