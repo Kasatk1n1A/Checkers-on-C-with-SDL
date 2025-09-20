@@ -58,7 +58,7 @@ void WinMenu(Window* window, GameInfo info);
 int WinMenu_InputText(Window* window, GameInfo info);
 
 void free_about(about* About);
-void ShowAbout(Window* window);
+void ShowAbout(void);
 about* CreateAboutText(SDL_Renderer* renderer);
 
 void free_leaders(leader* leaders);

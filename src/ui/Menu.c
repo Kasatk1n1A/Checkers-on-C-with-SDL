@@ -61,6 +61,7 @@ void selectMenu(Window* _window)
         case Win_menu_input_text:
             break;
         case Show_about:
+            ShowAbout();
             break;
         case Show_leaderboard:
             break;
@@ -1343,32 +1344,34 @@ int WinMenu_InputText(Window* window, GameInfo info) //исправлены ут
 
 //----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$----------$$$$$$$$$$
 
-void ShowAbout(Window* window)  //исправлены утечки
+void ShowAbout(void)  //исправлены утечки
 {
-    SDL_Renderer* renderer = window->renderer;
-
     // Загрузка шрифта с увеличенным размером
     char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
     TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
-    free(path);
+    MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
+    Button* button = (Button*)malloc(sizeof(Button));
+    bool running = true;
+    int selectedItem = -1;
+
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        return;
+        running = false;
+    }
+    if (!items || !button)
+    {
+        fprintf(stderr, "Failed to allocate memory\n");
+        running = false;
     }
 
     // Пункты меню с увеличенными размерами и отступами
-    MenuItem* items = (MenuItem*)malloc(sizeof(MenuItem) * 2);
     items[0].rect.x = 185; items[0].rect.y = 195; items[0].rect.h = 280; items[0].rect.w = 1030;
     items[1].rect.x = 190; items[1].rect.y = 200; items[1].rect.h = 270; items[1].rect.w = 1020;
 
-    Button* button = (Button*)malloc(sizeof(Button));
     CreateTextButton(renderer, button, font, "Main menu", SCREEN_WIDTH/2, 820);
 
     about* About = CreateAboutText(renderer);
-
-    bool running = true;
-    int selectedItem = -1;
 
     while (running) 
     {
@@ -1426,6 +1429,7 @@ void ShowAbout(Window* window)  //исправлены утечки
         SDL_Delay(1000/FPS - frameTime);
     }
 
+    free(path);
     free(items);
     FreeButtons(button, 1);
     free_about(About);
@@ -1433,9 +1437,9 @@ void ShowAbout(Window* window)  //исправлены утечки
 
     switch (selectedItem)
     {
-        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
-        case 0: showMainMenu(); break;
-        default: Game_cleanup(window, EXIT_FAILURE); break;
+        case 0: Menu = Main_menu; break;
+        case -1: 
+        default: Menu = End_game; break;
     }
 }
 
