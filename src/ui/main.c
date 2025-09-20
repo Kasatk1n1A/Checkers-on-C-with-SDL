@@ -13,7 +13,7 @@ int main(void)
     if (CreateWindow(window))
         Game_cleanup(window, EXIT_FAILURE);
 
-    showMainMenu(window);
+    selectMenu(window);
 
     Game_cleanup(window, EXIT_SUCCESS);
 

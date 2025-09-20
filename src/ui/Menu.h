@@ -42,6 +42,7 @@ typedef struct
     SDL_Texture* out_texture;
 } Button;
 
+void selectMenu(Window* window);
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);
 void SetDifficult(Window* window);
 void showMainMenu(Window* window);

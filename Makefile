@@ -10,9 +10,9 @@ BIN_DIR = bin
 
 # Исходные файлы
 SRCS = $(wildcard $(SRC_DIR)/*.c) \
-       $(wildcard $(SRC_DIR)/core/*.c) \
-       $(wildcard $(SRC_DIR)/ui/*.c) \
-       $(wildcard $(SRC_DIR)/utils/*.c)
+	$(wildcard $(SRC_DIR)/core/*.c) \
+	$(wildcard $(SRC_DIR)/ui/*.c) \
+	$(wildcard $(SRC_DIR)/utils/*.c)
 
 # Объектные файлы
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))

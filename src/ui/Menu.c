@@ -6,42 +6,100 @@
 #define FONT_SIZE 72  // Увеличенный размер шрифта
 #define FPS 60
 
+enum Menu_type
+{
+    Main_menu,
+    Set_diffictult,
+    Mini_menu,
+    Save_game,
+    Save_game_input_text,
+    Load_game,
+    Lose_menu,
+    Win_menu,
+    Win_menu_input_text,
+    Show_about,
+    Show_leaderboard,
+    End_game
+};
+
+static enum Menu_type Menu;
+static SDL_Texture* background;
+static SDL_Renderer* renderer;
+
+void selectMenu(Window* window)
+{
+    bool running = true;
+    background = window->background;
+    renderer = window->renderer;
+    Menu = Main_menu;
+
+    while (running)
+    {
+        switch (Menu)
+        {
+        case Main_menu:
+            showMainMenu(window);
+            break;    
+        case Set_diffictult:
+            break;
+        case Mini_menu:
+            break;
+        case Save_game:
+            break;
+        case Save_game_input_text:
+            break;
+        case Load_game:
+            break;
+        case Lose_menu:
+            break;
+        case Win_menu:
+            break;
+        case Win_menu_input_text:
+            break;
+        case Show_about:
+            break;
+        case Show_leaderboard:
+            break;
+        case End_game:
+        default:
+            running = false;
+            break;
+        }
+    }
+}
+
 void showMainMenu(Window* window)   //исправлены утечки
 {
-    SDL_Renderer* renderer = window->renderer;
-
     // Загрузка шрифта с увеличенным размером
     char* path = GetExecutableRelativePath("assets/fonts/minecraft.ttf");
     TTF_Font* font = TTF_OpenFont(path, FONT_SIZE);
+    Button* buttons = (Button*)malloc(sizeof(Button) * 5);
+    int selectedItem = -1;
+    bool running = true;
+
     if (!font) 
     {
         fprintf(stderr, "Failed to load font: %s", TTF_GetError());
-        Game_cleanup(window, EXIT_FAILURE);
+        running = false;
     }
-    free(path);
-
-    //Создание кнопок меню    
-    Button* buttons = (Button*)malloc(sizeof(Button) * 5);
     if (!buttons)
     {
         fprintf(stderr, "Fail with memory!");
-        TTF_CloseFont(font);
-        Game_cleanup(window, EXIT_FAILURE);
+        running = false;
     }
+
+    //Создание кнопок меню    
     CreateTextButton(renderer, &buttons[0], font, "New game",   SCREEN_WIDTH/2, 200);
     CreateTextButton(renderer, &buttons[1], font, "Load game",  SCREEN_WIDTH/2, 300);
     CreateTextButton(renderer, &buttons[2], font, "Leaderboard",SCREEN_WIDTH/2, 400);
     CreateTextButton(renderer, &buttons[3], font, "About",      SCREEN_WIDTH/2, 500);
     CreateTextButton(renderer, &buttons[4], font, "Quit",       SCREEN_WIDTH/2, 600);
     
-    bool running = true;
-    int selectedItem = -1;
-
     while (running) 
     {
         Uint32 frameStart = SDL_GetTicks();
-
         SDL_Event event;
+
         while (SDL_PollEvent(&event)) 
         {
             switch (event.type) 
@@ -64,8 +122,10 @@ void showMainMenu(Window* window)   //исправлены утечки
                 
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                    for (int i = 0; i < 5; i++) {
-                        if (buttons[i].hovered) {
+                    for (int i = 0; i < 5; i++) 
+                    {
+                        if (buttons[i].hovered) 
+                        {
                             selectedItem = i;
                             running = false;
                             break;
@@ -78,7 +138,7 @@ void showMainMenu(Window* window)   //исправлены утечки
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, window->background, NULL, NULL);
+        SDL_RenderCopy(renderer, background, NULL, NULL);
 
         for (int i = 0; i < 5; i++) 
             renderButton(renderer, &buttons[i]);
@@ -90,18 +150,19 @@ void showMainMenu(Window* window)   //исправлены утечки
             SDL_Delay(1000/FPS - frameTime);
     }
 
+    free(path);
     TTF_CloseFont(font);
     FreeButtons(buttons, 5);
 
     switch (selectedItem)
     {
-        case -1: Game_cleanup(window, EXIT_SUCCESS); break;
-        case 0: SetDifficult(window); break;
-        case 1: LoadGame(window); break;
-        case 2: ShowLeaderBoard(window); break;
-        case 3: ShowAbout(window); break;
-        case 4: Game_cleanup(window, EXIT_SUCCESS); break;
-        default: Game_cleanup(window, EXIT_FAILURE); break;
+        case 0: Menu = Set_diffictult; break;
+        case 1: Menu = Load_game; break;
+        case 2: Menu = Show_leaderboard; break;
+        case 3: Menu = Show_about; break;
+        case -1:
+        case 4:
+        default: Menu = End_game; break;
     }
 }
 
