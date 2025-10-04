@@ -1,5 +1,7 @@
 #include "hash_table.h"
 
+#include <>
+
 static void swap(void* el1, void* el2);
 
 static struct Node* Node_create(const void* value);
@@ -86,14 +88,14 @@ void Rehash(struct HashTable* HT)
     free(arr2);
 }
 
-bool Find(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int))
+bool Find(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*))
 {
     int h1 = hash1(value, buffer_size); // значение, отвечающее за начальную позицию
     int h2 = hash2(value, buffer_size); // значение, ответственное за "шаг" по таблице
     int i = 0;
     while (arr[h1] != NULL && i < HT->buffer_size)
     {
-        if (arr[h1]->value == value && arr[h1]->state)
+        if (compare(arr[h1]->value, value) && arr[h1]->state)
             return true; // такой элемент есть
         h1 = (h1 + h2) % HT->buffer_size;
         ++i; // если у нас i >=  buffer_size, значит мы уже обошли абсолютно все ячейки, именно для этого мы считаем i, иначе мы могли бы зациклиться.
@@ -101,14 +103,14 @@ bool Find(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*has
     return false;
 }
 
-bool Remove(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int))
+bool Remove(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*))
 {
     int h1 = hash1(value, HT->buffer_size);
     int h2 = hash2(value, HT->buffer_size);
     int i = 0;
     while (arr[h1] != NULL && i < HT->buffer_size)
     {
-        if (arr[h1]->value == value && arr[h1]->state)
+        if (compare(arr[h1]->value, value) && arr[h1]->state)
         {
             arr[h1]->state = false;
             --(HT->size);
@@ -120,7 +122,7 @@ bool Remove(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*h
     return false;
 }
 
-bool Add(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int))
+bool Add(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*))
 {
     if (HT->size + 1 > int(HT->rehash_size * HT->buffer_size))
         HashTable_Resize();
@@ -132,7 +134,7 @@ bool Add(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash
     int first_deleted = -1; // запоминаем первый подходящий (удаленный) элемент
     while (arr[h1] != NULL && i < HT->buffer_size)
     {
-        if (arr[h1]->value == value && arr[h1]->state)
+        if (compare(arr[h1]->value, value) && arr[h1]->state)
             return false; // такой элемент уже есть, а значит его нельзя вставлять повторно
         if (!arr[h1]->state && first_deleted == -1) // находим место для нового элемента
             first_deleted = h1;

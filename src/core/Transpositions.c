@@ -1,5 +1,6 @@
 #include "Transpositions.h"
 
+
 // Освобождение памяти, занятой списком ходов
 void free_move(Move* move) 
 {

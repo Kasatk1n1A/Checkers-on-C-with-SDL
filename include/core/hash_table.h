@@ -17,9 +17,9 @@ struct HashTable* HashTable_create(void);
 void HashTable_delete(struct HashTable* HashTable);
 void HashTable_resize(struct HashTable* HT);
 void Rehash(struct HashTable* HT);
-bool Find(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int));
-bool Remove(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int));
-bool Add(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int));
+bool Find(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*));
+bool Remove(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*));
+bool Add(struct HashTable* HT, void* value, int (*hash1)(void*, int), int (*hash2)(void*, int), bool (*compare)(void*, void*));
 
 
 
