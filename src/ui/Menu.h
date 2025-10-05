@@ -42,15 +42,14 @@ typedef struct
     SDL_Texture* out_texture;
 } Button;
 
-void selectMenu(Window* window);
 void ShowMiniMenu(Window* window, Board* CheckersBoard, GameInfo info);
-void SetDifficult(void);
-void showMainMenu(void);
+void SetDifficult(Window* window);
+void showMainMenu(Window* window);
 
 void SaveGame(Window* window, Board* CheckersBoard, GameInfo info);
 void SaveGame_InputText(Window* window, Board* CheckersBoard, GameInfo info);
 
-void LoadGame(void);
+void LoadGame(Window* window);
 void LoadGame_InputText(Window* window);
 
 void LoseMenu(Window* window);
@@ -58,7 +57,7 @@ void WinMenu(Window* window, GameInfo info);
 int WinMenu_InputText(Window* window, GameInfo info);
 
 void free_about(about* About);
-void ShowAbout(void);
+void ShowAbout(Window* window);
 about* CreateAboutText(SDL_Renderer* renderer);
 
 void free_leaders(leader* leaders);

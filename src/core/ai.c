@@ -1,5 +1,8 @@
 // bot.c - Реализация ИИ для игры в шашки
 #include "ai.h"
+#include "hash_table.h"
+
+static struct HashTable* hash_table;
 
 // Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
@@ -386,8 +389,7 @@ void undo_temp_move(CH_Type** board, Move* move) {
     }
 }
 
-Transposition** Cash = NULL;
-int trans_count = 0; 
+static int best_evaluate = 0;
 
 // Алгоритм минимакса с альфа-бета отсечением
 int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta, bool isMaximizing, Player player, int maxDepth) 
@@ -404,22 +406,13 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
     //просто сделан лучший ход, все последующие ходы также 
     //уже сохранены в кэше
     Transposition* trans = Transposition_Create(tmp_board, curr_player, curr_eval, depth, NULL);
-    for (int i = 0; i < trans_count; i++)
-        if (Transposition_Compare(trans, Cash[i]) && Cash[i]->depth >= trans->depth)
-        {
-            Transposition_Delete(&trans);
-            //Получение значения всех последующих лучших ходов
-            make_temp_move(tmp_board, Cash[i]->BestMove);
-            int eval = minimax(board, tmp_board, depth + 1, alpha, beta, !isMaximizing, player, maxDepth);
-            undo_temp_move(tmp_board, Cash[i]->BestMove);
+    Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
+    if (tmp && tmp->depth < trans->depth){
+        Transposition_Delete(&trans);
+        return tmp->eval;
+    }
 
-            return eval;
-        }
-    Transposition_Delete(&trans);
-
-            // Генерируем все возможные ходы
     Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
-    // Если нет доступных ходов - поражение или ничья
     if (!moves)
         return isMaximizing ? -9999 : 9999;
 
@@ -449,12 +442,21 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
             if (beta <= alpha) {
                 break;
             }
-
             current = current->next;
         }
 
-        Transposition* trans = Transposition_Create(tmp_board, curr_player, maxEval, depth, BestMove);
-        Transpositions_Add(&Cash, &trans_count, trans);
+        trans->eval = maxEval;
+        if (tmp)
+        {
+            if (tmp->depth > trans->depth){
+                tmp->depth = trans->depth;
+                tmp->eval = trans->eval;
+            }
+            free(trans);
+        }
+        else{
+            HashTable_Add(hash_table, trans);
+        }
         free_move(moves);
         moves = NULL;
         return maxEval;
@@ -490,8 +492,18 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
             current = current->next;
         }
 
-        Transposition* trans = Transposition_Create(tmp_board, curr_player, minEval, depth, BestMove);
-        Transpositions_Add(&Cash, &trans_count, trans);
+        trans->eval = minEval;
+        if (tmp)
+        {
+            if (tmp->depth > trans->depth){
+                tmp->depth = trans->depth;
+                tmp->eval = trans->eval;
+            }
+            free(trans);
+        }
+        else{
+            HashTable_Add(hash_table, trans);
+        }
         free_move(moves);
         moves = NULL;
         return minEval;
@@ -538,7 +550,6 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
         current = current->next;
     }
     
-    Transpositions_Delete(&Cash, &trans_count);
     freeBoard((void**)tmp_board);
     free_move(moves);
     tmp_board = NULL;
@@ -549,6 +560,8 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 // Основная функция для выполнения хода ботом
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
+    hash_table = HashTable_create(Transposition_Compare, Transposition_hash);
+
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
 
@@ -583,4 +596,5 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     }
     
     free_move(bestMove);
+    HashTable_delete(hash_table);
 }

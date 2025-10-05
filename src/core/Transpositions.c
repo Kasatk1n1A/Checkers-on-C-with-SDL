@@ -54,67 +54,88 @@ void Transposition_Delete(Transposition** trans)
     return;
 }
 
-bool Transposition_Compare(Transposition* trans1, Transposition* trans2)
+bool Transposition_Compare(void* _trans1, void* _trans2)
 {
+    Transposition* trans1 = (Transposition*)_trans1;
+    Transposition* trans2 = (Transposition*)_trans2;
+
     printf("Comparing trans -> ");
     if (trans1->player != trans2->player)
     {
-        printf("Compare success\n");
+        printf("not equal\n");
         return false;
     }
     
     for (int i = 0; i < 8; i++)
         if (memcmp(trans1->board_positions[i], trans2->board_positions[i], sizeof(CH_Type) * 8))
         {
-            printf("This trans is unique\n");
+            printf("not equal\n");
             return false;
         }
 
-    printf("This trans have yet\n");
+    printf("equal\n");
     return true;
 }
 
-void Transpositions_Delete(Transposition*** Cash, int *n)
-{
-    printf("Deleting all trans -> ");
-
-    for (int i = 0; i < *n; i++)
-        Transposition_Delete(&Cash[0][i]);
+uint32_t Transposition_hash(void* _trans, uint32_t size) {
+    Transposition* trans = (Transposition*)_trans;
+    const uint32_t prime = 31;
+    uint32_t hash = (uint32_t)trans->player;
     
-    free(*Cash);
-    *Cash = NULL;
-    *n = 0;
-
-    printf("Transpositions deleted success\n");
-}
-
-void Transpositions_Add(Transposition*** Cash, int* n, Transposition* trans)
-{
-    printf("Adding trans -> ");
-
-    for (int i = 0; i < *n; i++)
-    {
-        if (Transposition_Compare(Cash[0][i], trans))
-        {
-            if (Cash[0][i]->depth <= trans->depth)
-                Cash[0][i]->depth = Cash[0][i]->depth <= trans->depth ? trans->depth : Cash[0][i]->depth;
-            Transposition_Delete(&trans);
-            printf("New transposition add success\n");
-            return;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            hash = hash * prime + (uint32_t)trans->board_positions[i][j];
         }
+        // Добавляем разделитель между строками
+        hash = hash * prime + prime;
     }
-
-    Transposition** tmp = (Transposition**)malloc(sizeof(Transposition*) * (*n + 1));
-    int tmp_n = *n;
-    for (int i = 0; i < *n + 1; i++)
-        tmp[i] = NULL;
-    memcpy(tmp, *Cash, sizeof(Transposition*) * (*n));
-    Transpositions_Delete(Cash, &tmp_n);
-    *n = tmp_n;
-    *Cash = tmp;
-
-    Cash[0][*n] = trans;
-    (*n)++;
-
-    printf("New transposition add success\n");
+    
+    return hash % size;
 }
+
+
+
+// void Transpositions_Delete(Transposition*** Cash, int *n)
+// {
+//     printf("Deleting all trans -> ");
+
+//     for (int i = 0; i < *n; i++)
+//         Transposition_Delete(&Cash[0][i]);
+    
+//     free(*Cash);
+//     *Cash = NULL;
+//     *n = 0;
+
+//     printf("Transpositions deleted success\n");
+// }
+
+// void Transpositions_Add(Transposition*** Cash, int* n, Transposition* trans)
+// {
+//     printf("Adding trans -> ");
+
+//     for (int i = 0; i < *n; i++)
+//     {
+//         if (Transposition_Compare(Cash[0][i], trans))
+//         {
+//             if (Cash[0][i]->depth <= trans->depth)
+//                 Cash[0][i]->depth = Cash[0][i]->depth <= trans->depth ? trans->depth : Cash[0][i]->depth;
+//             Transposition_Delete(&trans);
+//             printf("New transposition add success\n");
+//             return;
+//         }
+//     }
+
+//     Transposition** tmp = (Transposition**)malloc(sizeof(Transposition*) * (*n + 1));
+//     int tmp_n = *n;
+//     for (int i = 0; i < *n + 1; i++)
+//         tmp[i] = NULL;
+//     memcpy(tmp, *Cash, sizeof(Transposition*) * (*n));
+//     Transpositions_Delete(Cash, &tmp_n);
+//     *n = tmp_n;
+//     *Cash = tmp;
+
+//     Cash[0][*n] = trans;
+//     (*n)++;
+
+//     printf("New transposition add success\n");
+// }

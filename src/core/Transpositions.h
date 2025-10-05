@@ -27,8 +27,9 @@ typedef struct
 void free_move(Move* move);
 Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluation, int depth, Move* BestMove);
 void Transposition_Delete(Transposition** trans);
-bool Transposition_Compare(Transposition* trans1, Transposition* trans2);
+bool Transposition_Compare(void* _trans1, void* _trans2);
 void Transpositions_Add(Transposition*** Cash, int* n, Transposition* trans);
 void Transpositions_Delete(Transposition*** Cash, int *n);
+uint32_t Transposition_hash(void* _trans, uint32_t size);
 
 #endif

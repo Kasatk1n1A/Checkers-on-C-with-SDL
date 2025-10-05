@@ -63,7 +63,7 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         info.player = info.player == WHITE ? RED : WHITE;
     }
 
-    showMainMenu();
+    showMainMenu(window);
     return 0;
 }
 
