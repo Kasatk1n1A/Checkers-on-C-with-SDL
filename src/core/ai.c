@@ -414,89 +414,54 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
     if (!moves)
         return isMaximizing ? -9999 : 9999;
 
-    /*  Player`s turn */
-    if (isMaximizing) {
-        int maxEval = INT_MIN;
-        Move* current = moves;
-        Move* BestMove = NULL;
+    int best_eval = isMaximizing ? INT_MIN : INT_MAX; 
+    Move* current = moves;
+    Move* BestMove = NULL;
 
-        while (current) {
-            make_temp_move(tmp_board, current);
-            int eval = minimax(board, tmp_board, depth + 1, alpha, beta, false, player, maxDepth);
-            undo_temp_move(tmp_board, current);
-            
-            if (eval > maxEval)
+    /*  Check all possible moves to find best */
+    while (current){
+        make_temp_move(tmp_board, current);
+        int eval = minimax(board, tmp_board, depth + 1, alpha, beta, isMaximizing ? false : true, player, maxDepth);
+        undo_temp_move(tmp_board, current);
+
+        if (isMaximizing){  /* player`s turn */
+            if (eval > best_eval)
             {
-                maxEval = eval;
+                best_eval = eval;
                 free_move(BestMove);
                 BestMove = Move_Copy(current);
             }
             alpha = (alpha > eval) ? alpha : eval;
-
-            /*  alpha-beta clipping */
-            if (beta <= alpha) {
-                break;
-            }
-            current = current->next;
-        }
-
-        /*  add in cache if it need*/
-        trans->eval = maxEval;
-        if (tmp)
-        {
-            tmp->depth = trans->depth;
-            tmp->eval = trans->eval;
-            free(trans);
-        }
-        else {
-            HashTable_Add(hash_table, trans);
-        }
-        free_move(moves);
-        moves = NULL;
-        return maxEval;
-    }
-    else /* enemy`s turn */
-    {
-        int minEval = INT_MAX;
-        Move* current = moves;
-        Move* BestMove = NULL;
-
-        while (current) 
-        {
-            make_temp_move(tmp_board, current);
-            int eval = minimax(board, tmp_board, depth + 1, alpha, beta, true, player, maxDepth);
-            undo_temp_move(tmp_board, current);
-            
-            if (eval < minEval)
+        } else {    /* enemy`s turn */
+            if (eval < best_eval)
             {
-                minEval = eval;
+                best_eval = eval;
                 free_move(BestMove);
                 BestMove = Move_Copy(current);
             }
             beta = (beta < eval) ? beta : eval;
-
-            /*  alpha-beta clipping*/
-            if (beta <= alpha) {
-                break;
-            }
-
-            current = current->next;
+        }
+        /*  alpha-beta clipping */
+        if (beta <= alpha) {
+            break;
         }
 
-        trans->eval = minEval;
-        if (tmp)
-        {
-            tmp->depth = trans->depth;
-            tmp->eval = trans->eval;
-            free(trans);
-        }
-        else{
-            HashTable_Add(hash_table, trans);
-        }
-        free_move(moves);
-        moves = NULL;
-        return minEval;
+        current = current->next;
     }
+
+    /*  add into cache */
+    trans->eval = best_eval;
+    if (tmp)
+    {
+        tmp->depth = trans->depth;
+        tmp->eval = trans->eval;
+        free(trans);
+    }
+    else{
+        HashTable_Add(hash_table, trans);
+    }
+    free_move(moves);
+    return best_eval;
 }
 
 // Поиск лучшего хода
@@ -549,7 +514,7 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 // Основная функция для выполнения хода ботом
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
-    hash_table = HashTable_create(Transposition_Compare, Transposition_hash);
+    hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
 
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
@@ -585,5 +550,8 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     }
     
     free_move(bestMove);
+
+    printf("size: %d\n", hash_table->size);
+    HashTable_clean(hash_table);
     HashTable_delete(hash_table);
 }

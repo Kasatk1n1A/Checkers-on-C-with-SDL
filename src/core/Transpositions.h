@@ -32,4 +32,6 @@ void Transpositions_Add(Transposition*** Cash, int* n, Transposition* trans);
 void Transpositions_Delete(Transposition*** Cash, int *n);
 uint32_t Transposition_hash(void* _trans, uint32_t size);
 
+void _Transposition_Delete_(void* trans);
+
 #endif

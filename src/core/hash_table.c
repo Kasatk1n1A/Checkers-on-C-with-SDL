@@ -5,7 +5,7 @@ static void swap(struct Node*** el1, struct Node*** el2);
 static uint32_t rehash(uint32_t hash, uint32_t size);
 
 static struct Node* Node_create(void* value);
-static void Node_delete(struct Node* Node);
+static void Node_delete(struct Node* Node, void (*delete_value)(void*));
 
 struct Node* Node_create(void* value){
     struct Node* Node = (struct Node*)malloc(sizeof(struct Node));
@@ -14,7 +14,8 @@ struct Node* Node_create(void* value){
     return Node;
 }
 
-void Node_delete(struct Node* Node){
+void Node_delete(struct Node* Node, void (*delete_value)(void*)){
+    delete_value(Node->value);
     free(Node);
 }
 
@@ -22,7 +23,10 @@ static const int default_size = 8;
 static const double rehash_size = 0.75;
 static uint32_t MAX_SIZE_CACHE = 10000;
 
-struct HashTable* HashTable_create(Compare compare, Hash hash1){
+struct HashTable* HashTable_create(bool (*const compare)(void*, void*), 
+                                   uint32_t (*const hash1)(void*, uint32_t), 
+                                   void (*delete_value)(void*))
+{
     struct HashTable* HashTable = (struct HashTable*)malloc(sizeof(struct HashTable));
     HashTable->buffer_size = (uint32_t)default_size;
     HashTable->size = 0;
@@ -30,6 +34,7 @@ struct HashTable* HashTable_create(Compare compare, Hash hash1){
     HashTable->arr = (struct Node**)malloc(HashTable->buffer_size * sizeof(struct Node*));
     HashTable->compare = compare;
     HashTable->hash1 = hash1;
+    HashTable->delete_value = delete_value;
     for (uint32_t i = 0; i < HashTable->buffer_size; ++i)
         HashTable->arr[i] = NULL; // заполняем nullptr - то есть если значение отсутствует, и никто раньше по этому адресу не обращался
     
@@ -39,9 +44,15 @@ struct HashTable* HashTable_create(Compare compare, Hash hash1){
 void HashTable_delete(struct HashTable* HashTable){
     for (uint32_t i = 0; i < HashTable->buffer_size; ++i)
         if (HashTable->arr[i])
-            Node_delete(HashTable->arr[i]);
+            free(HashTable->arr[i]);
     free(HashTable->arr);
     free(HashTable);
+}
+
+void HashTable_clean(struct HashTable* HT){
+    for (uint32_t i = 0; i < HT->buffer_size; ++i)
+        if (HT->arr[i])
+            Node_delete(HT->arr[i], HT->delete_value);
 }
 
 void HashTable_resize(struct HashTable* HT){

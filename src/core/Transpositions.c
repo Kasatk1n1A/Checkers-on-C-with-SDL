@@ -37,6 +37,11 @@ Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluat
     return trans;
 }
 
+void _Transposition_Delete_(void* _trans){
+    Transposition* trans = (Transposition*)_trans;
+    Transposition_Delete(&trans);
+}
+
 void Transposition_Delete(Transposition** trans)
 {
     if (!*trans)
