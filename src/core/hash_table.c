@@ -164,5 +164,5 @@ uint32_t rehash(uint32_t hash, uint32_t size) {
     new_hash *= 0xc2b2ae35;
     new_hash ^= new_hash >> 13;
     
-    return (new_hash % (size - 1)) + 1;
+    return new_hash % size;
 }

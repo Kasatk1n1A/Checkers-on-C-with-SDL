@@ -66,13 +66,15 @@ bool Transposition_Compare(void* _trans1, void* _trans2)
         return false;
     }
     
-    for (int i = 0; i < 8; i++)
-        if (memcmp(trans1->board_positions[i], trans2->board_positions[i], sizeof(CH_Type) * 8))
-        {
-            printf("not equal\n");
-            return false;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            if (trans1->board_positions[i][j] != trans2->board_positions[i][j]){
+                printf("not equal\n");
+                return false;
+            }
         }
-
+    }
+    
     printf("equal\n");
     return true;
 }

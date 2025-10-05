@@ -400,36 +400,31 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
     if (depth == maxDepth)
         return curr_eval - evaluate_position(board, player);
 
-    // Проверка того есть ли уже данная позиция в кэше, 
-    //если такая есть и её глубина ниже или равна то не 
-    //имеет смысл проверять другие ходы поэтому будет 
-    //просто сделан лучший ход, все последующие ходы также 
-    //уже сохранены в кэше
+    /*  checking cache if it already has such an element
+        skip this board position    */
     Transposition* trans = Transposition_Create(tmp_board, curr_player, curr_eval, depth, NULL);
     Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
-    if (tmp && tmp->depth < trans->depth){
+    if (tmp && tmp->depth <= trans->depth){
         Transposition_Delete(&trans);
         return tmp->eval;
     }
 
+    /*  Generating all possible moves */
     Move* moves = generate_all_moves(tmp_board, isMaximizing ? player : (player == WHITE ? RED : WHITE));
     if (!moves)
         return isMaximizing ? -9999 : 9999;
 
-    // Максимизация (ход игрока)
+    /*  Player`s turn */
     if (isMaximizing) {
         int maxEval = INT_MIN;
         Move* current = moves;
         Move* BestMove = NULL;
 
         while (current) {
-            // Пробуем ход
             make_temp_move(tmp_board, current);
-            // Рекурсивно оцениваем позицию
             int eval = minimax(board, tmp_board, depth + 1, alpha, beta, false, player, maxDepth);
-
             undo_temp_move(tmp_board, current);
-            // Обновляем максимальную оценку
+            
             if (eval > maxEval)
             {
                 maxEval = eval;
@@ -438,30 +433,29 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
             }
             alpha = (alpha > eval) ? alpha : eval;
 
-            // Альфа-бета отсечение
+            /*  alpha-beta clipping */
             if (beta <= alpha) {
                 break;
             }
             current = current->next;
         }
 
+        /*  add in cache if it need*/
         trans->eval = maxEval;
         if (tmp)
         {
-            if (tmp->depth > trans->depth){
-                tmp->depth = trans->depth;
-                tmp->eval = trans->eval;
-            }
+            tmp->depth = trans->depth;
+            tmp->eval = trans->eval;
             free(trans);
         }
-        else{
+        else {
             HashTable_Add(hash_table, trans);
         }
         free_move(moves);
         moves = NULL;
         return maxEval;
     }
-    else // Минимизация (ход противника)
+    else /* enemy`s turn */
     {
         int minEval = INT_MAX;
         Move* current = moves;
@@ -469,13 +463,10 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
 
         while (current) 
         {
-            // Пробуем ход
             make_temp_move(tmp_board, current);
-            // Рекурсивно оцениваем позицию
             int eval = minimax(board, tmp_board, depth + 1, alpha, beta, true, player, maxDepth);
-
             undo_temp_move(tmp_board, current);
-            // Обновляем минимальную оценку
+            
             if (eval < minEval)
             {
                 minEval = eval;
@@ -484,7 +475,7 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
             }
             beta = (beta < eval) ? beta : eval;
 
-            // Альфа-бета отсечение
+            /*  alpha-beta clipping*/
             if (beta <= alpha) {
                 break;
             }
@@ -495,10 +486,8 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
         trans->eval = minEval;
         if (tmp)
         {
-            if (tmp->depth > trans->depth){
-                tmp->depth = trans->depth;
-                tmp->eval = trans->eval;
-            }
+            tmp->depth = trans->depth;
+            tmp->eval = trans->eval;
             free(trans);
         }
         else{
