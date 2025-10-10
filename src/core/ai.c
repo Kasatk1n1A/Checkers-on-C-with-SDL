@@ -4,6 +4,7 @@
 #include "LRU_cache.h"
 
 static struct HashTable* hash_table;
+static struct LRUCache* cache;
 
 // Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
@@ -516,6 +517,7 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
     hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    // struct LRUCache* cache = LRUCache_create();
 
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;

@@ -7,6 +7,7 @@
 
 typedef struct list_elem {
     void* data;               // Данные
+    struct list_elem* prev;
     struct list_elem* next; // Указатель на следующий элемент
 } list_elem;
 
@@ -36,6 +37,7 @@ bool list_contains(const list* lst, void* value);
 size_t list_find(const list* lst, void* value);
 void list_clear(list* lst);
 
+void list_for_each(list* lst, void* (*do_smth)(void*));
 void list_print(const list* lst);
 
 

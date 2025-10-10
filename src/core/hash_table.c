@@ -42,9 +42,7 @@ struct HashTable* HashTable_create(bool (*const compare)(void*, void*),
 }
 
 void HashTable_delete(struct HashTable* HashTable){
-    for (uint32_t i = 0; i < HashTable->buffer_size; ++i)
-        if (HashTable->arr[i])
-            free(HashTable->arr[i]);
+    HashTable_clean(HashTable);
     free(HashTable->arr);
     free(HashTable);
 }

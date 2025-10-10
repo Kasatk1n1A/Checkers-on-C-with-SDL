@@ -39,6 +39,7 @@ void list_push_front(list* lst, void* value) {
     if (!new_elem) return;
     
     new_elem->data = value;
+    new_elem->prev = NULL;
     new_elem->next = lst->head;
     
     lst->head = new_elem;
@@ -56,6 +57,7 @@ void list_push_back(list* lst, void* value) {
     if (!new_elem) return;
     
     new_elem->data = value;
+    new_elem->prev = lst->tail;
     new_elem->next = NULL;
     
     if (lst->tail) {
@@ -75,6 +77,7 @@ void* list_pop_front(list* lst) {
     void* value = temp->data;
     
     lst->head = lst->head->next;
+    lst->head->prev = NULL;
     if (!lst->head) {
         lst->tail = NULL;
     }
@@ -86,27 +89,23 @@ void* list_pop_front(list* lst) {
 
 /* Remove from end */
 void* list_pop_back(list* lst) {
-    if (!lst || !lst->head) return 0;
+    if (!lst || !lst->tail) return NULL;
     
-    void* value;
-    if (lst->head == lst->tail) {
-        // Один элемент
-        value = lst->head->data;
-        free(lst->head);
-        lst->head = lst->tail = NULL;
+    list_elem* temp = lst->tail;
+    void* value = temp->data;
+    
+    // Обновляем указатель tail
+    lst->tail = lst->tail->prev;
+    
+    if (lst->tail) {
+        // Если есть предыдущий элемент, обнуляем его next
+        lst->tail->next = NULL;
     } else {
-        // Несколько элементов
-        list_elem* current = lst->head;
-        while (current->next != lst->tail) {
-            current = current->next;
-        }
-        
-        value = lst->tail->data;
-        free(lst->tail);
-        current->next = NULL;
-        lst->tail = current;
+        // Если список стал пустым, обнуляем head
+        lst->head = NULL;
     }
     
+    free(temp);
     lst->size--;
     return value;
 }
@@ -127,34 +126,45 @@ void list_insert(list* lst, size_t index, void* value) {
     list_elem* new_elem = (list_elem*)malloc(sizeof(list_elem));
     if (!new_elem) return;
     
+    new_elem->data = value;
+    
+    // Поиск с начала
     list_elem* current = lst->head;
     for (size_t i = 0; i < index - 1; i++) {
         current = current->next;
     }
     
-    new_elem->data = value;
+    // Устанавливаем связи для нового элемента
+    new_elem->prev = current;
     new_elem->next = current->next;
+    
+    // Обновляем связи соседних элементов
+    current->next->prev = new_elem;
     current->next = new_elem;
+    
     lst->size++;
 }
 
 /* Remove with index */
 void* list_remove(list* lst, size_t index) {
-    if (!lst || index >= lst->size) return 0;
+    if (!lst || index >= lst->size) return NULL;
     
     if (index == 0) return list_pop_front(lst);
     if (index == lst->size - 1) return list_pop_back(lst);
     
+    // Поиск с начала
     list_elem* current = lst->head;
-    for (size_t i = 0; i < index - 1; i++) {
+    for (size_t i = 0; i < index; i++) {
         current = current->next;
     }
     
-    list_elem* temp = current->next;
-    void* value = temp->data;
-    current->next = temp->next;
+    void* value = current->data;
     
-    free(temp);
+    // Перенаправляем связи, исключая удаляемый элемент
+    current->prev->next = current->next;
+    current->next->prev = current->prev;
+    
+    free(current);
     lst->size--;
     return value;
 }
@@ -223,6 +233,13 @@ void list_clear(list* lst) {
     lst->size = 0;
 }
 
+void list_for_each(list* lst, void* (*do_smth)(void*)){
+    list_elem* curr = lst->head;
+
+    for (int i = 0; i < list_size; i++, curr = curr->next){
+        do_smth(curr->data);
+    }
+}
 /* Print list in stdout */
 // void list_print(const list* lst) {
 //     if (!lst) {
