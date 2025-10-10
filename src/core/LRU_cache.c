@@ -6,8 +6,6 @@
 
 static void LRUCache_grow_old_list(list* lst);
 
-
-
 struct LRUCacheElem* LRUCacheElem_create(void* value){
     struct LRUCacheElem* elem = (struct LRUCacheElem*)malloc(sizeof(struct LRUCacheElem));
     elem->data = value;
@@ -68,4 +66,8 @@ void LRUCache_grow_old_list(list* lst){
         }
         curr_elem = curr_elem->next;
     }
+}
+
+void* LRUCache_Find(struct LRUCache* cache, void* value){
+    return HashTable_Find(cache->HT, value);
 }

@@ -4,7 +4,7 @@
 #include "LRU_cache.h"
 
 static struct HashTable* hash_table;
-static struct LRUCache* cache;
+static struct LRUCache* LRU_cache;
 
 // Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
@@ -405,7 +405,8 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
     /*  checking cache if it already has such an element
         skip this board position    */
     Transposition* trans = Transposition_Create(tmp_board, curr_player, curr_eval, depth, NULL);
-    Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
+    // Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
+    Transposition* tmp = (Transposition*)LRUCache_Find(LRU_cache, (void*)trans);
     if (tmp && tmp->depth <= trans->depth){
         Transposition_Delete(&trans);
         return tmp->eval;
@@ -460,7 +461,8 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
         free(trans);
     }
     else{
-        HashTable_Add(hash_table, trans);
+        // HashTable_Add(hash_table, trans);
+        LRUCache_add(LRU_cache, trans);
     }
     free_move(moves);
     return best_eval;
@@ -516,8 +518,8 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 // Основная функция для выполнения хода ботом
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
-    hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
-    // struct LRUCache* cache = LRUCache_create();
+    // hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    LRU_cache = LRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
 
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
@@ -554,7 +556,9 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     
     free_move(bestMove);
 
-    printf("size: %d\n", hash_table->size);
-    HashTable_clean(hash_table);
-    HashTable_delete(hash_table);
+    // printf("size: %d\n", hash_table->size);
+
+    // LRUCache_delete(LRU_cache);
+    // HashTable_clean(hash_table);
+    // HashTable_delete(hash_table);
 }

@@ -236,7 +236,7 @@ void list_clear(list* lst) {
 void list_for_each(list* lst, void* (*do_smth)(void*)){
     list_elem* curr = lst->head;
 
-    for (int i = 0; i < list_size; i++, curr = curr->next){
+    for (size_t i = 0; i < list_size; i++, curr = curr->next){
         do_smth(curr->data);
     }
 }

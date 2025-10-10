@@ -21,5 +21,6 @@ struct LRUCache{
 struct LRUCache* LRUCache_create(bool (*const compare)(void*, void*), uint32_t (*const hash1)(void*, uint32_t), void (*delete_value)(void*));
 void LRUCache_delete(struct LRUCache* cache);
 void LRUCache_add(struct LRUCache* cache, void* value);
+void* LRUCache_Find(struct LRUCache* cache, void* value);
 
 #endif
