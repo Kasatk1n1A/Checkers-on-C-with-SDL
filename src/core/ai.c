@@ -1,6 +1,7 @@
 // bot.c - Реализация ИИ для игры в шашки
 #include "ai.h"
 #include "hash_table.h"
+#include "LRU_cache.h"
 
 static struct HashTable* hash_table;
 
