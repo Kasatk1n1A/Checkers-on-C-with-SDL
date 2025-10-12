@@ -1,5 +1,21 @@
 #include "game_rules.h"
 
+static struct NIGGER{
+    CH_Type** tmp_board;
+    GameInfo* info;
+};
+
+static bool thread_finish = false;
+static SDL_mutex* mutex;
+
+int _bot_make_move_(void* data){
+    struct NIGGER* POOP = (struct NIGGER*)data;
+    bot_make_move(POOP->tmp_board, POOP->info->difficult, POOP->info->player);
+    SDL_LockMutex(mutex);
+    thread_finish = true;
+    SDL_UnlockMutex(mutex);
+    return 0;
+}
 
 int checkers(Window* window, CH_Type** board, int difficult, double Time, Player color)
 {
@@ -26,9 +42,31 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         if (info.player == RED)
         {
             // Ход бота
+            thread_finish = false;
+            mutex = SDL_CreateMutex();
+
+            struct NIGGER POOP;
+            POOP.tmp_board = add_board();
+            CopyBoard(CheckersBoard->board, POOP.tmp_board);
+            POOP.info = &info;
+
             printf("Red turn.\n");
+            SDL_Thread* thread = SDL_CreateThread(_bot_make_move_, "bot turn", (void*)(&POOP));
+            SDL_DetachThread(thread);
+
+            bool running = true;
+            while (running){
+                SDL_LockMutex(mutex);
+                if (thread_finish)
+                    running = false;
+                SDL_UnlockMutex(mutex);
+                renderBoardFrame(window, CheckersBoard);
+            }
+
+            CopyBoard(POOP.tmp_board, CheckersBoard->board);
+            SDL_DestroyMutex(mutex);
+            // bot_make_move(tmp_board, info.difficult, RED);
             
-            bot_make_move(CheckersBoard->board, info.difficult, RED);
         }
         else
         {
