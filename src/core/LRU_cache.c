@@ -4,6 +4,7 @@
 
 #define MAX_LIFETIME 5 * 60 * 1000
 
+static uint32_t max_size_of_cache = 10000;
 static void LRUCache_grow_old_list(list* lst);
 
 struct LRUCacheElem* LRUCacheElem_create(void* value){
@@ -41,6 +42,11 @@ void LRUCache_add(struct LRUCache* cache, void* value){
     struct LRUCacheElem* elem = LRUCacheElem_create(value);
 
     if (!HashTable_Find(cache->HT, value)){
+        /* If hash table max size delete oldest element and insert
+            new element */
+        if (cache->HT->size >= max_size_of_cache){
+            HashTable_Remove(cache->HT, list_pop_front(cache->time_list));
+        }
         HashTable_Add(cache->HT, value);
     } else {
         list_remove(cache->time_list, list_find(cache->time_list, elem));
