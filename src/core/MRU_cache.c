@@ -54,5 +54,11 @@ void MRUCache_add(struct MRUCache* cache, void* value){
 }
 
 void* MRUCache_Find(struct MRUCache* cache, void* value){
-    return HashTable_Find(cache->HT, value);
+    void* result = HashTable_Find(cache->HT, value);
+    struct MRUCacheElem* elem = MRUCacheElem_create(value);
+    if (result){
+        list_remove(cache->time_list, list_find(cache->time_list, elem));
+        list_push_back(cache->time_list, elem);
+    }
+    return result;
 }
