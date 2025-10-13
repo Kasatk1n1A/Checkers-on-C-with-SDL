@@ -19,6 +19,7 @@ void MRUCacheElem_delete(struct MRUCacheElem* value){
 
 void* _MRUCacheElem_delete_(void* value){
     MRUCacheElem_delete((struct MRUCacheElem*)value);
+    return NULL;
 }
 
 struct MRUCache* MRUCache_create(bool (*const compare)(void*, void*), uint32_t (*const hash1)(void*, uint32_t), void (*delete_value)(void*)){

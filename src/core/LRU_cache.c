@@ -19,6 +19,7 @@ void LRUCacheElem_delete(struct LRUCacheElem* value){
 
 void* _LRUCacheElem_delete_(void* value){
     LRUCacheElem_delete((struct LRUCacheElem*)value);
+    return NULL;
 }
 
 struct LRUCache* LRUCache_create(bool (*const compare)(void*, void*), uint32_t (*const hash1)(void*, uint32_t), void (*delete_value)(void*)){
