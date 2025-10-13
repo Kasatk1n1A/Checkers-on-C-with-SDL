@@ -1,5 +1,5 @@
-#ifndef MRU_CACHE_H
-#define MRU_CACHE_H
+#ifndef LFU_CACHE_H
+#define LFU_CACHE_H
 
 #include <stdbool.h>
 #include <time.h>
@@ -18,7 +18,7 @@ struct LFUCache{
     struct HashTable* HT;
 };
 
-struct LFUCache* MRUCache_create(bool (*const compare)(void*, void*), uint32_t (*const hash1)(void*, uint32_t), void (*delete_value)(void*));
+struct LFUCache* LFUCache_create(bool (*const compare)(void*, void*), uint32_t (*const hash1)(void*, uint32_t), void (*delete_value)(void*));
 void LFUCache_delete(struct LFUCache* cache);
 void LFUCache_add(struct LFUCache* cache, void* value);
 void* LFUCache_Find(struct LFUCache* cache, void* value);
