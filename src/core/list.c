@@ -217,6 +217,20 @@ size_t list_find(const list* lst, void* value) {
     return (size_t)-1;
 }
 
+list_elem* list_max(const list* lst, bool(*bigger)(list_elem*, list_elem*)){
+    list_elem* result = lst->head;
+    list_elem* curr = lst->head;
+
+    while (curr){
+        if (bigger(curr, result)){
+            result = curr;
+        }
+        curr = curr->next;
+    }
+
+    return result;
+}
+
 /* Clear list */
 void list_clear(list* lst) {
     if (!lst) return;

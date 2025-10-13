@@ -35,10 +35,12 @@ void list_set(list* lst, size_t index, void* value);
 
 bool list_contains(const list* lst, void* value);
 size_t list_find(const list* lst, void* value);
+list_elem* list_max(const list* lst, bool(*bigger)(list_elem*, list_elem*));
 void list_clear(list* lst);
 
 void list_for_each(list* lst, void* (*do_smth)(void*));
 void list_print(const list* lst);
+
 
 
 #endif
