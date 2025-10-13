@@ -8,7 +8,6 @@
 
 struct LRUCacheElem{
     void* data;
-    time_t creation_time;
 };
 
 struct LRUCacheElem* LRUCacheElem_create(void* value);
