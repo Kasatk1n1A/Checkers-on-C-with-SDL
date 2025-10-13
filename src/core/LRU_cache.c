@@ -4,13 +4,11 @@
 
 #define MAX_LIFETIME 5 * 60 * 1000
 
-static uint32_t max_size_of_cache = 10000;
-static void LRUCache_grow_old_list(list* lst);
+static uint32_t max_size_of_cache = 1000;
 
 struct LRUCacheElem* LRUCacheElem_create(void* value){
     struct LRUCacheElem* elem = (struct LRUCacheElem*)malloc(sizeof(struct LRUCacheElem));
     elem->data = value;
-    elem->creation_time = time(NULL);
 
     return elem;
 }
@@ -50,28 +48,8 @@ void LRUCache_add(struct LRUCache* cache, void* value){
         HashTable_Add(cache->HT, value);
     } else {
         list_remove(cache->time_list, list_find(cache->time_list, elem));
-        elem->creation_time = time(NULL);
     }
     list_push_back(cache->time_list, elem);
-    LRUCache_grow_old_list(cache->time_list);
-}
-
-void LRUCache_grow_old_list(list* lst){
-    list_elem* curr_elem = lst->head;
-    time_t curr_time = time(NULL);
-
-    while (curr_elem != lst->tail){
-        struct LRUCacheElem* curr_value = (struct LRUCacheElem*)curr_elem->data;
-        if (curr_time - curr_value->creation_time > MAX_LIFETIME){
-            list_elem* tmp = curr_elem;
-            size_t index = list_find(lst, tmp->data);
-            curr_elem = curr_elem->next;
-            _LRUCacheElem_delete_(tmp->data);
-            list_remove(lst, index);
-            continue;
-        }
-        curr_elem = curr_elem->next;
-    }
 }
 
 void* LRUCache_Find(struct LRUCache* cache, void* value){
