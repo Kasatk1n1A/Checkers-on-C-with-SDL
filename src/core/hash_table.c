@@ -1,5 +1,5 @@
 #include "hash_table.h"
-
+#include <stdio.h>
 
 static void swap(struct Node*** el1, struct Node*** el2);
 static uint32_t rehash(uint32_t hash, uint32_t size);
@@ -114,10 +114,11 @@ bool HashTable_Remove(struct HashTable* HT, void* value)
     uint32_t i = 0;
     while (HT->arr[h1] != NULL && i < HT->buffer_size)
     {
-        if (HT->compare(HT->arr[h1]->value, value) && HT->arr[h1]->state)
+        if (HT->arr[h1]->state && HT->compare(HT->arr[h1]->value, value))
         {
             HT->arr[h1]->state = false;
             --(HT->size);
+
             return true;
         }
         h1 = rehash(h1, HT->buffer_size);

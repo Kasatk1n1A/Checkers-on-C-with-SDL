@@ -59,13 +59,12 @@ void list_push_back(list* lst, void* value) {
     new_elem->data = value;
     new_elem->prev = lst->tail;
     new_elem->next = NULL;
+    lst->tail = new_elem;
     
-    if (lst->tail) {
-        lst->tail->next = new_elem;
-    } else {
+    
+    if (!lst->head){
         lst->head = new_elem;
     }
-    lst->tail = new_elem;
     lst->size++;
 }
 
@@ -77,9 +76,10 @@ void* list_pop_front(list* lst) {
     void* value = temp->data;
     
     lst->head = lst->head->next;
-    lst->head->prev = NULL;
     if (!lst->head) {
         lst->tail = NULL;
+    } else {
+        lst->head->prev = NULL;
     }
     
     free(temp);
@@ -227,9 +227,10 @@ list_elem* list_max(const list* lst, bool(*bigger)(list_elem*, list_elem*)){
         }
         curr = curr->next;
     }
-
+    
     return result;
 }
+
 
 /* Clear list */
 void list_clear(list* lst) {
@@ -250,8 +251,8 @@ void list_clear(list* lst) {
 void list_for_each(list* lst, void* (*do_smth)(void*)){
     list_elem* curr = lst->head;
 
-    for (size_t i = 0; i < list_size(lst); i++, curr = curr->next){
-        do_smth(curr->data);
+    for (; curr; curr = curr->next){
+            do_smth(curr);
     }
 }
 /* Print list in stdout */

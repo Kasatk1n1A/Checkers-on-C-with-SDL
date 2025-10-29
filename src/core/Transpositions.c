@@ -39,21 +39,21 @@ Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluat
 
 void _Transposition_Delete_(void* _trans){
     Transposition* trans = (Transposition*)_trans;
-    Transposition_Delete(&trans);
+    Transposition_Delete(trans);
 }
 
-void Transposition_Delete(Transposition** trans)
+void Transposition_Delete(Transposition* trans)
 {
-    if (!*trans)
+    if (!trans)
         return;
 
     printf("Deleting trans -> ");
 
-    printf("%d\n", (*trans)->depth);
-    freeBoard((void**)(*trans)->board_positions);
-    free_move((*trans)->BestMove);
-    free(*trans);
-    *trans = NULL;
+    printf("%d\n", (trans)->depth);
+    freeBoard((void**)trans->board_positions);
+    free_move(trans->BestMove);
+    free(trans);
+    trans = NULL;
 
     printf("Trans`s delete success\n");
     return;
@@ -89,9 +89,12 @@ uint32_t Transposition_hash(void* _trans, uint32_t size) {
     const uint32_t prime = 31;
     uint32_t hash = (uint32_t)trans->player;
     
+    // printf("%d\n", trans->board_positions[1][0]);
+
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             hash = hash * prime + (uint32_t)trans->board_positions[i][j];
+            // printf("NIGGER\n");
         }
         // Добавляем разделитель между строками
         hash = hash * prime + prime;

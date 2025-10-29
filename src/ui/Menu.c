@@ -203,7 +203,7 @@ void SetDifficult(Window* window)   //исправлены утечки
             checkers(window, NULL, 3, 0, 0);
             break;
         case 2: 
-            checkers(window, NULL, 6, 0, 0);
+            checkers(window, NULL, 5, 0, 0);
             break;
         case 3: 
             showMainMenu(window);
