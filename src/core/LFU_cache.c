@@ -5,7 +5,7 @@
 
 #define MAX_LIFETIME 5 * 60 * 1000
 
-static uint32_t max_size_of_cache = 1000;
+static uint32_t max_size_of_cache = 1;
 
 struct LFUCacheElem* LFUCacheElem_create(void* value){
     struct LFUCacheElem* elem = (struct LFUCacheElem*)malloc(sizeof(struct LFUCacheElem));
@@ -16,8 +16,8 @@ struct LFUCacheElem* LFUCacheElem_create(void* value){
 }
 
 bool LFUCacheElem_smaller_or_equal(list_elem* _el1, list_elem* _el2){
-    struct LFUCacheElem* el1 = (struct LFUCacheElem*)_el1->data;
-    struct LFUCacheElem* el2 = (struct LFUCacheElem*)_el2->data;
+    Transposition* el1 = (Transposition*)_el1->data;
+    Transposition* el2 = (Transposition*)_el2->data;
 
     if (el1->frequency <= el2->frequency)
         return true;
@@ -50,29 +50,31 @@ void LFUCache_delete(struct LFUCache* cache){
 }
 
 void LFUCache_add(struct LFUCache* cache, void* value){
-    struct LFUCacheElem* elem = LFUCacheElem_create(value);
+    Transposition* _value = (Transposition*)value;
 
     if (!HashTable_Find(cache->HT, value)){
         /* If hash table max size delete oldest element and insert
             new element */
         if (cache->HT->size >= max_size_of_cache){
-            HashTable_Remove(cache->HT, list_max(cache->time_list, LFUCacheElem_smaller_or_equal));
+            void* elem_for_remove = (list_max(cache->time_list, LFUCacheElem_smaller_or_equal))->data;
+            HashTable_Remove(cache->HT, elem_for_remove);
         }
         HashTable_Add(cache->HT, value);
     } else {
-        list_remove(cache->time_list, list_find(cache->time_list, elem));
+        list_remove(cache->time_list, list_find(cache->time_list, value));
     }
-    list_push_back(cache->time_list, elem);
-    ++elem->frequency;
+    list_push_back(cache->time_list, value);
+    _value->frequency++;
 }
 
 void* LFUCache_Find(struct LFUCache* cache, void* value){
     void* result = HashTable_Find(cache->HT, value);
-    struct LFUCacheElem* elem = LFUCacheElem_create(value);
+    Transposition* _value = (Transposition*)value;
+
     if (result){
-        list_remove(cache->time_list, list_find(cache->time_list, elem));
-        list_push_back(cache->time_list, elem);
-        ++elem->frequency;
+        list_remove(cache->time_list, list_find(cache->time_list, value));
+        list_push_back(cache->time_list, value);
+        _value->frequency++;
     }
     return result;
 }

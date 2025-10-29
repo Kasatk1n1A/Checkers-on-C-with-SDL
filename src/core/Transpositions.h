@@ -21,6 +21,7 @@ typedef struct
     int eval;
     int depth;
     Move* BestMove;
+    uint16_t frequency;
 } Transposition;
 
 //Функции для транспозиций(одинаковых результатов ходов)
