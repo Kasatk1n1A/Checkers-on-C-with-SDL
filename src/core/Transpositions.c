@@ -32,6 +32,7 @@ Transposition* Transposition_Create(CH_Type** Board, Player WhoPlay, int evaluat
     trans->eval = evaluation;
     trans->depth = depth;
     trans->BestMove = BestMove;
+    trans->in_strong_list = false;
 
     printf("Creating success\n");
     return trans;

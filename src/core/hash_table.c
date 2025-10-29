@@ -110,6 +110,9 @@ void* HashTable_Find(struct HashTable* HT, void* value)
 
 bool HashTable_Remove(struct HashTable* HT, void* value)
 {
+    if (!value){
+        return false;
+    }
     uint32_t h1 = HT->hash1(value, HT->buffer_size);
     uint32_t i = 0;
     while (HT->arr[h1] != NULL && i < HT->buffer_size)

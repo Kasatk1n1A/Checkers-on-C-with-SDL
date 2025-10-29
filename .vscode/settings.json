@@ -6,7 +6,8 @@
         "texture_manager.h": "c",
         "pthread.h": "c",
         "ui_types.h": "c",
-        "transpositions.h": "c"
+        "transpositions.h": "c",
+        "lru_cache.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
