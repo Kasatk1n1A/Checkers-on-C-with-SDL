@@ -2,8 +2,6 @@
 #include "list.h"
 #include "hash_table.h"
 
-#define MAX_LIFETIME 5 * 60 * 1000
-
 static uint32_t max_size_of_cache = 1000;
 
 struct MRUCacheElem* MRUCacheElem_create(void* value){
@@ -18,7 +16,7 @@ void MRUCacheElem_delete(struct MRUCacheElem* value){
 }
 
 void* _MRUCacheElem_delete_(void* value){
-    MRUCacheElem_delete((struct MRUCacheElem*)value);
+    free(value);
     return NULL;
 }
 
@@ -31,34 +29,31 @@ struct MRUCache* MRUCache_create(bool (*const compare)(void*, void*), uint32_t (
 }
 
 void MRUCache_delete(struct MRUCache* cache){
-    list_for_each(cache->time_list, _MRUCacheElem_delete_);
     list_destroy(cache->time_list);
     HashTable_delete(cache->HT);
     free(cache);
 }
 
 void MRUCache_add(struct MRUCache* cache, void* value){
-    struct MRUCacheElem* elem = MRUCacheElem_create(value);
-
     if (!HashTable_Find(cache->HT, value)){
         /* If hash table max size delete oldest element and insert
             new element */
         if (cache->HT->size >= max_size_of_cache){
-            HashTable_Remove(cache->HT, list_pop_back(cache->time_list));
+            void* elem_for_remove = list_pop_front(cache->time_list);
+            HashTable_Remove(cache->HT, elem_for_remove);
         }
         HashTable_Add(cache->HT, value);
     } else {
-        list_remove(cache->time_list, list_find(cache->time_list, elem));
+        list_remove(cache->time_list, list_find(cache->time_list, value));
     }
-    list_push_back(cache->time_list, elem);
+    list_push_front(cache->time_list, value);
 }
 
 void* MRUCache_Find(struct MRUCache* cache, void* value){
     void* result = HashTable_Find(cache->HT, value);
-    struct MRUCacheElem* elem = MRUCacheElem_create(value);
     if (result){
-        list_remove(cache->time_list, list_find(cache->time_list, elem));
-        list_push_back(cache->time_list, elem);
+        list_remove(cache->time_list, list_find(cache->time_list, value));
+        list_push_back(cache->time_list, value);
     }
     return result;
 }

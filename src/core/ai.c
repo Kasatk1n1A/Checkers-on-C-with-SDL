@@ -3,10 +3,15 @@
 #include "hash_table.h"
 #include "LRU_cache.h"
 #include "MRU_cache.h"
+#include "LFU_cache.h"
 
 static struct HashTable* hash_table;
 static struct LRUCache* LRU_cache;
 static struct MRUCache* MRU_cache;
+static struct LFUCache* LFU_cache;
+
+static void add_in_cache(Transposition* trans);
+static Transposition* find_in_cache(Transposition* trans);
 
 // Оценка текущей позиции на доске для указанного игрока
 int evaluate_position(CH_Type** board, Player player) {
@@ -408,12 +413,10 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
         skip this board position    */
     Transposition* trans = Transposition_Create(tmp_board, curr_player, curr_eval, depth, NULL);
 
-    // Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
-    Transposition* tmp = (Transposition*)LRUCache_Find(LRU_cache, (void*)trans);
-    // Transposition* tmp = (Transposition*)MRUCache_Find(MRU_cache, (void*)trans);
+    Transposition* tmp = find_in_cache(trans);
 
     if (tmp && tmp->depth <= trans->depth){
-        Transposition_Delete(&trans);
+        Transposition_Delete(trans);
         return tmp->eval;
     }
 
@@ -466,10 +469,8 @@ int minimax(CH_Type** board, CH_Type** tmp_board, int depth, int alpha, int beta
         free(trans);
     }
     else{
-        // HashTable_Add(hash_table, trans);
-        LRUCache_add(LRU_cache, trans);
-        // MRUCache_add(MRU_cache, trans);
-    }
+        add_in_cache(trans);
+    } 
     free_move(moves);
     return best_eval;
 }
@@ -524,9 +525,7 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 // Основная функция для выполнения хода ботом
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
-    // hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
-    LRU_cache = LRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
-    // MRU_cache = MRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    // init_cache();
 
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
@@ -563,10 +562,35 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     
     free_move(bestMove);
 
-    // printf("size: %d\n", hash_table->size);
+    // destroy_cache();
+}
 
-    // MRUCache_delete(MRU_cache);
-    LRUCache_delete(LRU_cache);
-    // HashTable_clean(hash_table);
+void add_in_cache(Transposition* trans){
+    // HashTable_Add(hash_table, trans);
+    // LRUCache_add(LRU_cache, (void*)trans);
+    // MRUCache_add(MRU_cache, (void*)trans);
+    LFUCache_add(LFU_cache, trans);
+}
+
+Transposition* find_in_cache(Transposition* trans){
+    // Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
+    // Transposition* tmp = (Transposition*)LRUCache_Find(LRU_cache, (void*)trans);
+    // Transposition* tmp = (Transposition*)MRUCache_Find(MRU_cache, (void*)trans);
+    Transposition* tmp = (Transposition*)LFUCache_Find(LFU_cache, (void*)trans);
+
+    return tmp;
+}
+
+void init_cache(void){
+    // hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    // LRU_cache = LRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    // MRU_cache = MRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    LFU_cache = LFUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+}
+
+void destroy_cache(void){
     // HashTable_delete(hash_table);
+    // LRUCache_delete(LRU_cache);
+    // MRUCache_delete(MRU_cache);
+    LFUCache_delete(LFU_cache);
 }
