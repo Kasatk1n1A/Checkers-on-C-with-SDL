@@ -2,7 +2,6 @@
 #define LRU_CACHE_H
 
 #include <stdbool.h>
-#include <time.h>
 #include <stdint.h>
 #include "list.h"
 

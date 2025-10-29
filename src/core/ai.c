@@ -4,11 +4,13 @@
 #include "LRU_cache.h"
 #include "MRU_cache.h"
 #include "LFU_cache.h"
+#include "SLRU_cache.h"
 
 static struct HashTable* hash_table;
 static struct LRUCache* LRU_cache;
 static struct MRUCache* MRU_cache;
 static struct LFUCache* LFU_cache;
+static struct SLRUCache* SLRU_cache;
 
 static void add_in_cache(Transposition* trans);
 static Transposition* find_in_cache(Transposition* trans);
@@ -569,14 +571,16 @@ void add_in_cache(Transposition* trans){
     // HashTable_Add(hash_table, trans);
     // LRUCache_add(LRU_cache, (void*)trans);
     // MRUCache_add(MRU_cache, (void*)trans);
-    LFUCache_add(LFU_cache, trans);
+    // LFUCache_add(LFU_cache, (void*)trans);
+    SLRUCache_add(SLRU_cache, (void*)trans);
 }
 
 Transposition* find_in_cache(Transposition* trans){
     // Transposition* tmp = (Transposition*)HashTable_Find(hash_table, trans);
     // Transposition* tmp = (Transposition*)LRUCache_Find(LRU_cache, (void*)trans);
     // Transposition* tmp = (Transposition*)MRUCache_Find(MRU_cache, (void*)trans);
-    Transposition* tmp = (Transposition*)LFUCache_Find(LFU_cache, (void*)trans);
+    // Transposition* tmp = (Transposition*)LFUCache_Find(LFU_cache, (void*)trans);
+    Transposition* tmp = (Transposition*)SLRUCache_Find(SLRU_cache, (void*)trans);
 
     return tmp;
 }
@@ -585,12 +589,14 @@ void init_cache(void){
     // hash_table = HashTable_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
     // LRU_cache = LRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
     // MRU_cache = MRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
-    LFU_cache = LFUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    // LFU_cache = LFUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
+    SLRU_cache = SLRUCache_create(Transposition_Compare, Transposition_hash, _Transposition_Delete_);
 }
 
 void destroy_cache(void){
     // HashTable_delete(hash_table);
     // LRUCache_delete(LRU_cache);
     // MRUCache_delete(MRU_cache);
-    LFUCache_delete(LFU_cache);
+    // LFUCache_delete(LFU_cache);
+    SLRUCache_delete(SLRU_cache);
 }
