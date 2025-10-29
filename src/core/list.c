@@ -59,9 +59,8 @@ void list_push_back(list* lst, void* value) {
     new_elem->data = value;
     new_elem->prev = lst->tail;
     new_elem->next = NULL;
+    
     lst->tail = new_elem;
-    
-    
     if (!lst->head){
         lst->head = new_elem;
     }
