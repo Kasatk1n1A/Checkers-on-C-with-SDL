@@ -525,7 +525,7 @@ Move* find_best_move(CH_Type** board, Player player, int maxDepth)
 // Основная функция для выполнения хода ботом
 void bot_make_move(CH_Type** board, int difficult, Player player)
 {
-    init_cache();
+    // init_cache();
 
     // Установка глубины поиска в зависимости от сложности
     int maxDepth = difficult;
@@ -562,7 +562,7 @@ void bot_make_move(CH_Type** board, int difficult, Player player)
     
     free_move(bestMove);
 
-    destroy_cache();
+    // destroy_cache();
 }
 
 void add_in_cache(Transposition* trans){

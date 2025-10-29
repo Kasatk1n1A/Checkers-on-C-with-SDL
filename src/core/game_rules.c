@@ -34,6 +34,8 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
     info.difficult = difficult;
     info.player = color;
 
+    init_cache();
+
     renderBoardFrame(window, CheckersBoard);
     // основной цикл игры
     while (true)
@@ -102,6 +104,7 @@ int checkers(Window* window, CH_Type** board, int difficult, double Time, Player
         info.player = info.player == WHITE ? RED : WHITE;
     }
 
+    destroy_cache();
     showMainMenu(window);
     return 0;
 }
